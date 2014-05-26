@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html ng-app="GeolinkClient">
+
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+    <title>Geolink</title>
+
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <!-- build:css(.tmp) styles/main.css -->
+	
+    <!-- bower:css -->
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="bower_components/jassa-ui-angular/jassa-ui-angular.css" />
+    <link rel="stylesheet" href="bower_components/jassa-ui-angular-openlayers/jassa-ui-angular-openlayers.css" />
+    <!-- endbower -->
+
+    <link rel="stylesheet" href="../../../target/release/repo/jassa-ui-angular.css" />
+
+    <!-- endbuild -->
+
+
+    <!-- build:js scripts/scripts.js -->
+	
+    <script src="bower_components/jscache/cache.js"></script>
+
+    <!-- bower:js -->
+    <script src="bower_components/jquery/jquery.js"></script>
+    <script src="bower_components/underscore/underscore.js"></script>
+    <script src="bower_components/jassa/jassa.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="bower_components/ng-grid-bower/ng-grid.js"></script>
+    <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+    <script src="bower_components/jquery-ui/ui/jquery-ui.js"></script>
+    <script src="bower_components/jassa-ui-angular/jassa-ui-angular-tpls.js"></script>
+    <script src="bower_components/jassa-ui-angular-openlayers/jassa-ui-angular-openlayers-tpls.js"></script>
+    <!-- endbower -->
+
+    <script src="scripts/lib/angular-ui/0.10.0/ui-bootstrap-tpls-0.10.0.js"></script>
+    <script src="bower_components/underscore.string/lib/underscore.string.js"></script>
+
+    <script src="bower_components/openlayers/lib/OpenLayers.js"></script>
+
+    <!-- endbuild -->
+
+
+	<script type="text/javascript">
+    _.mixin(_.str.exports());
+
+	var rdf = Jassa.rdf;
+	var sparql = Jassa.sparql;
+    var service = Jassa.service;
+	var sponate = Jassa.sponate;
+    var facete = Jassa.facete;
+	var geo = Jassa.geo;
+
+    var myModule = angular.module('GeolinkClient', ['ui.bootstrap', 'ui.jassa.openlayers']);
+
+    myModule.controller('AppCtrl', ['$scope', function($scope) {
+
+
+        // TODO This should go into the geo-module of the jassa library, so devs don't have to worry about that
+        // <hack>
+        var vs = rdf.NodeFactory.createVar('s');
+        var vw = rdf.NodeFactory.createVar('w');
+        var geoConcept = new facete.Concept(sparql.ElementString.create('?s <http://www.w3.org/2003/01/geo/wgs84_pos#geometry> ?w'), vs);
+ 
+        var mapParser = new sponate.MapParser();
+        
+        var geoMap = mapParser.parseMap({
+            name: 'virtGeoMap',
+            template: [{
+                id: geoConcept.getVar(),
+                wkt: vw
+            }],
+            from: geoConcept.getElement()
+        });
+        
+        var geoMapFactory = new sponate.GeoMapFactory(
+            geoMap,
+            new geo.BBoxExprFactoryWkt(vw, 'bif:st_intersects', 'bif:st_geomFromText')
+        );
+        // </hack>
+
+        // NOTE Uncomment the following line to use data fetching based on the wgs84 vocabulary
+        //geoMapFactory = geo.GeoMapFactoryUtils.wgs84MapFactory;
+
+                
+        // This relative path to a sparql endpoint points to the one provided by the geolink-servlet
+        // TODO This will break right now, because Jena's query parser needs to have the (virtuoso-specific) bif prefix registered
+        //var sparqlService = new service.SparqlServiceHttp('api/sparql', ['http://dbpedia.org']);
+
+        var sparqlService = new service.SparqlServiceHttp('http://dbpedia.org/sparql', ['http://dbpedia.org']);
+        
+		sparqlService = new service.SparqlServiceCache(sparqlService);
+		sparqlService = new service.SparqlServicePaginate(sparqlService, 1000);
+
+        $scope.dataSources = [{
+			sparqlService: sparqlService,
+			mapFactory: geoMapFactory,
+			conceptFactory: new facete.ConceptFactoryConst(facete.ConceptUtils.createSubjectConcept(rdf.NodeFactory.createVar('s'))),
+		    quadTreeConfig: {
+				maxItemsPerTileCount: 2500,
+				maxGlobalItemCount: 100
+			}
+		}];
+        
+        $scope.selectGeom = function(data) {
+            alert(JSON.stringify(data));  
+        };
+        
+		$scope.mapConfig = {
+			center: { lon: 50, lat: 50 },
+			zoom: 8
+		};
+
+		$scope.setCenter = function() {
+			$scope.mapConfig.center = { lon: 20, lat: 20 };
+			$scope.mapConfig.zoom = 4;
+		};
+
+        $scope.$watch('mapConfig', function(v) {
+            console.log('Config changed: ' + JSON.stringify(v));
+        }, true);
+
+    }]);
+	</script>
+
+</head>
+
+<body ng-controller="AppCtrl">
+   <div jassa-map-ol="map" style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%" config="mapConfig" data-sources="dataSources" select="selectGeom(data)"></div>
+
+
+  <button ng-click="setCenter()" style="position: absolute; left: 10px; top: 10px;">Set center</button>
+</body>
+
+</html>
+

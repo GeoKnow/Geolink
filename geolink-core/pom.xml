@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>geolink-core</artifactId>
+	<packaging>jar</packaging>
+
+	<name>GeoLink - Core</name>
+
+	<parent>
+		<groupId>org.aksw.geolink</groupId>
+		<artifactId>geolink-parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<dependencies>
+        <dependency>
+            <groupId>org.aksw.jena-sparql-api</groupId>
+            <artifactId>jena-sparql-api-core</artifactId>
+        </dependency>
+	
+		<dependency>
+			<groupId>org.aksw.jena-sparql-api</groupId>
+			<artifactId>jena-sparql-api-concepts</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>de.uni_leipzig.simba.limes</groupId>
+			<artifactId>limes-core</artifactId>
+		</dependency>
+
+	</dependencies>
+</project>

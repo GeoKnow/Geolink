@@ -1,0 +1,8 @@
+{
+  "name": "geolink",
+  "version": "0.0.1",
+  "dependencies": {
+    "jassa-ui-angular": "0.0.3-SNAPSHOT",
+    "jassa-ui-angular-openlayers": "0.0.3-SNAPSHOT"
+  }
+}

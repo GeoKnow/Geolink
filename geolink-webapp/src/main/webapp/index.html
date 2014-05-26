@@ -56,37 +56,12 @@
     var facete = Jassa.facete;
 	var geo = Jassa.geo;
 
-    var myModule = angular.module('GeolinkClient', ['ui.bootstrap', 'ui.jassa.openlayers']);
+    angular.module('GeolinkClient', ['ui.bootstrap', 'ui.jassa.openlayers'])
 
-    myModule.controller('AppCtrl', ['$scope', function($scope) {
+    .controller('AppCtrl', ['$scope', function($scope) {
 
 
-        // TODO This should go into the geo-module of the jassa library, so devs don't have to worry about that
-        // <hack>
-        var vs = rdf.NodeFactory.createVar('s');
-        var vw = rdf.NodeFactory.createVar('w');
-        var geoConcept = new facete.Concept(sparql.ElementString.create('?s <http://www.w3.org/2003/01/geo/wgs84_pos#geometry> ?w'), vs);
- 
-        var mapParser = new sponate.MapParser();
-        
-        var geoMap = mapParser.parseMap({
-            name: 'virtGeoMap',
-            template: [{
-                id: geoConcept.getVar(),
-                wkt: vw
-            }],
-            from: geoConcept.getElement()
-        });
-        
-        var geoMapFactory = new sponate.GeoMapFactory(
-            geoMap,
-            new geo.BBoxExprFactoryWkt(vw, 'bif:st_intersects', 'bif:st_geomFromText')
-        );
-        // </hack>
-
-        // NOTE Uncomment the following line to use data fetching based on the wgs84 vocabulary
-        //geoMapFactory = geo.GeoMapFactoryUtils.wgs84MapFactory;
-
+        var geoMapFactory = geo.GeoMapFactoryUtils.createWktMapFactory('http://www.w3.org/2003/01/geo/wgs84_pos#geometry', 'bif:st_intersects', 'bif:st_geomFromText');
                 
         // This relative path to a sparql endpoint points to the one provided by the geolink-servlet
         // TODO This will break right now, because Jena's query parser needs to have the (virtuoso-specific) bif prefix registered

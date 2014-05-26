@@ -3,6 +3,8 @@ Geolink-SWP
 
 UI for data driven interlinking based on Limes and Jassa
 
+* Don't forget to run `mvn install` in order to build the frontend!
+
 Import the project into the IDE of your choice (using maven import)
 Run the main class org.aksw.geolink.web.main.MainGeolinkServer as a Java application.
 This will start jetty server running the app on port 7532

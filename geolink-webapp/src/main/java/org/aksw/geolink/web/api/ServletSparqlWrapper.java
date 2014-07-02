@@ -5,6 +5,7 @@ import java.io.InputStream;
 import javax.annotation.Resource;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -36,6 +37,9 @@ public class ServletSparqlWrapper
 	
 	@Override
 	public QueryExecution createQueryExecution(Query query) {
+	    HttpSession session = req.getSession();
+	    //session.setAttribute(arg0, arg1);
+	    
 		QueryExecution result = qef.createQueryExecution(query);
 		return result;
 	}

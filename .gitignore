@@ -15,4 +15,5 @@ node_modules
 bower_components
 deptree.txt
 dist
+cache
 

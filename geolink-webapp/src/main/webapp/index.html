@@ -12,6 +12,7 @@
 	
     <!-- bower:css -->
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="bower_components/ng-grid/ng-grid.css" />
     <link rel="stylesheet" href="bower_components/jassa-ui-angular/jassa-ui-angular.css" />
     <link rel="stylesheet" href="bower_components/jassa-ui-angular-openlayers/jassa-ui-angular-openlayers.css" />
     <!-- endbower -->
@@ -31,7 +32,7 @@
     <script src="bower_components/jassa/jassa.js"></script>
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
-    <script src="bower_components/ng-grid-bower/ng-grid.js"></script>
+    <script src="bower_components/ng-grid/build/ng-grid.js"></script>
     <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
     <script src="bower_components/jquery-ui/ui/jquery-ui.js"></script>
     <script src="bower_components/jassa-ui-angular/jassa-ui-angular-tpls.js"></script>
@@ -49,17 +50,70 @@
 	<script type="text/javascript">
     _.mixin(_.str.exports());
 
-	var rdf = Jassa.rdf;
-	var sparql = Jassa.sparql;
-    var service = Jassa.service;
-	var sponate = Jassa.sponate;
-    var facete = Jassa.facete;
-	var geo = Jassa.geo;
+	var rdf = jassa.rdf;
+	var sparql = jassa.sparql;
+    var service = jassa.service;
+	var sponate = jassa.sponate;
+    var facete = jassa.facete;
+	var geo = jassa.geo;
 
+	var vocab = jassa.vocab;
+	
+	
     angular.module('GeolinkClient', ['ui.bootstrap', 'ui.jassa.openlayers'])
 
     .controller('AppCtrl', ['$scope', function($scope) {
 
+        var prefixes = {
+            rdfs: 'http://www.w3.org/2000/01/rdf-schema#'
+        };
+
+        
+        var linkSpec = {
+            prefixes: prefixes,
+            sourceInfo: {
+                id: 'DBpedia',
+                type: 'sparql',
+                //endpoint: 'http://dbpedia.org/sparql',
+                endpoint: 'http://lod.openlinksw.com/sparql',
+                graph: 'http://dbpedia.org',
+                prefixes: prefixes,
+                restrictions: ['?s a <http://dbpedia.org/ontology/Airport>'],
+                'var': '?s',
+                properties: ['rdfs:label']
+            },
+            targetInfo: {
+                id: 'LinkedGeoData',
+                type: 'sparql',                
+                endpoint: 'http://linkedgeodata.org/sparql',
+                graph: 'http://linkedgeodata.org',
+                prefixes: prefixes,
+                restrictions: ['?s a <http://linkedgeodata.org/ontology/Airport>'],
+                'var': '?s',
+                properties: ['rdfs:label']
+            },
+            metricExpression: 'trigrams(x.rdfs:label, y.rdfs:label)',
+            acceptanceThreshold: 0.9
+        };
+        
+        var promise = jQuery.ajax({
+            type: 'POST',
+            url: 'api/linking/learnFromSpec',
+            dataType: 'json',
+            crossDomain: true,
+            traditional: true,
+            data: {
+                spec: JSON.stringify(linkSpec)
+            }
+        });
+        
+        
+        promise.done(function(arg) {
+            alert(JSON.stringify(arg));
+        }).fail(function() {
+           alert('fail'); 
+        });
+        
 
         var geoMapFactory = geo.GeoMapFactoryUtils.createWktMapFactory('http://www.w3.org/2003/01/geo/wgs84_pos#geometry', 'bif:st_intersects', 'bif:st_geomFromText');
                 
@@ -67,20 +121,44 @@
         // TODO This will break right now, because Jena's query parser needs to have the (virtuoso-specific) bif prefix registered
         //var sparqlService = new service.SparqlServiceHttp('api/sparql', ['http://dbpedia.org']);
 
-        var sparqlService = new service.SparqlServiceHttp('http://dbpedia.org/sparql', ['http://dbpedia.org']);
-        
-		sparqlService = new service.SparqlServiceCache(sparqlService);
-		sparqlService = new service.SparqlServicePaginate(sparqlService, 1000);
+        var sparqlServiceA = new service.SparqlServiceHttp('http://dbpedia.org/sparql', ['http://dbpedia.org']);        
+		sparqlServiceA = new service.SparqlServiceCache(sparqlServiceA);
+		sparqlServiceA = new service.SparqlServicePaginate(sparqlServiceA, 1000);
 
+        var sparqlServiceB = new service.SparqlServiceHttp('http://linkedgeodata.org/sparql', ['http://linkedgeodata.org']);        
+        sparqlServiceB = new service.SparqlServiceCache(sparqlServiceB);
+        sparqlServiceB = new service.SparqlServicePaginate(sparqlServiceB, 1000);
+
+        
+        var vs = rdf.NodeFactory.createVar('s');
+        var typeA = rdf.NodeFactory.createUri('http://dbpedia.org/ontology/Castle');
+        var conceptA = new facete.Concept(new sparql.ElementTriplesBlock([new rdf.Triple(vs, vocab.rdf.type, typeA)]), vs);      
+        
+        var typeB = rdf.NodeFactory.createUri('http://linkedgeodata.org/ontology/Castle');
+        var conceptB = new facete.Concept(new sparql.ElementTriplesBlock([new rdf.Triple(vs, vocab.rdf.type, typeB)]), vs);      
+        
+
+        
         $scope.dataSources = [{
-			sparqlService: sparqlService,
+			sparqlService: sparqlServiceA,
 			mapFactory: geoMapFactory,
-			conceptFactory: new facete.ConceptFactoryConst(facete.ConceptUtils.createSubjectConcept(rdf.NodeFactory.createVar('s'))),
+			conceptFactory: new facete.ConceptFactoryConst(conceptA),
 		    quadTreeConfig: {
 				maxItemsPerTileCount: 2500,
-				maxGlobalItemCount: 100
+				maxGlobalItemCount: 2500
+			},
+			style: function() {
+			    //
 			}
-		}];
+		} /*,{
+            sparqlService: sparqlServiceB,
+            mapFactory: geo.GeoMapFactoryUtils.wgs84MapFactory,
+            conceptFactory: new facete.ConceptFactoryConst(conceptB),
+            quadTreeConfig: {
+                maxItemsPerTileCount: 2500,
+                maxGlobalItemCount: 100
+            }
+        }*/];
         
         $scope.selectGeom = function(data) {
             alert(JSON.stringify(data));  

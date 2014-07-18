@@ -42,9 +42,9 @@
 
 	<properties>
 		<!-- Dependency Versions -->
-		<jena-sparql-api.version>2.11.2-54</jena-sparql-api.version>
+		<jena-sparql-api.version>2.11.2-55-SNAPSHOT</jena-sparql-api.version>
 		<jassa.version>0.0.4</jassa.version>
-		<limes.version>0.6.3</limes.version>
+		<limes.version>0.6.4-SNAPSHOT</limes.version>
 
 		<spring.version>3.2.8.RELEASE</spring.version>
 		<spring.batch.version>2.2.5.RELEASE</spring.batch.version>
@@ -173,6 +173,12 @@
 
 			<dependency>
 				<groupId>org.aksw.jena-sparql-api</groupId>
+				<artifactId>jena-sparql-api-geo</artifactId>
+				<version>${jena-sparql-api.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.aksw.jena-sparql-api</groupId>
 				<artifactId>jena-sparql-api-servlets</artifactId>
 				<version>${jena-sparql-api.version}</version>
 			</dependency>
@@ -252,10 +258,28 @@
 			<dependency>
 				<groupId>com.google.code.gson</groupId>
 				<artifactId>gson</artifactId>
-				<version>2.2.2</version>
+				<version>2.2.4</version>
 				<scope>compile</scope>
 			</dependency>
 
+
+			<dependency>
+				<groupId>com.openlink.virtuoso</groupId>
+				<artifactId>virtjena</artifactId>
+				<version>7.1.0</version>
+			</dependency>
+
+<!-- 			<dependency> -->
+<!-- 				<groupId>com.openlink.virtuoso</groupId> -->
+<!-- 				<artifactId>virtjdbc4-1</artifactId> -->
+<!-- 				<version>7.1.0</version> -->
+<!-- 			</dependency> -->
+
+            <dependency>
+                <groupId>com.openlink.virtuoso</groupId>
+                <artifactId>virtjdbc3</artifactId>
+                <version>7.1.0</version>
+            </dependency>
 
 			<!-- Testing -->
 			<dependency>

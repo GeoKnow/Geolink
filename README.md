@@ -10,6 +10,28 @@ Run the main class org.aksw.geolink.web.main.MainGeolinkServer as a Java applica
 This will start jetty server running the app on port 7532
 
 
+For the latest version of nodejs, run:
+```
+sudo apt-get install python-software-properties
+sudo apt-add-repository ppa:chris-lea/node.js
+sudo apt-get update
+```
+
+To set up the build tools, run
+```bash
+sudo apt-get install maven
+sudo apt-get install nodejs
+sudo npm install -g bower
+sudo npm install -g grunt-cli
+```
+
+With your user account run:
+
+```bash
+mvn clean install
+```
+
+
 Visit:
 
 * [http://localhost:7532](http://localhost:7532) to see a [jassa-ui map](https://github.com/GeoKnow/Jassa-UI-Angular) on DBpedia.

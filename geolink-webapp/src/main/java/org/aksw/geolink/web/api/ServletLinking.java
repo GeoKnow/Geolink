@@ -32,8 +32,6 @@ import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.util.FileManager;
 import com.hp.hpl.jena.vocabulary.OWL;
-import com.hp.hpl.jena.vocabulary.RDF;
-import com.hp.hpl.jena.vocabulary.RDFS;
 import com.vividsolutions.jts.geom.Geometry;
 
 import de.uni_leipzig.simba.data.Mapping;
@@ -58,18 +56,21 @@ public class ServletLinking {
     @Context
     private HttpServletRequest req;
 
-    public PropertyMapping getPropertyMapping() {
+    public static PropertyMapping getPropertyMapping(ConfigReader config) {
         PropertyMapping result = new PropertyMapping();
-        result.addStringPropertyMatch(RDFS.label.getURI(), RDFS.label.getURI());
-        result.addStringPropertyMatch(RDF.type.getURI(), RDF.type.getURI());
-//req.getSession(true);
+        for (String sourceProperty : config.getSourceInfo().properties) {
+            for (String targetProperty : config.getTargetInfo().properties) {
+                result.addStringPropertyMatch(sourceProperty, targetProperty);
+            }
+        }
+
         return result;
     }
 
     public UnsupervisedLinkSpecificationLearner createAutoLearner(
             ConfigReader config) throws InvalidConfigurationException
     {
-        PropertyMapping propertyMapping = getPropertyMapping();
+        PropertyMapping propertyMapping = getPropertyMapping(config);
 
         UnSupervisedLearnerParameters params = new UnSupervisedLearnerParameters(config, propertyMapping);
         params.setGenerations(10);
@@ -86,7 +87,7 @@ public class ServletLinking {
     public LinkSpecificationLearner createFeedbackLearner(ConfigReader config)
             throws InvalidConfigurationException
     {
-        PropertyMapping propertyMapping = getPropertyMapping();
+        PropertyMapping propertyMapping = getPropertyMapping(config);
 
         LinkSpecificationLearner learner = new GeneticActiveLearner();// LinkSpecificationLearnerFactory.getLinkSpecificationLearner(LinkSpecificationLearnerFactory.ACTIVE_LEARNER);
         // params for the learner
@@ -115,91 +116,106 @@ public class ServletLinking {
             throws Exception {
 
         ConfigReader config = gson.fromJson(spec, ConfigReader.class);
+        System.out.println(config);
+        System.out.println("---");
+//
+//        config = new ConfigReader();
+//        config.validateAndRead("/home/raven/Projects/Eclipse/LIMES/Examples/Paper/largescale/lgd-dbpedia.limes.xml");
+//        System.out.println(config);
+//        System.out.println("---");
         config.afterPropertiesSet();
+        System.out.println(config);
+//        System.out.println("---");
 
 
+//        Cache cache = new MemoryCache();
+//        SparqlQueryModule sqm = new SparqlQueryModule(config.getSourceInfo());
+//        sqm.fillCache(cache);
+//        sqm.
 
         {
             Model model = FileManager.get().loadModel("/home/raven/Projects/Eclipse/24-7-platform/link-specifications/dbpedia-linkedgeodata-airport/positive.nt");
-            
+
             Graph graph = model.getGraph();
             Set<Triple> triples = graph.find(null, null, null).toSet();
-            
+
             triples = TripleUtils.swap(triples);
-    
+
             Mapping mapping = toMapping(triples);
             Geomizer geomizer = GeomizerFactoryLimes.createGeomizer(config);
-            
+
             writeMapping(mapping, geomizer);
-            if(true) {
-                return "{}";
-            }
+//            if(true) {
+//                return "{}";
+//            }
         }
 
-        
+
         UnsupervisedLinkSpecificationLearner learner = createAutoLearner(config);
         Mapping mapping = learner.learn();
+
+        System.out.println("Mapping SIZE: " + mapping.size());
 
         Metric metric = learner.terminate();
         config.metricExpression = metric.getExpression();
         config.acceptanceThreshold = metric.getThreshold();
 
-        
+
 //        Geomizer geomizer = GeomizerFactoryLimes.createGeomizer(config);
 //        writeMapping(mapping, geomizer);
 
-        
+
         String result = gson.toJson(config);
         return result;
     }
 
     public static String createSparqlUpdateInsertData(Iterable<Triple> triples, String graphName) {
         String result = "Insert ";
-        
+
         if(graphName != null) {
             result += "Into <" + graphName + "> ";
         }
-        
-        
+
+
         result += "{\n";
-        
+
         for(Triple t : triples) {
             result += "  " + TripleUtils.toNTripleString(t) + "\n";
         }
-        
+
         result += "}";
-        
+
         return result;
     }
-    
+
     public static void writeMapping(Mapping mapping, Geomizer geomizer) {
-        
+
         Map<Triple, Double> tripleToScore = GeomizerFactoryLimes.mappingToTriples(mapping, OWL.sameAs.asNode());
-        
+
         Map<Triple, Geometry> geomized = geomizer.geomize(tripleToScore.keySet());
-        
+
         Set<Triple> triples = GeoMapSupplierUtils.geomizedToRdf(geomized);
-        
+
         triples = GeoMapSupplierUtils.convertOgcToVirt(triples);
-        
-        
+
+
         String url = "jdbc:virtuoso://localhost:1161";
         VirtGraph graph = new VirtGraph("http://geolink.aksw.org/", url, "dba", "dba");
-        
-        
+
+
         graph.clear ();
-        
+
 //        for(Triple t : triples) {
 //            System.out.println(TripleUtils.toNTripleString(t));
 //            graph.add(t);
 //        }
         //String query = "Insert Into <http://geolink.aksw.org/> { <http://example.org/link-79a05b7bbacde12596c96ebc46e24c8a> <http://www.opengis.net/ont/geosparql#asWKT> \"LINESTRING (92.0797 49.9733, 92.0794 49.9733)\"^^<http://www.openlinksw.com/schemas/virtrdf#Geometry> . }";
-        
+
         String queryString = createSparqlUpdateInsertData(triples, graph.getGraphName());
         VirtuosoUpdateRequest vur = VirtuosoUpdateFactory.create(queryString, graph);
         vur.exec();
         //GraphUtil.add(graph, triples.iterator());
-    
+
         graph.close();
     }
 
@@ -208,14 +224,14 @@ public class ServletLinking {
         for(Triple t : triples) {
             Node s = t.getSubject();
             Node o = t.getObject();
-            
-            if(s.isURI() && o.isURI()) {            
+
+            if(s.isURI() && o.isURI()) {
                 result.add(s.getURI(), o.getURI(), 1.0);
             }
         }
         return result;
     }
-    
+
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/learnFromMapping")
@@ -223,13 +239,13 @@ public class ServletLinking {
             @FormParam("mapping") String json) throws Exception
     {
         ConfigReader config = gson.fromJson(spec, ConfigReader.class);
-        
+
         Type mappingType = new TypeToken<Map<String, HashMap<String, Double>>>() {}.getType();
 
         Map<String, HashMap<String, Double>> map = gson.fromJson(json,
                 mappingType);
 
-        
+
         Mapping mapping = new Mapping();
         mapping.map.putAll(map);
 

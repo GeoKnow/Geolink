@@ -45,7 +45,7 @@ public class WebAppInitializer
 
 
         ServletRegistration.Dynamic datastoreServlet = servletContext.addServlet("api-servlet", new ServletContainer());
-        datastoreServlet.setInitParameter("com.sun.jersey.config.property.packages", "org.aksw.geolink.web.api");
+        datastoreServlet.setInitParameter("jersey.config.server.provider.packages", "org.aksw.geolink.web.api");
         datastoreServlet.addMapping("/api/*");
         datastoreServlet.setLoadOnStartup(1);
 

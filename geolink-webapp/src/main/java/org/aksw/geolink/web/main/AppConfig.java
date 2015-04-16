@@ -26,31 +26,31 @@ import de.uni_leipzig.simba.io.ConfigReader;
 @Configuration
 @ComponentScan({"org.aksw.geolink.web"})
 public class AppConfig {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(AppConfig.class);
 
 //    @javax.annotation.Resource
 //    private Environment env;
-    
+
     /*
      * Methods annotated with @Bean will be invoked by the Spring framework
      * and can be referenced in the servlets (or in other places of the app).
      * Spring will take care
      * of injecting the resources upon serving (HTTP) requests.
      */
-    
+
     @Bean
     public QueryExecutionFactory sparqlService() {
         QueryExecutionFactory result = new QueryExecutionFactoryHttp("http://dbpedia.org/sparql", "http://dbpedia.org");
         return result;
     }
-    
+
     /**
      * Google's Json serializer.
      * Note that it supports several configuration options (such as exclusion filters).
      * For this reason, Gson there is one global gson instance, rather having
      * each component instanciate its own version of it.
-     * 
+     *
      * @return
      */
     @Bean
@@ -59,10 +59,10 @@ public class AppConfig {
         classToFieldName.putAll(ConfigReader.class, Arrays.asList(new String[]{ "logger" }));
 
         ExclusionStrategy strategy = new ExclusionStrategyClassAndFields(classToFieldName);
-        
+
         GsonBuilder builder = new GsonBuilder();
         builder.addSerializationExclusionStrategy(strategy);
-        
+
         builder.disableInnerClassSerialization();
         builder.excludeFieldsWithModifiers(Modifier.STATIC, Modifier.TRANSIENT, Modifier.FINAL);
         builder.disableHtmlEscaping();
@@ -70,14 +70,14 @@ public class AppConfig {
         builder.serializeNulls();
 
         builder.registerTypeHierarchyAdapter(org.apache.log4j.Logger.class, new TypeAdapterNoop<Logger>());
-        
+
         //builder.registerTypeAdapter(Logger.class, new TypeAdapterNoop<Logger>());
         //builder.registerTypeHierarchyAdapter(KBInfo.class, new TypeAdapterNoop<KBInfo>());
         //builder.registerTypeHierarchyAdapter(ConfigReader.class, new TypeAdapterNoop<ConfigReader>());
 
         Gson result = builder.create();
-        
-        
+
+
 //        String json = "{\"sourceInfo\":{\"id\":\"DBpedia\",\"endpoint\":\"http://dbpedia.org/sparql\",\"graph\":\"http://dbpedia.org\",\"restrictions\":[\"?s a <http://dbpedia.org/ontology/Airport>\"],\"var\":\"s\",\"type\":\"sparql\"},\"targetInfo\":{\"id\":\"LinkedGeoData\",\"endpoint\":\"http://linkedgeodata.org/sparql\",\"graph\":\"http://linkedgeodata.org\",\"restrictions\":[\"?s a <http://linkedgeodata.org/ontology/Airport>\"],\"var\":\"s\",\"type\":\"sparql\"}}";
 //        System.out.println("sigh: " + json);
 //        ConfigReader foo = result.fromJson(json, ConfigReader.class);
@@ -85,5 +85,5 @@ public class AppConfig {
 
         return result;
     }
-    
+
 }

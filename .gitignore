@@ -17,3 +17,11 @@ deptree.txt
 dist
 cache
 
+# IDEA
+.idea/
+geolink-core/geolink-core.iml
+geolink-core/target/
+geolink-parent.iml
+geolink-webapp/geolink-webapp.iml
+geolink-webapp/target/
+

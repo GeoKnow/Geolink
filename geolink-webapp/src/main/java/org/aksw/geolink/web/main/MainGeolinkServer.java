@@ -55,7 +55,8 @@ public class MainGeolinkServer {
 		CommandLine commandLine = cliParser.parse(cliOptions, args);
 
 
-		Integer port = null; // TODO parse
+		Integer port =
+				null; // TODO parse
 		port = (port == null) ? 7532 : port;
 		
 		
@@ -87,11 +88,11 @@ public class MainGeolinkServer {
 		connector.setMaxIdleTime(1000 * 60 * 60);
 		connector.setSoLingerTime(-1);
 		connector.setPort(port);
-		server.setConnectors(new Connector[] { connector });
+		server.setConnectors(new Connector[]{connector});
 
 		final WebAppContext webAppContext = new WebAppContext();
 		//Context servletContext = webAppContext.getServletContext();
-		
+
 		webAppContext.addLifeCycleListener(new AbstractLifeCycleListener() {
 			@Override
 			public void lifeCycleStarting(LifeCycle arg0) {
@@ -107,7 +108,7 @@ public class MainGeolinkServer {
 		webAppContext.setServer(server);
 		webAppContext.setContextPath("/");
 
-        //context.setDescriptor(externalForm + "/WEB-INF/web.xml");
+        //webAppContext.setDescriptor(externalForm + "/WEB-INF/web.xml");
 		webAppContext.setWar(externalForm);
 
 		server.setHandler(webAppContext);

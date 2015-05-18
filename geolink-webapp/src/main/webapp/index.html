@@ -15,16 +15,16 @@
     <link rel="stylesheet" href="bower_components/jassa-ui-angular/jassa-ui-angular.css" />
     <!-- endbower -->
 
-    <link rel="stylesheet" href="../../../target/release/repo/jassa-ui-angular.css" />
+    <!--<link rel="stylesheet" href="../../../target/release/repo/jassa-ui-angular.css" />-->
 
     <!-- endbuild -->
 
-    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.js"></script>
 <!--     <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular-sanitize.js"></script> -->
 
     <!-- build:js scripts/scripts.js -->
 
-    <script src="bower_components/jscache/cache.js"></script>
+    <!--<script src="bower_components/jscache/cache.js"></script> -->
 
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
@@ -200,7 +200,6 @@
             rdfs: 'http://www.w3.org/2000/01/rdf-schema#'
         };
 
-
         var linkSpec = {
             prefixes: prefixes,
             sourceInfo: {
@@ -225,10 +224,10 @@
             acceptanceThreshold: 0.9
         };
 
-        /*
+        console.log("post spec");
         var promise = jQuery.ajax({
             type: 'POST',
-            url: 'api/linking/learnFromSpec',
+            url: 'api/linking/executeFromSpec',
             dataType: 'json',
             crossDomain: true,
             traditional: true,
@@ -237,33 +236,37 @@
             }
         });
 
-
-        promise.done(function(arg) {
-            alert(JSON.stringify(arg));
-        }).fail(function() {
-           alert('fail');
-        });
-        */
-
-
         var geoMapFactoryVirt = jassa.geo.GeoMapFactoryUtils.createWktMapFactory('http://www.w3.org/2003/01/geo/wgs84_pos#geometry', 'bif:st_intersects', 'bif:st_geomFromText');
         var geoMapFactoryAsWktVirt = jassa.geo.GeoMapFactoryUtils.createWktMapFactory('http://www.opengis.net/ont/geosparql#asWKT', 'bif:st_intersects', 'bif:st_geomFromText');
         var geoMapFactoryWgs =  jassa.geo.GeoMapFactoryUtils.wgs84MapFactory;
 
         var createSparqlService = function(url, graphUris) {
             var result = jassa.service.SparqlServiceBuilder
-                .http(url, graphUris, {type: 'POST'}).cache().virtFix().paginate(1000).create();
+                    .http(url, graphUris, {type: 'POST'}).cache().virtFix().paginate(1000).create();
 
             return result;
         };
 
         var sparqlServiceA = createSparqlService('http://dbpedia.org/sparql', ['http://dbpedia.org']);
         var sparqlServiceB = createSparqlService('http://linkedgeodata.org/sparql', ['http://linkedgeodata.org']);
-        var sparqlServiceC = createSparqlService('http://localhost/data/geolink/sparql', ['http://geolink.aksw.org/']);
+        var sparqlServiceC;
 
         var conceptA = jassa.sparql.ConceptUtils.createTypeConcept('http://dbpedia.org/ontology/Airport');
         var conceptB = jassa.sparql.ConceptUtils.createTypeConcept('http://linkedgeodata.org/ontology/Airport');
         var conceptC = jassa.sparql.ConceptUtils.createTypeConcept('http://www.linklion.org/ontology#Link');
+
+        promise.done(function(arg) {
+            alert(JSON.stringify(arg));
+            console.log(JSON.stringify(arg));
+            var geomizeddata = JSON.parse(JSON.stringify(arg));
+            sparqlServiceC = createSparqlService(geomizeddata.sparql, geomizeddata.graph);
+            createMapDataSource(sparqlServiceC, geoMapFactoryAsWktVirt, conceptC, '#663300');
+        }).fail(function() {
+           alert('fail');
+        });
+
+
+
 
         var createMapDataSource = function(sparqlService, geoMapFactory, concept, fillColor) {
 
@@ -287,13 +290,12 @@
 
         $scope.dataSources = [
             createMapDataSource(sparqlServiceA, geoMapFactoryVirt, conceptA, '#CC0020'),
-            //createMapDataSource(sparqlServiceB, geoMapFactoryWgs, conceptB, '#2000CC')
-            //createMapDataSource(sparqlServiceC, geoMapFactoryAsWktVirt, conceptC, '#663300'),
+            createMapDataSource(sparqlServiceB, geoMapFactoryWgs, conceptB, '#2000CC')
         ];
 
         $scope.selectGeom = function(data) {
             alert(JSON.stringify(data));
-            //console.log('Status', data);
+            console.log('Status', data);
         };
 
         $scope.mapConfig = {
@@ -339,7 +341,7 @@
                 }, {
                     predicate: {
                         id: 'http://skos/label',
-                        displayLabel: 'skos-label',
+                        displayLabel: 'skos-label'
                     },
                     value: {
                         id: 'http://foo/Anne',
@@ -355,9 +357,9 @@
                     displayLabel: 'TypeSubGroup',
                     children: [{
                         id: 'http://subsub',
-                        displayLabel: 'TypeSubSubGroup',
+                        displayLabel: 'TypeSubSubGroup'
                     }
-                    ],
+                    ]
 
                 }
                 ],
@@ -374,7 +376,7 @@
                 }, {
                     predicate: {
                         id: 'http://skos/label',
-                        displayLabel: 'skos-label',
+                        displayLabel: 'skos-label'
                     },
                     value: {
                         id: 'http://foo/Anne',

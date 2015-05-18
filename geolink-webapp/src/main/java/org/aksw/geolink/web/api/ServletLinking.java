@@ -56,10 +56,11 @@ public class ServletLinking {
     @Autowired
     private Gson gson;
 
+    @Resource(name="targetgraph")
+    private VirtGraph targetgraph;
 
-    @Resource(name="foo")
-    String foo;
-
+    @Resource(name="virtuosoclientobject")
+    private String virtuosoclientobject;
 
 /*
     @Autowired
@@ -124,47 +125,45 @@ public class ServletLinking {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/learnFromSpec")
+    @Path("/executeFromSpec")
     public String learnLinkSpec(@FormParam("spec") String spec)
             throws Exception {
 
-
+        // learn from spec ist vollautomatisch
         ConfigReader config = gson.fromJson(spec, ConfigReader.class);
-        System.out.println(config);
-        System.out.println("---");
-//
-//        config = new ConfigReader();
-//        config.validateAndRead("/home/raven/Projects/Eclipse/LIMES/Examples/Paper/largescale/lgd-dbpedia.limes.xml");
-//        System.out.println(config);
-//        System.out.println("---");
+        //System.out.println(config);
+        //System.out.println("---");
+
+        //config = new ConfigReader();
+        //config.validateAndRead("/home/raven/Projects/Eclipse/LIMES/Examples/Paper/largescale/lgd-dbpedia.limes.xml");
+        //System.out.println(config);
+        //System.out.println("---");
         config.afterPropertiesSet();
-        System.out.println(config);
-//        System.out.println("---");
+        //System.out.println(config);
+        //System.out.println("---");
 
 
-//        Cache cache = new MemoryCache();
-//        SparqlQueryModule sqm = new SparqlQueryModule(config.getSourceInfo());
-//        sqm.fillCache(cache);
-//        sqm.
-
-        {
-            Model model = FileManager.get().loadModel("/home/raven/Projects/Eclipse/24-7-platform/link-specifications/dbpedia-linkedgeodata-airport/positive.nt");
-
-            Graph graph = model.getGraph();
-            Set<Triple> triples = graph.find(null, null, null).toSet();
-
-            triples = TripleUtils.swap(triples);
-
-            Mapping mapping = toMapping(triples);
-            Geomizer geomizer = GeomizerFactoryLimes.createGeomizer(config);
-
-            writeMapping(mapping, geomizer);
-//            if(true) {
-//                return "{}";
-//            }
-        }
+        //Cache cache = new MemoryCache();
+        //SparqlQueryModule sqm = new SparqlQueryModule(config.getSourceInfo());
+        //sqm.fillCache(cache);
+        //sqm.
 
 
+        // TODO get nt from spec
+        Model model = FileManager.get().loadModel("/home/drake/projekte/uni/positive.nt");
+
+        Graph graph = model.getGraph();
+        Set<Triple> triples = graph.find(null, null, null).toSet();
+
+        triples = TripleUtils.swap(triples);
+
+        Mapping mapping = toMapping(triples);
+        Geomizer geomizer = GeomizerFactoryLimes.createGeomizer(config);
+
+        writeMapping(mapping, geomizer);
+
+
+        /* //das ist der learner muss in eigene Methode
         UnsupervisedLinkSpecificationLearner learner = createAutoLearner(config);
         Mapping mapping = learner.learn();
 
@@ -173,14 +172,14 @@ public class ServletLinking {
         Metric metric = learner.terminate();
         config.metricExpression = metric.getExpression();
         config.acceptanceThreshold = metric.getThreshold();
+        */
 
 
 //        Geomizer geomizer = GeomizerFactoryLimes.createGeomizer(config);
 //        writeMapping(mapping, geomizer);
 
-
-        String result = gson.toJson(config);
-        return result;
+        //String result = gson.toJson(config);
+        return virtuosoclientobject;
     }
 
     public static String createSparqlUpdateInsertData(Iterable<Triple> triples, String graphName) {
@@ -202,7 +201,7 @@ public class ServletLinking {
         return result;
     }
 
-    public static void writeMapping(Mapping mapping, Geomizer geomizer) {
+    public void writeMapping(Mapping mapping, Geomizer geomizer) {
 
         Map<Triple, Double> tripleToScore = GeomizerFactoryLimes.mappingToTriples(mapping, OWL.sameAs.asNode());
 
@@ -213,24 +212,20 @@ public class ServletLinking {
         triples = GeoMapSupplierUtils.convertOgcToVirt(triples);
 
 
-        String url = "jdbc:virtuoso://localhost:1161";
-        VirtGraph graph = new VirtGraph("http://geolink.aksw.org/", url, "dba", "dba");
+        targetgraph.clear ();
 
-
-        graph.clear ();
-
-//        for(Triple t : triples) {
-//            System.out.println(TripleUtils.toNTripleString(t));
-//            graph.add(t);
-//        }
+        for(Triple t : triples) {
+            System.out.println(TripleUtils.toNTripleString(t));
+            targetgraph.add(t);
+        }
         //String query = "Insert Into <http://geolink.aksw.org/> { <http://example.org/link-79a05b7bbacde12596c96ebc46e24c8a> <http://www.opengis.net/ont/geosparql#asWKT> \"LINESTRING (92.0797 49.9733, 92.0794 49.9733)\"^^<http://www.openlinksw.com/schemas/virtrdf#Geometry> . }";
 
-        String queryString = createSparqlUpdateInsertData(triples, graph.getGraphName());
-        VirtuosoUpdateRequest vur = VirtuosoUpdateFactory.create(queryString, graph);
+        String queryString = createSparqlUpdateInsertData(triples, targetgraph.getGraphName());
+        VirtuosoUpdateRequest vur = VirtuosoUpdateFactory.create(queryString, targetgraph);
         vur.exec();
         //GraphUtil.add(graph, triples.iterator());
 
-        graph.close();
+        targetgraph.close();
     }
 
     public static Mapping toMapping(Iterable<Triple> triples) {
@@ -252,6 +247,14 @@ public class ServletLinking {
     public String learnFromMapping(@FormParam("spec") String spec,
             @FormParam("mapping") String json) throws Exception
     {
+        // user methode
+
+        // muss getrennt werden
+        // spec raus
+        // zusätzlich writeEvaluationData mit mapping
+        //  * default auf aktuellen user
+        //  * optional query auf bsp anderen user
+        // lernen hier zusätzlich
         ConfigReader config = gson.fromJson(spec, ConfigReader.class);
 
         Type mappingType = new TypeToken<Map<String, HashMap<String, Double>>>() {}.getType();
@@ -270,11 +273,12 @@ public class ServletLinking {
         return result;
     }
 
+    /*
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/delete")
     public String deleteSomethingGet(@QueryParam("id") Long id) {
-        System.out.println(foo);
+        System.out.println(virtuososerver);
         return "{}";
     }
 
@@ -284,4 +288,5 @@ public class ServletLinking {
     public String deleteSomething(@FormParam("id") Long id) {
         return "{}";
     }
+    */
 }

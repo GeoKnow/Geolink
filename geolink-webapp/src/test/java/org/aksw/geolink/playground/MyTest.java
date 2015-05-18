@@ -1,4 +1,4 @@
-package org.aksw.geolink.playground;
+package java.org.aksw.geolink.playground;
 
 import org.junit.Test;
 

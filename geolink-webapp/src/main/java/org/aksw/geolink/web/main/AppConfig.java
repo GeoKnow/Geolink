@@ -25,12 +25,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import de.uni_leipzig.simba.io.ConfigReader;
-
+import virtuoso.jena.driver.VirtGraph;
 
 
 @Configuration
 @ComponentScan({"org.aksw.geolink.web"})
-@PropertySource("classpath:test.properties")
+@PropertySource("classpath:virtuoso.properties")
 public class AppConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(AppConfig.class);
@@ -55,10 +55,61 @@ public class AppConfig {
     }
 
     @Bean
-    public String foo() {
-        String result = environment.getProperty("foo");
-        return result;
+    public VirtGraph targetgraph()  {
+        String virtuososerver = environment.getProperty("virtuoso_server_url");
+        String virtuosograph = environment.getProperty("virtuoso_graph_url");
+        String virtuosouser = environment.getProperty("virtuoso_user");
+        String virtuosopassword = environment.getProperty("virtuoso_password");
+
+        //System.out.println(virtuososerver);
+        //System.out.println(virtuosograph);
+        //System.out.println(virtuosouser);
+        //System.out.println(virtuosopassword);
+
+        VirtGraph graph = new VirtGraph(virtuosograph, virtuososerver, virtuosouser, virtuosopassword);
+        return graph;
     }
+
+    //@Bean
+    //public String virtuososerverurl() {
+    //    String result = environment.getProperty("virtuoso_server_url");
+    //    return result;
+    //}
+
+    @Bean
+    public String virtuosoclientobject() {
+        String virtuososparql = environment.getProperty("virtuoso_sparql_url");
+        String virtuosograph = environment.getProperty("virtuoso_graph_url");
+
+        //System.out.println(virtuososparql);
+
+        //TODO construct over GSON?
+        return "{\"graph\":\"" + virtuosograph + "\",\"sparql\":\"" + virtuososparql + "\"}";
+    }
+
+    //@Bean
+    //public String virtuosographurl() {
+    //    String result = environment.getProperty("virtuoso_graph_url");
+    //    return result;
+    //}
+
+    //@Bean
+    //public String virtuososparqlurl() {
+    //    String result = environment.getProperty("virtuoso_sparql_url");
+    //    return result;
+    //}
+
+    //@Bean
+    //public String virtuosouser() {
+    //    String result = environment.getProperty("virtuoso_user");
+    //    return result;
+    //}
+
+    //@Bean
+    //public String virtuosopassword() {
+    //    String result = environment.getProperty("virtuoso_password");
+    //    return result;
+    //}
 
     /**
      * Google's Json serializer.

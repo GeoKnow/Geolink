@@ -5,11 +5,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
@@ -52,6 +55,16 @@ public class ServletLinking {
 
     @Autowired
     private Gson gson;
+
+
+    @Resource(name="foo")
+    String foo;
+
+
+/*
+    @Autowired
+    VirtGraphFactory targetGraphFactory; // VirtGraph graph = targetGraphFactory.getGraph(REST-params);
+*/
 
     @Context
     private HttpServletRequest req;
@@ -114,6 +127,7 @@ public class ServletLinking {
     @Path("/learnFromSpec")
     public String learnLinkSpec(@FormParam("spec") String spec)
             throws Exception {
+
 
         ConfigReader config = gson.fromJson(spec, ConfigReader.class);
         System.out.println(config);
@@ -254,6 +268,14 @@ public class ServletLinking {
 
         String result = gson.toJson(next);
         return result;
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/delete")
+    public String deleteSomethingGet(@QueryParam("id") Long id) {
+        System.out.println(foo);
+        return "{}";
     }
 
     @POST

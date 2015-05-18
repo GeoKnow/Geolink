@@ -3,15 +3,20 @@ package org.aksw.geolink.web.main;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
+import javax.inject.Inject;
+
 import org.aksw.jena_sparql_api.core.QueryExecutionFactory;
 import org.aksw.jena_sparql_api.gson.ExclusionStrategyClassAndFields;
 import org.aksw.jena_sparql_api.gson.TypeAdapterNoop;
 import org.aksw.jena_sparql_api.http.QueryExecutionFactoryHttp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -25,9 +30,13 @@ import de.uni_leipzig.simba.io.ConfigReader;
 
 @Configuration
 @ComponentScan({"org.aksw.geolink.web"})
+@PropertySource("classpath:test.properties")
 public class AppConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(AppConfig.class);
+
+    @Inject
+    private Environment environment;
 
 //    @javax.annotation.Resource
 //    private Environment env;
@@ -42,6 +51,12 @@ public class AppConfig {
     @Bean
     public QueryExecutionFactory sparqlService() {
         QueryExecutionFactory result = new QueryExecutionFactoryHttp("http://dbpedia.org/sparql", "http://dbpedia.org");
+        return result;
+    }
+
+    @Bean
+    public String foo() {
+        String result = environment.getProperty("foo");
         return result;
     }
 

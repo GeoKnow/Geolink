@@ -10,7 +10,10 @@
 
 *.log
 
+# Property files
+*.properties
 
+# Node and Bower
 node_modules
 bower_components
 deptree.txt

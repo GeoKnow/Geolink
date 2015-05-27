@@ -16,10 +16,14 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import de.uni_leipzig.simba.cache.Cache;
+import de.uni_leipzig.simba.cache.MemoryCache;
+import de.uni_leipzig.simba.query.SparqlQueryModule;
 import org.aksw.jena_sparql_api.geo.GeoMapSupplierUtils;
 import org.aksw.jena_sparql_api.utils.TripleUtils;
 import org.jgap.InvalidConfigurationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.config.CacheManagementConfigUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -126,57 +130,46 @@ public class ServletLinking {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/executeFromSpec")
-    public String learnLinkSpec(@FormParam("spec") String spec)
-            throws Exception {
+    public String learnLinkSpec(@FormParam("spec") String spec) throws Exception {
 
-        // learn from spec ist vollautomatisch
         ConfigReader config = gson.fromJson(spec, ConfigReader.class);
-        //System.out.println(config);
-        //System.out.println("---");
+        config.afterPropertiesSet();
 
+        //real methods
+        //UnsupervisedLinkSpecificationLearner learner = createAutoLearner(config);
+        //Mapping mapping = learner.learn();
+
+        //direct load over local file (for local tests)
+        Model model = FileManager.get().loadModel("/home/drake/projekte/uni/positive.nt");
+        Graph graph = model.getGraph();
+        Set<Triple> triples = graph.find(null, null, null).toSet();
+        triples = TripleUtils.swap(triples);
+        Mapping mapping = toMapping(triples);
+
+        Geomizer geomizer = GeomizerFactoryLimes.createGeomizer(config);
+        writeMapping(mapping, geomizer);
+
+        //????
         //config = new ConfigReader();
         //config.validateAndRead("/home/raven/Projects/Eclipse/LIMES/Examples/Paper/largescale/lgd-dbpedia.limes.xml");
         //System.out.println(config);
         //System.out.println("---");
-        config.afterPropertiesSet();
-        //System.out.println(config);
-        //System.out.println("---");
 
-
+        //Cache?
         //Cache cache = new MemoryCache();
         //SparqlQueryModule sqm = new SparqlQueryModule(config.getSourceInfo());
         //sqm.fillCache(cache);
-        //sqm.
 
-
-        // TODO get nt from spec
-        Model model = FileManager.get().loadModel("/home/drake/projekte/uni/positive.nt");
-
-        Graph graph = model.getGraph();
-        Set<Triple> triples = graph.find(null, null, null).toSet();
-
-        triples = TripleUtils.swap(triples);
-
-        Mapping mapping = toMapping(triples);
-        Geomizer geomizer = GeomizerFactoryLimes.createGeomizer(config);
-
-        writeMapping(mapping, geomizer);
 
 
         /* //das ist der learner muss in eigene Methode
         UnsupervisedLinkSpecificationLearner learner = createAutoLearner(config);
         Mapping mapping = learner.learn();
-
         System.out.println("Mapping SIZE: " + mapping.size());
-
         Metric metric = learner.terminate();
         config.metricExpression = metric.getExpression();
         config.acceptanceThreshold = metric.getThreshold();
         */
-
-
-//        Geomizer geomizer = GeomizerFactoryLimes.createGeomizer(config);
-//        writeMapping(mapping, geomizer);
 
         //String result = gson.toJson(config);
         return virtuosoclientobject;
@@ -214,18 +207,13 @@ public class ServletLinking {
 
         targetgraph.clear ();
 
-        for(Triple t : triples) {
-            System.out.println(TripleUtils.toNTripleString(t));
-            targetgraph.add(t);
-        }
-        //String query = "Insert Into <http://geolink.aksw.org/> { <http://example.org/link-79a05b7bbacde12596c96ebc46e24c8a> <http://www.opengis.net/ont/geosparql#asWKT> \"LINESTRING (92.0797 49.9733, 92.0794 49.9733)\"^^<http://www.openlinksw.com/schemas/virtrdf#Geometry> . }";
-
         String queryString = createSparqlUpdateInsertData(triples, targetgraph.getGraphName());
         VirtuosoUpdateRequest vur = VirtuosoUpdateFactory.create(queryString, targetgraph);
         vur.exec();
         //GraphUtil.add(graph, triples.iterator());
 
-        targetgraph.close();
+        //close results in error. Same graph for all servlets???
+        //targetgraph.close();
     }
 
     public static Mapping toMapping(Iterable<Triple> triples) {
@@ -259,9 +247,7 @@ public class ServletLinking {
 
         Type mappingType = new TypeToken<Map<String, HashMap<String, Double>>>() {}.getType();
 
-        Map<String, HashMap<String, Double>> map = gson.fromJson(json,
-                mappingType);
-
+        Map<String, HashMap<String, Double>> map = gson.fromJson(json, mappingType);
 
         Mapping mapping = new Mapping();
         mapping.map.putAll(map);

@@ -3,7 +3,7 @@
 
 <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 
     <title>Geolink</title>
 
@@ -11,8 +11,8 @@
     <!-- build:css(.tmp) styles/main.css -->
 
     <!-- bower:css -->
-    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
-    <link rel="stylesheet" href="bower_components/jassa-ui-angular/jassa-ui-angular.css" />
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css"/>
+    <link rel="stylesheet" href="bower_components/jassa-ui-angular/jassa-ui-angular.css"/>
     <!-- endbower -->
 
     <!--<link rel="stylesheet" href="../../../target/release/repo/jassa-ui-angular.css" />-->
@@ -20,7 +20,7 @@
     <!-- endbuild -->
 
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.js"></script>
-<!--     <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular-sanitize.js"></script> -->
+    <!--     <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular-sanitize.js"></script> -->
 
     <!-- build:js scripts/scripts.js -->
 
@@ -43,8 +43,8 @@
     <script src="bower_components/jassa-ui-angular-openlayers/jassa-ui-angular-openlayers-tpls.js"></script>
     <!-- endbower -->
 
-<!--     <script src="scripts/lib/angular-ui/0.10.0/ui-bootstrap-tpls-0.10.0.js"></script> -->
-<!--     <script src="bower_components/underscore.string/lib/underscore.string.js"></script> -->
+    <!--     <script src="scripts/lib/angular-ui/0.10.0/ui-bootstrap-tpls-0.10.0.js"></script> -->
+    <!--     <script src="bower_components/underscore.string/lib/underscore.string.js"></script> -->
 
     <script src="bower_components/openlayers/lib/OpenLayers.js"></script>
 
@@ -53,8 +53,12 @@
     <script type="text/ng-template" id="predicateGroup.html">
 
         <td>
-            <!-- <a href="" ng-click="node.isExpanded = !node.isExpanded"><span class="glyphicon" ng-class="{'glyphicon-chevron-down' : node.isExpanded, 'glyphicon-chevron-right' : !node.isExpanded}"></span></a> -->
+            <!--
+            <a href="" ng-click="node.isExpanded = !node.isExpanded">
+                <span class="glyphicon" ng-class="{'glyphicon-chevron-down' : node.isExpanded, 'glyphicon-chevron-right' : !node.isExpanded}"></span>
+            </a>
             {{node.displayLabel}}
+            -->
         </td>
         <td>
             <ul>
@@ -67,348 +71,24 @@
 
     </script>
 
-<!--             <table ng-show="node.isExpanded"> -->
-<!--                 <tr ng-repeat="node in node.children" ng-include="'predicateGroup.html'"></tr> -->
-<!--             </table> -->
+    <!--             <table ng-show="node.isExpanded"> -->
+    <!--                 <tr ng-repeat="node in node.children" ng-include="'predicateGroup.html'"></tr> -->
+    <!--             </table> -->
 
     <script type="text/javascript">
-//     _.mixin(_.str.exports());
+        //     _.mixin(_.str.exports());
 
-    jassa = new Jassa(Promise, function() {
-        var jqXHR = $.ajax.apply(this, arguments);
-        var r = Promise.resolve(jqXHR)
-            .cancellable()
-            .catch(Promise.TimeoutError, Promise.CancellationError, function(e) {
-                //console.log('CANCELLED REQUEST');
-                jqXHR.abort();
-                throw e;
-            });
-        return r;
-    });
-
-
-    angular.module('GeolinkClient', ['ui.bootstrap', 'ui.jassa', 'ui.jassa.openlayers'])
-
-    .directive('myInit', [function() {
-        return {
-            scope: true,
-            priority: 1,
-            compile: function() {
-                return {
-                    pre: function(scope, element, attrs) {
-                        //scope.groups = scope.group.subGroups;
-                        console.log('MyInit: ' + attrs.myInit);
-                        scope.$eval(attrs.myInit);
-                    }
-                };
-            }
-        };
-    }])
-
-    .directive('pullUp', [function () {
-        return {
-            compile: function compile(tElement, tAttrs, transclude) {
-                return {
-                    post: function postLink(scope, elem, attrs) {
-                        //console.log(elem);
-//                         var parent = elem.parent();
-//                         var children = elem.children();
-//                         parent.append(children);
-//                         elem.detach();
-
-
-                        //elem.remove();
-                        //elem.parent().add
-                        setTimeout(function() {
-                            var trs = elem.children().children();
-                            var parent = elem.parent().parent().parent();
-                            console.log('parent', parent);
-
-                            parent.append(trs);
-                            elem.remove();
-                            //console.log('Got element', trs);
-
-                        }, 500);
-
-                    }
-                }
-            }
-        };
-    }])
-        /*
-        return {
-            priority: -10,
-            restrict: 'A', /* optional
-            postLink: function (scope, el, attrs) {
-                var trs = el.children().children();
-                console.log('Got element', trs.length, trs);
-                /*
-                el.detach();
-                var tr = angular.element('<tr></tr>');
-                console.log('Appending to ', tr, ' the children ', el.children());
-                el.parent().parent().append(tr);
-                * /
-            }
-        };
-        */
-
-
-//     .directive('include', [function () {
-//         return {
-//             replace: true,
-//             restrict: 'A',
-//             templateUrl: function (element, attr) {
-//                 return attr.pfInclude;
-//             }
-//         };
-//     }])
-
-
-//     .directive('include', ['$http', '$templateCache', '$compile', function ($http, $templateCache, $compile) {
-//         return {
-//             restrict: 'A',
-//             link: function (scope, element, attributes) {
-//                 var templateUrl = scope.$eval(attributes.include);
-//                 $http.get(templateUrl, {cache: $templateCache}).then(
-//                     function (tplContent) {
-//                         element.replaceWith($compile(tplContent)(scope));
-//                     }
-//                 );
-//             }
-//         };
-//     }])
-
-//     .directive('myRepeatStart', [function() {
-//         return {
-//             scope: true,
-//             priority: 0,
-//             compile: function() {
-//                 return {
-//                     pre: function(scope, element, attrs) {
-//                         //scope.groups = scope.group.subGroups;
-//                         //console.log('MyInit: ' + attrs.myInit);
-//                         scope.$eval(attrs.myInit);
-//                     }
-//                 };
-//             }
-//         };
-//     }])
-
-    .controller('AppCtrl', ['$scope', function($scope) {
-
-        var prefixes = {
-            rdfs: 'http://www.w3.org/2000/01/rdf-schema#'
-        };
-
-        var linkSpec = {
-            prefixes: prefixes,
-            sourceInfo: {
-                id: 'DBpedia',
-                type: 'sparql',
-                endpoint: 'http://dbpedia.org/sparql',
-                graph: 'http://dbpedia.org',
-                restrictions: ['?x a <http://dbpedia.org/ontology/Airport>'],
-                'var': '?x',
-                properties: ['rdfs:label AS nolang->lowercase']
-            },
-            targetInfo: {
-                id: 'LinkedGeoData',
-                type: 'sparql',
-                endpoint: 'http://linkedgeodata.org/sparql',
-                graph: 'http://linkedgeodata.org',
-                restrictions: ['?y a <http://linkedgeodata.org/ontology/Airport>'],
-                'var': '?y',
-                properties: ['rdfs:label AS nolang->lowercase']
-            },
-            metricExpression: 'trigrams(x.rdfs:label, y.rdfs:label)',
-            acceptanceThreshold: 0.9
-        };
-
-        console.log("post spec");
-        var promise = jQuery.ajax({
-            type: 'POST',
-            url: 'api/linking/executeFromSpec',
-            dataType: 'json',
-            crossDomain: true,
-            traditional: true,
-            data: {
-                spec: JSON.stringify(linkSpec)
-            }
+        jassa = new Jassa(Promise, function () {
+            var jqXHR = $.ajax.apply(this, arguments);
+            var r = Promise.resolve(jqXHR)
+                    .cancellable()
+                    .catch(Promise.TimeoutError, Promise.CancellationError, function (e) {
+                        //console.log('CANCELLED REQUEST');
+                        jqXHR.abort();
+                        throw e;
+                    });
+            return r;
         });
-
-        var geoMapFactoryVirt = jassa.geo.GeoMapFactoryUtils.createWktMapFactory('http://www.w3.org/2003/01/geo/wgs84_pos#geometry', 'bif:st_intersects', 'bif:st_geomFromText');
-        var geoMapFactoryAsWktVirt = jassa.geo.GeoMapFactoryUtils.createWktMapFactory('http://www.opengis.net/ont/geosparql#asWKT', 'bif:st_intersects', 'bif:st_geomFromText');
-        var geoMapFactoryWgs =  jassa.geo.GeoMapFactoryUtils.wgs84MapFactory;
-
-        var createSparqlService = function(url, graphUris) {
-            var result = jassa.service.SparqlServiceBuilder
-                    .http(url, graphUris, {type: 'POST'}).cache().virtFix().paginate(1000).create();
-
-            return result;
-        };
-
-        var sparqlServiceA = createSparqlService('http://dbpedia.org/sparql', ['http://dbpedia.org']);
-        var sparqlServiceB = createSparqlService('http://linkedgeodata.org/sparql', ['http://linkedgeodata.org']);
-        var sparqlServiceC;
-
-        var conceptA = jassa.sparql.ConceptUtils.createTypeConcept('http://dbpedia.org/ontology/Airport');
-        var conceptB = jassa.sparql.ConceptUtils.createTypeConcept('http://linkedgeodata.org/ontology/Airport');
-        var conceptC = jassa.sparql.ConceptUtils.createTypeConcept('http://www.linklion.org/ontology#Link');
-
-        promise.done(function(arg) {
-            alert(JSON.stringify(arg));
-            console.log(JSON.stringify(arg));
-            var geomizeddata = JSON.parse(JSON.stringify(arg));
-            sparqlServiceC = createSparqlService(geomizeddata.sparql, geomizeddata.graph);
-            createMapDataSource(sparqlServiceC, geoMapFactoryAsWktVirt, conceptC, '#663300');
-        }).fail(function() {
-           alert('fail');
-        });
-
-
-
-
-        var createMapDataSource = function(sparqlService, geoMapFactory, concept, fillColor) {
-
-            var attrs = {
-                fillColor: fillColor,
-                fontColor: fillColor,
-                strokeColor: fillColor,
-
-                stroke: true,
-                strokeLinecap: 'round',
-                strokeWidth: 100,
-                pointRadius: 12,
-                labelAlign: 'cm'
-            };
-
-            var result = jassa.geo.GeoDataSourceUtils.createGeoDataSourceLabels(sparqlService, geoMapFactory, concept, attrs);
-            return result;
-        }
-
-        var bounds = new jassa.geo.Bounds(7.0, 49.0, 9, 51.0);
-
-        $scope.dataSources = [
-            createMapDataSource(sparqlServiceA, geoMapFactoryVirt, conceptA, '#CC0020'),
-            createMapDataSource(sparqlServiceB, geoMapFactoryWgs, conceptB, '#2000CC')
-        ];
-
-        $scope.selectGeom = function(data) {
-            alert(JSON.stringify(data));
-            console.log('Status', data);
-        };
-
-        $scope.mapConfig = {
-            center: { lon: 8, lat: 50 },
-            zoom: 8
-        };
-
-        $scope.setCenter = function() {
-            $scope.mapConfig.center = { lon: 20, lat: 20 };
-            $scope.mapConfig.zoom = 4;
-        };
-
-        $scope.$watch('mapConfig', function(v) {
-            console.log('Config changed: ' + JSON.stringify(v));
-        }, true);
-
-        $scope.links = ['test', 'foobar'];
-
-        $scope.diff = [{
-            id: 'http://myfirstList',
-            displayLabel: 'Link1',
-            source: {
-                id: 'http://foo',
-                displayLabel: 'Foo'
-            },
-            target: {
-                id: 'http://bar',
-                displayLabel: 'Bar'
-            },
-            predicateGroups: [{
-                id: 'http://my-label-group',
-                displayLabel: 'LabelGroup',
-                members: [{
-                    predicate: {
-                        id: 'http://rdfs/label',
-                        displayLabel: 'label'
-                    },
-                    value: {
-                        id: 'http://foo/Anne',
-                        displayLabel: 'Anne'
-                    },
-                    status: 'added'
-                }, {
-                    predicate: {
-                        id: 'http://skos/label',
-                        displayLabel: 'skos-label'
-                    },
-                    value: {
-                        id: 'http://foo/Anne',
-                        displayLabel: 'Anne'
-                    },
-                    status: 'added'
-                }]
-            }, {
-                id: 'http://my-label-group',
-                displayLabel: 'TypeGroup',
-                children: [{
-                    id: 'http://my-type-subgroup',
-                    displayLabel: 'TypeSubGroup',
-                    children: [{
-                        id: 'http://subsub',
-                        displayLabel: 'TypeSubSubGroup'
-                    }
-                    ]
-
-                }
-                ],
-                members: [{
-                    predicate: {
-                        id: 'http://rdfs/label',
-                        displayLabel: 'label'
-                    },
-                    value: {
-                        id: 'http://foo/Anne',
-                        displayLabel: 'Anne'
-                    },
-                    status: 'added'
-                }, {
-                    predicate: {
-                        id: 'http://skos/label',
-                        displayLabel: 'skos-label'
-                    },
-                    value: {
-                        id: 'http://foo/Anne',
-                        displayLabel: 'Anne'
-                    },
-                    status: 'added'
-                }]
-            }]
-        }
-        ]
-    }]);
-
-/*
-members: [{
-    value: {
-
-    }
-
-    predicate: {
-        id: 'http://rdfs/label',
-        displayLabel: 'label'
-    },
-    value: {
-        id: 'http://foo/Anne',
-        displayLabel: 'Anne'
-    },
-    status: 'added'
-}, {
-
- */
-    //$scope.groups = $scope.diff.
-
     </script>
 
 </head>
@@ -416,9 +96,9 @@ members: [{
 <body ng-controller="AppCtrl">
     <div jassa-map-ol="map" style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%" config="mapConfig" data-sources="dataSources" select="selectGeom(data)"></div>
 
+    <!--
     <div style="position: absolute; bottom: 10px; left: 10px; right: 10px; height: 300px; overflow: auto; background-color: #fefefe">
-<!--         <div ng-include="'foobar'"></div> -->
-
+        <div ng-include="'foobar'"></div>
 
         <table class="table table-striped">
             <thead>
@@ -431,7 +111,9 @@ members: [{
             <thead ng-repeat-start="link in diff">
                 <tr>
                     <td style="font-style: italic;" colspan="2">
-                        <a href="" ng-click="link.isExpanded = !link.isExpanded"><span class="glyphicon" ng-class="{'glyphicon-chevron-down' : link.isExpanded, 'glyphicon-chevron-right' : !link.isExpanded}"></span></a>
+                        <a href="" ng-click="link.isExpanded = !link.isExpanded">
+                            <span class="glyphicon" ng-class="{'glyphicon-chevron-down' : link.isExpanded, 'glyphicon-chevron-right' : !link.isExpanded}"></span>
+                        </a>
                         <span title="{{link.id}}">{{link.displayLabel}}</span>
                         <span title="{{link.source.id}}">{{link.source.displayLabel}}</span>
                         <span title="{{link.target.id}}">{{link.target.displayLabel}}</span>
@@ -440,16 +122,27 @@ members: [{
             </thead>
             <tbody ng-repeat-end ng-show="link.isExpanded">
                 <tr ng-repeat="node in link.predicateGroups" ng-include="'predicateGroup.html'"></tr>
-
             </tbody>
-
-
         </table>
     </div>
+    -->
 
 
+    <button ng-click="setLeipzig()" style="position: absolute; left: 10px; top: 10px;">Set Leipzig</button >
+    <button ng-click="setDenver()" style="position: absolute; left: 10px; top: 50px;">Set Denver</button>
+    <button ng-click="sendLinkSpec()" style="position: absolute; left: 10px; top: 100px;">Send LinkSpec</button>
 
-    <button ng-click="setCenter()" style="position: absolute; left: 10px; top: 10px;">Set center</button>
+    <!-- Modules -->
+    <script src="scripts/js/app.js"></script>
+
+    <!-- Controllers -->
+    <script src="scripts/js/controllers/MainController.js"></script>
+
+    <!-- Directives -->
+    <script src="scripts/js/directives/myInit.js"></script>
+    <script src="scripts/js/directives/pullUp.js"></script>
+
+    <!-- Services -->
 </body>
 
 </html>

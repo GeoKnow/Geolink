@@ -78,7 +78,7 @@
     <script type="text/javascript">
         //     _.mixin(_.str.exports());
 
-        jassa = new Jassa(Promise, function () {
+        var jassa = new Jassa(Promise, function () {
             var jqXHR = $.ajax.apply(this, arguments);
             var r = Promise.resolve(jqXHR)
                     .cancellable()
@@ -89,6 +89,9 @@
                     });
             return r;
         });
+
+
+
     </script>
 
 </head>
@@ -128,9 +131,9 @@
     -->
 
 
-    <button ng-click="setLeipzig()" style="position: absolute; left: 10px; top: 10px;">Set Leipzig</button >
-    <button ng-click="setDenver()" style="position: absolute; left: 10px; top: 50px;">Set Denver</button>
-    <button ng-click="sendLinkSpec()" style="position: absolute; left: 10px; top: 100px;">Send LinkSpec</button>
+    <button ng-click="setLeipzig();" style="position: absolute; left: 10px; top: 10px;">Set Leipzig</button >
+    <button ng-click="setDenver();" style="position: absolute; left: 10px; top: 50px;">Set Denver</button>
+    <button ng-click="sendLinkSpec();" style="position: absolute; left: 10px; top: 100px;">Send LinkSpec</button>
 
     <!-- Modules -->
     <script src="scripts/js/app.js"></script>

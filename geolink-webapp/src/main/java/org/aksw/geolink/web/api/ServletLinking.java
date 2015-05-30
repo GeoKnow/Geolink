@@ -7,12 +7,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
@@ -21,6 +16,7 @@ import de.uni_leipzig.simba.cache.MemoryCache;
 import de.uni_leipzig.simba.query.SparqlQueryModule;
 import org.aksw.jena_sparql_api.geo.GeoMapSupplierUtils;
 import org.aksw.jena_sparql_api.utils.TripleUtils;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.jgap.InvalidConfigurationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.config.CacheManagementConfigUtils;
@@ -145,6 +141,7 @@ public class ServletLinking {
         Set<Triple> triples = graph.find(null, null, null).toSet();
         triples = TripleUtils.swap(triples);
         Mapping mapping = toMapping(triples);
+        // end test methods
 
         Geomizer geomizer = GeomizerFactoryLimes.createGeomizer(config);
         writeMapping(mapping, geomizer);
@@ -160,8 +157,6 @@ public class ServletLinking {
         //SparqlQueryModule sqm = new SparqlQueryModule(config.getSourceInfo());
         //sqm.fillCache(cache);
 
-
-
         /* //das ist der learner muss in eigene Methode
         UnsupervisedLinkSpecificationLearner learner = createAutoLearner(config);
         Mapping mapping = learner.learn();
@@ -169,9 +164,9 @@ public class ServletLinking {
         Metric metric = learner.terminate();
         config.metricExpression = metric.getExpression();
         config.acceptanceThreshold = metric.getThreshold();
+        //String result = gson.toJson(config);
         */
 
-        //String result = gson.toJson(config);
         return virtuosoclientobject;
     }
 

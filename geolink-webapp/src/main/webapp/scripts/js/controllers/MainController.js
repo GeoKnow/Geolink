@@ -1,19 +1,10 @@
-app.controller('AppCtrl', ['$scope', function ($scope) {
+app.controller('AppCtrl', ['$scope','$http', function ($scope, $http) {
 
-    var prefixes = {
-        rdfs: 'http://www.w3.org/2000/01/rdf-schema#'
-    };
-
-
-
-
-    var geoMapFactoryVirt = jassa.geo.GeoMapFactoryUtils.createWktMapFactory('http://www.w3.org/2003/01/geo/wgs84_pos#geometry', 'bif:st_intersects', 'bif:st_geomFromText');
     var geoMapFactoryAsWktVirt = jassa.geo.GeoMapFactoryUtils.createWktMapFactory('http://www.opengis.net/ont/geosparql#asWKT', 'bif:st_intersects', 'bif:st_geomFromText');
     var geoMapFactoryWgs = jassa.geo.GeoMapFactoryUtils.wgs84MapFactory;
 
     var createSparqlService = function (url, graphUris) {
-        var result = jassa.service.SparqlServiceBuilder
-            .http(url, graphUris, {type: 'POST'}).cache().virtFix().paginate(1000).create();
+        result = jassa.service.SparqlServiceBuilder.http(url, graphUris, {type: 'POST'}).cache().virtFix().paginate(1000).create();
         return result;
     };
 
@@ -38,7 +29,7 @@ app.controller('AppCtrl', ['$scope', function ($scope) {
             labelAlign: 'cm'
         };
 
-        var result = jassa.geo.GeoDataSourceUtils.createGeoDataSourceLabels(sparqlService, geoMapFactory, concept, attrs);
+        result = jassa.geo.GeoDataSourceUtils.createGeoDataSourceLabels(sparqlService, geoMapFactory, concept, attrs);
         return result;
     };
 
@@ -47,7 +38,6 @@ app.controller('AppCtrl', ['$scope', function ($scope) {
     $scope.dataSources = [
         createMapDataSource(sparqlServiceA, geoMapFactoryVirt, conceptA, '#CC0020'),
         createMapDataSource(sparqlServiceB, geoMapFactoryWgs, conceptB, '#2000CC')
-        //??????
     ];
 
     $scope.selectGeom = function (data) {
@@ -70,59 +60,53 @@ app.controller('AppCtrl', ['$scope', function ($scope) {
         $scope.mapConfig.zoom = 15;
     };
 
+    $scope.prefixes = {
+        rdfs: 'http://www.w3.org/2000/01/rdf-schema#'
+    };
+
+    $scope.linkspec = {
+        prefixes: $scope.prefixes,
+        sourceInfo: {
+            id: 'DBpedia',
+            type: 'sparql',
+            endpoint: 'http://dbpedia.org/sparql',
+            graph: 'http://dbpedia.org',
+            restrictions: ['?x a <http://dbpedia.org/ontology/Airport>'],
+            'var': '?x',
+            properties: ['rdfs:label AS nolang->lowercase']
+        },
+        targetInfo: {
+            id: 'LinkedGeoData',
+            type: 'sparql',
+            endpoint: 'http://linkedgeodata.org/sparql',
+            graph: 'http://linkedgeodata.org',
+            restrictions: ['?y a <http://linkedgeodata.org/ontology/Airport>'],
+            'var': '?y',
+            properties: ['rdfs:label AS nolang->lowercase']
+        },
+        metricExpression: 'trigrams(x.rdfs:label, y.rdfs:label)',
+        acceptanceThreshold: 0.9
+    };
+
+    $scope.addGraph = function(sparql, graph) {
+        sparqlServiceC = createSparqlService(sparql, graph);
+        mapsource = createMapDataSource(sparqlServiceC, geoMapFactoryAsWktVirt, conceptC, '#2000CC');
+        console.log("add to datasource geomized");
+        $scope.dataSources.push(mapsource);
+    };
+
     $scope.sendLinkSpec = function () {
-
-        prefixes = {
-            rdfs: 'http://www.w3.org/2000/01/rdf-schema#'
-        };
-
-        linkSpec = {
-            prefixes: prefixes,
-            sourceInfo: {
-                id: 'DBpedia',
-                type: 'sparql',
-                endpoint: 'http://dbpedia.org/sparql',
-                graph: 'http://dbpedia.org',
-                restrictions: ['?x a <http://dbpedia.org/ontology/Airport>'],
-                'var': '?x',
-                properties: ['rdfs:label AS nolang->lowercase']
-            },
-            targetInfo: {
-                id: 'LinkedGeoData',
-                type: 'sparql',
-                endpoint: 'http://linkedgeodata.org/sparql',
-                graph: 'http://linkedgeodata.org',
-                restrictions: ['?y a <http://linkedgeodata.org/ontology/Airport>'],
-                'var': '?y',
-                properties: ['rdfs:label AS nolang->lowercase']
-            },
-            metricExpression: 'trigrams(x.rdfs:label, y.rdfs:label)',
-            acceptanceThreshold: 0.9
-        };
-
-        console.log('Send Spec to Server');
-        promise = jQuery.ajax({
-            type: 'POST',
-            url: 'api/linking/executeFromSpec',
-            dataType: 'json',
-            crossDomain: true,
-            traditional: true,
-            data: {
-                spec: JSON.stringify(linkSpec)
-            }
-        });
-
-        promise.done(function (arg) {
-            console.log(JSON.stringify(arg));
-            var geomizeddata = JSON.parse(JSON.stringify(arg));
-            console.log("set up service");
-            sparqlServiceC = createSparqlService(geomizeddata.sparql, geomizeddata.graph);
-            console.log("init datasource");
-            var mapsource = createMapDataSource(sparqlServiceC, geoMapFactoryAsWktVirt, conceptC, '#2000CC');
-            console.log("add to datasource");
-            $scope.dataSources.push(mapsource);
-        }).fail(function () {
-            alert('fail');
+        console.log('Send LinkSpec');
+        $http({
+            method:'POST',
+            url:'api/linking/executeFromSpec',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+            data: "spec=" + encodeURIComponent(JSON.stringify($scope.linkspec))
+        }).success( function (data, status, headers, config) {
+            console.log(JSON.stringify(data));
+            $scope.addGraph(data.sparql, data.graph);
+        }).error( function(data, status, headers, config) {
+            console.log(data);
         });
     };
 

@@ -1,5 +1,6 @@
 app.controller('AppCtrl', ['$scope','$http', function ($scope, $http) {
 
+    var geoMapFactoryVirt = jassa.geo.GeoMapFactoryUtils.createWktMapFactory('http://www.w3.org/2003/01/geo/wgs84_pos#geometry', 'bif:st_intersects', 'bif:st_geomFromText');
     var geoMapFactoryAsWktVirt = jassa.geo.GeoMapFactoryUtils.createWktMapFactory('http://www.opengis.net/ont/geosparql#asWKT', 'bif:st_intersects', 'bif:st_geomFromText');
     var geoMapFactoryWgs = jassa.geo.GeoMapFactoryUtils.wgs84MapFactory;
 
@@ -10,7 +11,7 @@ app.controller('AppCtrl', ['$scope','$http', function ($scope, $http) {
 
     var sparqlServiceA = createSparqlService('http://dbpedia.org/sparql', ['http://dbpedia.org']);
     var sparqlServiceB = createSparqlService('http://linkedgeodata.org/sparql', ['http://linkedgeodata.org']);
-    var sparqlServiceC;
+    var sparqlServiceC // = createSparqlService('http://fastreboot.de:8890/sparql', ['http://fastreboot.de/geomizeddata']);
     var conceptA = jassa.sparql.ConceptUtils.createTypeConcept('http://dbpedia.org/ontology/Airport');
     var conceptB = jassa.sparql.ConceptUtils.createTypeConcept('http://linkedgeodata.org/ontology/Airport');
     var conceptC = jassa.sparql.ConceptUtils.createTypeConcept('http://www.linklion.org/ontology#Link');
@@ -30,6 +31,7 @@ app.controller('AppCtrl', ['$scope','$http', function ($scope, $http) {
         };
 
         result = jassa.geo.GeoDataSourceUtils.createGeoDataSourceLabels(sparqlService, geoMapFactory, concept, attrs);
+        console.log(result);
         return result;
     };
 
@@ -89,8 +91,8 @@ app.controller('AppCtrl', ['$scope','$http', function ($scope, $http) {
     };
 
     $scope.addGraph = function(sparql, graph) {
-        sparqlServiceC = createSparqlService(sparql, graph);
-        mapsource = createMapDataSource(sparqlServiceC, geoMapFactoryAsWktVirt, conceptC, '#2000CC');
+        sparqlServiceC = createSparqlService(sparql, [graph]);
+        mapsource = createMapDataSource(sparqlServiceC, geoMapFactoryAsWktVirt, conceptC, '#20CC20');
         console.log("add to datasource geomized");
         $scope.dataSources.push(mapsource);
     };

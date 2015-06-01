@@ -79,8 +79,8 @@
         //     _.mixin(_.str.exports());
 
         var jassa = new Jassa(Promise, function () {
-            var jqXHR = $.ajax.apply(this, arguments);
-            var r = Promise.resolve(jqXHR)
+            jqXHR = $.ajax.apply(this, arguments);
+            r = Promise.resolve(jqXHR)
                     .cancellable()
                     .catch(Promise.TimeoutError, Promise.CancellationError, function (e) {
                         //console.log('CANCELLED REQUEST');

@@ -134,9 +134,9 @@ public class ServletLinking {
         //real methods
         UnsupervisedLinkSpecificationLearner learner = createAutoLearner(config);
         Mapping mapping = learner.learn();
-
         //direct load over local file (for local tests)
-        //Model model = FileManager.get().loadModel("/home/drake/projekte/uni/positive.nt");
+        //System.out.println("Working Directory = " + System.getProperty("user.dir"));
+        Model model = FileManager.get().loadModel("../test-data/positive.nt");
         //Graph graph = model.getGraph();
         //Setdbpediatest<Triple> triples = graph.find(null, null, null).toSet();
         //triples = TripleUtils.swap(triples);

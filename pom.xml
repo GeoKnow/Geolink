@@ -42,7 +42,7 @@
 
     <properties>
         <!-- Dependency Versions -->
-        <jena-sparql-api.version>2.12.1-9</jena-sparql-api.version>
+        <jena-sparql-api.version>2.12.1-10-SNAPSHOT</jena-sparql-api.version>
         <limes.version>0.6.4-SNAPSHOT</limes.version>
 
         <spring.version>4.1.4.RELEASE</spring.version>

@@ -30,8 +30,10 @@ import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.sparql.graph.GraphFactory;
+import com.hp.hpl.jena.sparql.vocabulary.FOAF;
 import com.hp.hpl.jena.util.FileManager;
 import com.hp.hpl.jena.vocabulary.OWL;
+import com.hp.hpl.jena.vocabulary.RDF;
 import com.vividsolutions.jts.geom.Geometry;
 
 import de.uni_leipzig.simba.data.Mapping;
@@ -203,7 +205,19 @@ public class ServletLinking {
         //System.out.println(triples);
 
 
+
+        /*
+        Model m = ModelFactory.createDefaultModel();
+
+        m.add(m.createResource("http://foo"), RDF.type, FOAF.Agent);
+        Graph gm = m.getGraph();
+        GraphUtil.add(evaluationGraph, gm);
+        */
+
+
         targetgraph.clear();
+
+        //targetgraph.remove(s, p, null);;
 
         //String queryString = createSparqlUpdateInsertData(triples, targetgraph.getGraphName());
         //VirtuosoUpdateRequest vur = VirtuosoUpdateFactory.create(queryString, targetgraph);

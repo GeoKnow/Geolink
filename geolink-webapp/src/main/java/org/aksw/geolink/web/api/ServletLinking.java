@@ -7,29 +7,24 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
-import de.uni_leipzig.simba.cache.Cache;
-import de.uni_leipzig.simba.cache.MemoryCache;
-import de.uni_leipzig.simba.query.SparqlQueryModule;
 import org.aksw.jena_sparql_api.geo.GeoMapSupplierUtils;
 import org.aksw.jena_sparql_api.utils.TripleUtils;
-import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.jgap.InvalidConfigurationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.config.CacheManagementConfigUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import virtuoso.jena.driver.VirtGraph;
-import virtuoso.jena.driver.VirtuosoUpdateFactory;
-import virtuoso.jena.driver.VirtuosoUpdateRequest;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.graph.GraphUtil;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.rdf.model.Model;
@@ -38,7 +33,6 @@ import com.hp.hpl.jena.vocabulary.OWL;
 import com.vividsolutions.jts.geom.Geometry;
 
 import de.uni_leipzig.simba.data.Mapping;
-import de.uni_leipzig.simba.genetics.core.Metric;
 import de.uni_leipzig.simba.genetics.learner.GeneticActiveLearner;
 import de.uni_leipzig.simba.genetics.learner.LinkSpecificationLearner;
 import de.uni_leipzig.simba.genetics.learner.SupervisedLearnerParameters;
@@ -57,7 +51,7 @@ public class ServletLinking {
     private Gson gson;
 
     @Resource(name="targetgraph")
-    private VirtGraph targetgraph;
+    private Graph targetgraph;
 
     @Resource(name="virtuosoclientobject")
     private String virtuosoclientobject;
@@ -197,12 +191,14 @@ public class ServletLinking {
         triples = GeoMapSupplierUtils.convertOgcToVirt(triples);
 
 
-        targetgraph.clear ();
+        targetgraph.clear();
 
-        String queryString = createSparqlUpdateInsertData(triples, targetgraph.getGraphName());
-        VirtuosoUpdateRequest vur = VirtuosoUpdateFactory.create(queryString, targetgraph);
-        vur.exec();
-        //GraphUtil.add(graph, triples.iterator());
+        //String queryString = createSparqlUpdateInsertData(triples, targetgraph.getGraphName());
+        //VirtuosoUpdateRequest vur = VirtuosoUpdateFactory.create(queryString, targetgraph);
+
+
+        //vur.exec();
+        GraphUtil.add(targetgraph, triples.iterator());
 
         //close results in error. Same graph for all servlets???
         //targetgraph.close();

@@ -20,6 +20,57 @@ app.controller('AppCtrl', ['$scope','$http', function ($scope, $http) {
     var conceptC = jassa.sparql.ConceptUtils.createTypeConcept('http://www.linklion.org/ontology#Link');
 
 
+    $scope.langs = ['en', 'de'];
+
+    // TODO: Whenever the facet selection changes, we need to recreate the map data source service for the modified concept
+    var createMapDataSource = function(sparqlService, geoMapFactory, concept, fillColor) {
+
+        // The 'core' service from which to retrieve the initial data
+        var bboxListService = new jassa.geo.ListServiceBbox(sparqlService, geoMapFactory, concept);
+
+        // Wrap this service for augmenting (enriching) it with labels
+        // TODO Make dependent on scope.langs
+        var lookupServiceLabels = jassa.sponate.LookupServiceUtils.createLookupServiceNodeLabels(sparqlService, new jassa.sparql.LiteralPreference($scope.langs));
+
+        // Transform the labels
+        bboxListService = new jassa.service.ListServiceTransformItems(bboxListService, function(entries) {
+            var keys = _(entries).pluck('key');
+            return lookupServiceLabels.lookup(keys).then(function(map) {
+                entries.forEach(function(entry) {
+                    var labelInfo = map.get(entry.key);
+                    entry.val.shortLabel = labelInfo ? labelInfo.displayLabel : '(no label)';
+                });
+
+                return entries;
+            });
+        });
+
+        // Add custom attributes
+        bboxListService = new jassa.service.ListServiceTransformItem(bboxListService, function(entry) {
+
+            var data = {
+                fillColor: fillColor,
+                fontColor: fillColor,
+                strokeColor: fillColor,
+
+                stroke: true,
+                strokeLinecap: 'round',
+                strokeWidth: 100,
+                pointRadius: 12,
+                labelAlign: 'cm'
+            };
+
+            _(entry.val).extend(data);
+
+            return entry;
+        });
+
+        var result = new jassa.geo.DataServiceBboxCache(bboxListService, 500, 300, 2);
+
+        return result;
+    };
+
+/*
     var createMapDataSource = function (sparqlService, geoMapFactory, concept, fillColor) {
         var attrs = {
             fillColor: fillColor,
@@ -37,7 +88,7 @@ app.controller('AppCtrl', ['$scope','$http', function ($scope, $http) {
         console.log(result);
         return result;
     };
-
+*/
     var bounds = new jassa.geo.Bounds(7.0, 49.0, 9, 51.0);
 
     $scope.dataSources = [

@@ -11,21 +11,23 @@ import org.aksw.jena_sparql_api.gson.TypeAdapterNoop;
 import org.aksw.jena_sparql_api.http.QueryExecutionFactoryHttp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 
+import virtuoso.jena.driver.VirtGraph;
+
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.sparql.graph.GraphFactory;
 
 import de.uni_leipzig.simba.io.ConfigReader;
-import virtuoso.jena.driver.VirtGraph;
 
 
 @Configuration
@@ -55,19 +57,26 @@ public class AppConfig {
     }
 
     @Bean
-    public VirtGraph targetgraph()  {
+    public Graph targetgraph()  {
         String virtuososerver = environment.getProperty("virtuoso_server_url");
         String virtuosograph = environment.getProperty("virtuoso_graph_url");
         String virtuosouser = environment.getProperty("virtuoso_user");
         String virtuosopassword = environment.getProperty("virtuoso_password");
+
+        Graph result;
+
+        if(virtuososerver == null) {
+            result = GraphFactory.createDefaultGraph();
+        } else {
+            result = new VirtGraph(virtuosograph, virtuososerver, virtuosouser, virtuosopassword);
+        }
 
         //System.out.println(virtuososerver);
         //System.out.println(virtuosograph);
         //System.out.println(virtuosouser);
         //System.out.println(virtuosopassword);
 
-        VirtGraph graph = new VirtGraph(virtuosograph, virtuososerver, virtuosouser, virtuosopassword);
-        return graph;
+        return result;
     }
 
     //@Bean

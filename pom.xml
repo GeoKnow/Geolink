@@ -203,6 +203,33 @@
                 <groupId>de.uni_leipzig.simba.limes</groupId>
                 <artifactId>limes-core</artifactId>
                 <version>${limes.version}</version>
+
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.hp.hpl.jena</groupId>
+                        <artifactId>arq-extra</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.hp.hpl.jena</groupId>
+                        <artifactId>jena</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.hp.hpl.jena</groupId>
+                        <artifactId>sdb</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.hp.hpl.jena</groupId>
+                        <artifactId>tdb</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.hp.hpl.jena</groupId>
+                        <artifactId>iri</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.hp.hpl.jena</groupId>
+                        <artifactId>arq</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
 
@@ -265,20 +292,21 @@
             <dependency>
                 <groupId>com.openlink.virtuoso</groupId>
                 <artifactId>virtjena</artifactId>
-                <version>7.1.0</version>
+                <version>07-04-2015</version>
+<!--                 <version>7.1.0</version> -->
             </dependency>
-
-<!-- 			<dependency> -->
-<!-- 				<groupId>com.openlink.virtuoso</groupId> -->
-<!-- 				<artifactId>virtjdbc4-1</artifactId> -->
-<!-- 				<version>7.1.0</version> -->
-<!-- 			</dependency> -->
 
             <dependency>
                 <groupId>com.openlink.virtuoso</groupId>
-                <artifactId>virtjdbc3</artifactId>
+                <artifactId>virtjdbc4-1</artifactId>
                 <version>7.1.0</version>
             </dependency>
+
+<!--             <dependency> -->
+<!--                 <groupId>com.openlink.virtuoso</groupId> -->
+<!--                 <artifactId>virtjdbc3</artifactId> -->
+<!--                 <version>7.1.0</version> -->
+<!--             </dependency> -->
 
             <!-- Testing -->
             <dependency>

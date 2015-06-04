@@ -28,6 +28,8 @@ import com.hp.hpl.jena.graph.GraphUtil;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.sparql.graph.GraphFactory;
 import com.hp.hpl.jena.util.FileManager;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.vividsolutions.jts.geom.Geometry;
@@ -191,6 +193,15 @@ public class ServletLinking {
         triples = GeoMapSupplierUtils.convertOgcToVirt(triples);
 
 
+        /*
+        Graph test = GraphFactory.createDefaultGraph();
+        GraphUtil.add(test, triples.iterator());
+        Model testm = ModelFactory.createModelForGraph(test);
+        testm.write(System.out, "TURTLE");
+        */
+        //System.out.println(triples);
+
+
         targetgraph.clear();
 
         //String queryString = createSparqlUpdateInsertData(triples, targetgraph.getGraphName());
@@ -198,6 +209,7 @@ public class ServletLinking {
 
 
         //vur.exec();
+
         GraphUtil.add(targetgraph, triples.iterator());
 
         //close results in error. Same graph for all servlets???

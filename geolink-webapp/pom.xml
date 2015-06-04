@@ -140,7 +140,7 @@
 
 		<dependency>
 			<groupId>com.openlink.virtuoso</groupId>
-			<artifactId>virtjdbc3</artifactId>
+			<artifactId>virtjdbc4-1</artifactId>
 		</dependency>
 
 		<dependency>

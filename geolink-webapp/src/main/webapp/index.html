@@ -78,7 +78,7 @@
     <script type="text/javascript">
         //     _.mixin(_.str.exports());
 
-        var jassa = new Jassa(Promise, function () {
+        jassa = new Jassa(Promise, function () {
             jqXHR = $.ajax.apply(this, arguments);
             r = Promise.resolve(jqXHR)
                     .cancellable()

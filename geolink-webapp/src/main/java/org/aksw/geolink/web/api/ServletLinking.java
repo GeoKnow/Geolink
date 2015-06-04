@@ -132,15 +132,15 @@ public class ServletLinking {
         config.afterPropertiesSet();
 
         //real methods
-        //UnsupervisedLinkSpecificationLearner learner = createAutoLearner(config);
-        //Mapping mapping = learner.learn();
-
+        UnsupervisedLinkSpecificationLearner learner = createAutoLearner(config);
+        Mapping mapping = learner.learn();
         //direct load over local file (for local tests)
-        Model model = FileManager.get().loadModel("/home/drake/projekte/uni/positive.nt");
-        Graph graph = model.getGraph();
-        Set<Triple> triples = graph.find(null, null, null).toSet();
-        triples = TripleUtils.swap(triples);
-        Mapping mapping = toMapping(triples);
+        //System.out.println("Working Directory = " + System.getProperty("user.dir"));
+        Model model = FileManager.get().loadModel("../test-data/positive.nt");
+        //Graph graph = model.getGraph();
+        //Setdbpediatest<Triple> triples = graph.find(null, null, null).toSet();
+        //triples = TripleUtils.swap(triples);
+        //Mapping mapping = toMapping(triples);
         // end test methods
 
         Geomizer geomizer = GeomizerFactoryLimes.createGeomizer(config);
@@ -177,13 +177,10 @@ public class ServletLinking {
             result += "Into <" + graphName + "> ";
         }
 
-
         result += "{\n";
-
         for(Triple t : triples) {
             result += "  " + TripleUtils.toNTripleString(t) + "\n";
         }
-
         result += "}";
 
         return result;

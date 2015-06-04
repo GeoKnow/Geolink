@@ -5,13 +5,16 @@ app.controller('AppCtrl', ['$scope','$http', function ($scope, $http) {
     var geoMapFactoryWgs = jassa.geo.GeoMapFactoryUtils.wgs84MapFactory;
 
     var createSparqlService = function (url, graphUris) {
-        result = jassa.service.SparqlServiceBuilder.http(url, graphUris, {type: 'POST'}).cache().virtFix().paginate(1000).create();
+        var result = jassa.service.SparqlServiceBuilder.http(url, graphUris, {type: 'POST'}).cache().virtFix().paginate(1000).create();
         return result;
     };
 
-    var sparqlServiceA = createSparqlService('http://dbpedia.org/sparql', ['http://dbpedia.org']);
-    var sparqlServiceB = createSparqlService('http://linkedgeodata.org/sparql', ['http://linkedgeodata.org']);
-    var sparqlServiceC // = createSparqlService('http://fastreboot.de:8890/sparql', ['http://fastreboot.de/geomizeddata']);
+    //var sparqlServiceA = createSparqlService('http://dbpedia.org/sparql', ['http://dbpedia.org']);
+    //var sparqlServiceB = createSparqlService('http://linkedgeodata.org/sparql', ['http://linkedgeodata.org']);
+    var sparqlServiceA = createSparqlService('http://fastreboot.de:8890/sparql', ['http://fastreboot.de/dbpediatest']);
+    var sparqlServiceB = createSparqlService('http://fastreboot.de:8890/sparql', ['http://fastreboot.de/lgdtest']);
+    //var sparqlServiceC // = createSparqlService('http://fastreboot.de:8890/sparql', ['http://fastreboot.de/geomizeddata']);
+    var sparqlServiceC = createSparqlService('http://fastreboot.de:8890/sparql', ['http://fastreboot.de/geomizeddata']);
     var conceptA = jassa.sparql.ConceptUtils.createTypeConcept('http://dbpedia.org/ontology/Airport');
     var conceptB = jassa.sparql.ConceptUtils.createTypeConcept('http://linkedgeodata.org/ontology/Airport');
     var conceptC = jassa.sparql.ConceptUtils.createTypeConcept('http://www.linklion.org/ontology#Link');
@@ -30,7 +33,7 @@ app.controller('AppCtrl', ['$scope','$http', function ($scope, $http) {
             labelAlign: 'cm'
         };
 
-        result = jassa.geo.GeoDataSourceUtils.createGeoDataSourceLabels(sparqlService, geoMapFactory, concept, attrs);
+        var result = jassa.geo.GeoDataSourceUtils.createGeoDataSourceLabels(sparqlService, geoMapFactory, concept, attrs);
         console.log(result);
         return result;
     };
@@ -39,7 +42,8 @@ app.controller('AppCtrl', ['$scope','$http', function ($scope, $http) {
 
     $scope.dataSources = [
         createMapDataSource(sparqlServiceA, geoMapFactoryVirt, conceptA, '#CC0020'),
-        createMapDataSource(sparqlServiceB, geoMapFactoryWgs, conceptB, '#2000CC')
+        createMapDataSource(sparqlServiceB, geoMapFactoryWgs, conceptB, '#2000CC'),
+        createMapDataSource(sparqlServiceC, geoMapFactoryAsWktVirt, conceptC, '#20CC20')
     ];
 
     $scope.selectGeom = function (data) {
@@ -71,8 +75,10 @@ app.controller('AppCtrl', ['$scope','$http', function ($scope, $http) {
         sourceInfo: {
             id: 'DBpedia',
             type: 'sparql',
-            endpoint: 'http://dbpedia.org/sparql',
-            graph: 'http://dbpedia.org',
+            //endpoint: 'http://dbpedia.org/sparql',
+            endpoint: 'http://fastreboot.de:8890/sparql',
+            //graph: 'http://dbpedia.org',
+            graph: 'http://fastreboot.de/dbpediatest',
             restrictions: ['?x a <http://dbpedia.org/ontology/Airport>'],
             'var': '?x',
             properties: ['rdfs:label AS nolang->lowercase']
@@ -80,8 +86,10 @@ app.controller('AppCtrl', ['$scope','$http', function ($scope, $http) {
         targetInfo: {
             id: 'LinkedGeoData',
             type: 'sparql',
-            endpoint: 'http://linkedgeodata.org/sparql',
-            graph: 'http://linkedgeodata.org',
+            //endpoint: 'http://linkedgeodata.org/sparql',
+            endpoint: 'http://fastreboot.de:8890/sparql',
+            //graph: 'http://linkedgeodata.org',
+            graph: 'http://fastreboot.de/lgdtest',
             restrictions: ['?y a <http://linkedgeodata.org/ontology/Airport>'],
             'var': '?y',
             properties: ['rdfs:label AS nolang->lowercase']
@@ -92,7 +100,7 @@ app.controller('AppCtrl', ['$scope','$http', function ($scope, $http) {
 
     $scope.addGraph = function(sparql, graph) {
         sparqlServiceC = createSparqlService(sparql, [graph]);
-        mapsource = createMapDataSource(sparqlServiceC, geoMapFactoryAsWktVirt, conceptC, '#20CC20');
+        var mapsource = createMapDataSource(sparqlServiceC, geoMapFactoryAsWktVirt, conceptC, '#20CC20');
         console.log("add to datasource geomized");
         $scope.dataSources.push(mapsource);
     };

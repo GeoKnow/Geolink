@@ -28,7 +28,10 @@ import de.uni_leipzig.simba.io.KBInfo;
 public class GeomizerFactoryLimes {
 
     @SuppressWarnings("unchecked")
-    public static List<MappedConcept<Geometry>> candidates = Arrays.asList(GeoMapSupplierUtils.mcOgcGeometry, GeoMapSupplierUtils.mcWgsGeometry);
+    public static List<MappedConcept<Geometry>> candidates = Arrays.asList(
+            GeoMapSupplierUtils.mcWgs84,
+            GeoMapSupplierUtils.mcOgcGeometry,
+            GeoMapSupplierUtils.mcWgsGeometry);
 
     public static QueryExecutionFactory createSparqlService(KBInfo kbInfo) {
         QueryExecutionFactoryHttp result = new QueryExecutionFactoryHttp(kbInfo.endpoint, kbInfo.graph);

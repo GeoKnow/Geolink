@@ -77,12 +77,12 @@ public class ServletLinking {
         return result;
     }
 
-    public UnsupervisedLinkSpecificationLearner createAutoLearner(
-            ConfigReader config) throws InvalidConfigurationException
+    public UnsupervisedLinkSpecificationLearner createAutoLearner(ConfigReader config) throws InvalidConfigurationException
     {
         PropertyMapping propertyMapping = getPropertyMapping(config);
 
         UnSupervisedLearnerParameters params = new UnSupervisedLearnerParameters(config, propertyMapping);
+        //anpassen fuer demo
         params.setGenerations(10);
         params.setPopulationSize(10);
 
@@ -130,11 +130,12 @@ public class ServletLinking {
         //real methods
         UnsupervisedLinkSpecificationLearner learner = createAutoLearner(config);
         Mapping mapping = learner.learn();
+
         //direct load over local file (for local tests)
         //System.out.println("Working Directory = " + System.getProperty("user.dir"));
-        Model model = FileManager.get().loadModel("../test-data/positive.nt");
+        //Model model = FileManager.get().loadModel("../test-data/positive.nt");
         //Graph graph = model.getGraph();
-        //Setdbpediatest<Triple> triples = graph.find(null, null, null).toSet();
+        //Set<Triple> triples = graph.find(null, null, null).toSet();
         //triples = TripleUtils.swap(triples);
         //Mapping mapping = toMapping(triples);
         // end test methods

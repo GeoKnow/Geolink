@@ -147,6 +147,115 @@
     <script src="scripts/js/directives/pullUp.js"></script>
     -->
     <!-- Services -->
+    
+	<!-- GUI --> 
+    <script>
+		app.controller('CollapseCtrl', function($scope) {
+			$scope.isCollapsed1 = true;
+			$scope.isCollapsed2 = false;
+			$scope.isCollapsed3 = true;
+			$scope.isCollapsed4 = true;
+			});
+		app.controller('AccordionCtrl', function ($scope) {
+			  $scope.oneAtATime = false;
+			  $scope.status = {
+			    isFirstOpen: true,
+			    isFirstDisabled: false,	
+			  };
+			});
+		app.controller('DropdownCtrl', function ($scope, $log) {
+			  $scope.items = [
+			    'SPARQL12',
+			    'SPARQL2',
+			    'SPARQL3'
+			  ];
+
+			  $scope.status = {
+			    isopen: false
+			  };
+
+			  $scope.toggled = function(open) {
+			    $log.log('Dropdown is now: ', open);
+			  };2
+
+			  $scope.toggleDropdown = function($event) {
+			    $event.preventDefault();
+			    $event.stopPropagation();
+			    $scope.status.isopen = !$scope.status.isopen;
+			  };
+			  
+			  $scope.options = [{ name: "SPARQL1", id: 1 },
+			                    { name: "SPARQL2", id: 2 },
+			                    { name: "SPARQL3", id: 3 },];
+			  $scope.selectedOption = $scope.options[0];
+			});
+	</script>
+	
+	<div ng-controller="CollapseCtrl" style="position: absolute">
+		<button class="btn btn-default" ng-click="isCollapsed1 = !isCollapsed1">Toggle Menu</button>
+		
+		<div collapse="isCollapsed1">
+			<div class="well well-lg">
+				<div collapse="isCollapsed2">
+					<div class="well well-lg">
+						Session Menu 
+						<br><br>
+						<button disabled = "true" class="btn btn-default" ng-click="isCollapsed3 = true; isCollapsed2 = false">Previous</button>
+						<button class="btn btn-default" ng-click="isCollapsed2 = true; isCollapsed3 = false">Next</button>
+						<br>
+					</div>
+				</div>
+				<div collapse="isCollapsed3">
+					<div class="well well-lg">
+						LinkSpec Menu 
+						<br><br>
+						<button class="btn btn-default" ng-click="isCollapsed3 = true; isCollapsed2 = false">Previous</button>
+						<button class="btn btn-default" ng-click="isCollapsed3 = true; isCollapsed4 = false">Next</button>
+						<br>
+					</div>
+				</div>
+				<div collapse="isCollapsed4">
+					<div class="well well-lg">
+						Geomize Menu 
+						<br><br>
+						<button class="btn btn-default" ng-click="isCollapsed4 = true; isCollapsed3 = false">Previous</button>
+						<button disabled = "true" class="btn btn-default" ng-click="isCollapsed3 = true; isCollapsed4 = false">Next</button>
+						<br>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div ng-controller="AccordionCtrl" style="position: absolute; top: 220px">
+	  <accordion close-others="oneAtATime">
+	    <accordion-group heading="Session Menu" is-open="status.isFirstOpen" is-disabled="status.isFirstDisabled">
+	      Session Stuff Here
+	    </accordion-group>
+	    <accordion-group heading="LinkSpec Creation" is-open="status.isFirstOpen">
+			<h>LinkSpec Stuff Here </h> 
+			<br><br>
+			<div ng-controller="DropdownCtrl">
+			    <div class="btn-group" dropdown is-open="status.isopen">
+			      <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle ng-disabled="disabled">
+			        Source <span class="caret"></span>
+			      </button>
+			      <ul class="dropdown-menu" role="menu">
+			        <li><a href="#">SPARQL 1</a></li>
+			        <li><a href="#">SPARQL 2</a></li>
+			        <li><a href="#">SPARQL 3</a></li>
+			      </ul>
+			    </div>
+			    <select class="btn-group" data-ng-options="o.name for o in options" data-ng-model="selectedOption"></select>
+			</div> 
+	    </accordion-group>
+	    <accordion-group heading="Other Stuff" is-open="status.isFirstOpen">
+	      <p>The body of the accordion group grows to fit the contents--------------------------</p>
+ 
+	    </accordion-group>
+	  </accordion>
+	</div>   
+    
 </body>
 
 </html>

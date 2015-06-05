@@ -28,3 +28,14 @@ geolink-parent.iml
 geolink-webapp/geolink-webapp.iml
 geolink-webapp/target/
 
+# eclipse
+.classpath
+.project
+.settings/
+geolink-core/.classpath
+geolink-core/.project
+geolink-core/.settings/
+geolink-webapp/.classpath
+geolink-webapp/.project
+geolink-webapp/.settings/
+

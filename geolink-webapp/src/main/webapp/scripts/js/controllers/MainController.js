@@ -126,6 +126,38 @@ app.controller('AppCtrl', ['$scope','$http', function ($scope, $http) {
         }
     };
 
+    $scope.addGraph = function(sparql, graph) {
+        sparqlServiceC = createSparqlService(sparql, [graph]);
+        var mapsource = createMapDataSource(sparqlServiceC, geoMapFactoryAsWktVirt, conceptC, '#20CC20');
+        console.log("add to datasource geomized");
+        $scope.dataSources.push(mapsource);
+    };
+
+    $scope.sendLinkSpec = function () {
+        console.log('Send LinkSpec');
+        $http({
+            method:'POST',
+            url:'api/linking/executeFromSpec',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+            data: "spec=" + encodeURIComponent(JSON.stringify($scope.linkspec)) + "&" +
+            "project=" + encodeURIComponent($scope.project) + "&" +
+            "username=" + encodeURIComponent($scope.username)
+        }).success( function (data, status, headers, config) {
+            console.log(JSON.stringify(data));
+            $scope.addGraph(data.sparql, data.graph);
+        }).error( function(data, status, headers, config) {
+            console.log(data);
+        });
+    };
+
+    $scope.$watch('mapConfig', function (v) {
+        console.log('Config changed: ' + JSON.stringify(v));
+    }, true);
+
+
+    $scope.project = 'FooBar';
+    $scope.username = 'Bob';
+
     $scope.prefixes = {
         rdfs: 'http://www.w3.org/2000/01/rdf-schema#'
     };
@@ -157,32 +189,6 @@ app.controller('AppCtrl', ['$scope','$http', function ($scope, $http) {
         metricExpression: 'trigrams(x.rdfs:label, y.rdfs:label)',
         acceptanceThreshold: 0.9
     };
-
-    $scope.addGraph = function(sparql, graph) {
-        sparqlServiceC = createSparqlService(sparql, [graph]);
-        var mapsource = createMapDataSource(sparqlServiceC, geoMapFactoryAsWktVirt, conceptC, '#20CC20');
-        console.log("add to datasource geomized");
-        $scope.dataSources.push(mapsource);
-    };
-
-    $scope.sendLinkSpec = function () {
-        console.log('Send LinkSpec');
-        $http({
-            method:'POST',
-            url:'api/linking/executeFromSpec',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
-            data: "spec=" + encodeURIComponent(JSON.stringify($scope.linkspec))
-        }).success( function (data, status, headers, config) {
-            console.log(JSON.stringify(data));
-            $scope.addGraph(data.sparql, data.graph);
-        }).error( function(data, status, headers, config) {
-            console.log(data);
-        });
-    };
-
-    $scope.$watch('mapConfig', function (v) {
-        console.log('Config changed: ' + JSON.stringify(v));
-    }, true);
 
     $scope.links = ['test', 'foobar'];
 

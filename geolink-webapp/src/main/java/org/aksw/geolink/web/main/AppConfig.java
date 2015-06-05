@@ -5,6 +5,9 @@ import java.util.Arrays;
 
 import javax.inject.Inject;
 
+import com.hp.hpl.jena.graph.Graph;
+import org.aksw.geolink.web.api.GeoGraphFactory;
+import org.aksw.geolink.web.api.VirtuosoClientObjectFactory;
 import org.aksw.jena_sparql_api.core.QueryExecutionFactory;
 import org.aksw.jena_sparql_api.gson.ExclusionStrategyClassAndFields;
 import org.aksw.jena_sparql_api.gson.TypeAdapterNoop;
@@ -17,15 +20,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 
-import virtuoso.jena.driver.VirtGraph;
-
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.sparql.graph.GraphFactory;
 
 import de.uni_leipzig.simba.io.ConfigReader;
 
@@ -57,26 +56,23 @@ public class AppConfig {
     }
 
     @Bean
-    public Graph targetgraph()  {
+    public GeoGraphFactory virtuosotarget()  {
         String virtuososerver = environment.getProperty("virtuoso_server_url");
-        String virtuosograph = environment.getProperty("virtuoso_graph_url");
+        String virtuosographprefix = environment.getProperty("virtuoso_graph_url_prefix");
         String virtuosouser = environment.getProperty("virtuoso_user");
         String virtuosopassword = environment.getProperty("virtuoso_password");
 
-        Graph result;
+        GeoGraphFactory geograph = new GeoGraphFactory(virtuosographprefix, virtuososerver, virtuosouser, virtuosopassword);
+        return geograph;
+    }
 
-        if(virtuososerver == null) {
-            result = GraphFactory.createDefaultGraph();
-        } else {
-            result = new VirtGraph(virtuosograph, virtuososerver, virtuosouser, virtuosopassword);
-        }
+    @Bean
+    public VirtuosoClientObjectFactory virtuosoclientobject()  {
+        String virtuososparql= environment.getProperty("virtuoso_sparql_url");
+        String virtuosographprefix = environment.getProperty("virtuoso_graph_url_prefix");
 
-        //System.out.println(virtuososerver);
-        //System.out.println(virtuosograph);
-        //System.out.println(virtuosouser);
-        //System.out.println(virtuosopassword);
-
-        return result;
+        VirtuosoClientObjectFactory virtuosoClientObjectFactory = new VirtuosoClientObjectFactory(virtuososparql, virtuosographprefix);
+        return virtuosoClientObjectFactory;
     }
 
     //@Bean
@@ -85,20 +81,9 @@ public class AppConfig {
     //    return result;
     //}
 
-    @Bean
-    public String virtuosoclientobject() {
-        String virtuososparql = environment.getProperty("virtuoso_sparql_url");
-        String virtuosograph = environment.getProperty("virtuoso_graph_url");
-
-        //System.out.println(virtuososparql);
-
-        //TODO construct over GSON?
-        return "{\"graph\":\"" + virtuosograph + "\",\"sparql\":\"" + virtuososparql + "\"}";
-    }
-
     //@Bean
     //public String virtuosographurl() {
-    //    String result = environment.getProperty("virtuoso_graph_url");
+    //    String result = environment.getProperty("virtuoso_graph_url_prefix");
     //    return result;
     //}
 

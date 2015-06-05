@@ -14,6 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import edu.jas.structure.StarRingElem;
 import org.aksw.jena_sparql_api.geo.GeoMapSupplierUtils;
 import org.aksw.jena_sparql_api.utils.TripleUtils;
 import org.jgap.InvalidConfigurationException;
@@ -54,11 +55,12 @@ public class ServletLinking {
     @Autowired
     private Gson gson;
 
-    @Resource(name="targetgraph")
-    private Graph targetgraph;
+    @Resource(name="virtuosotarget")
+    private GeoGraphFactory virtuosotarget;
 
     @Resource(name="virtuosoclientobject")
-    private String virtuosoclientobject;
+    private VirtuosoClientObjectFactory virtuosoclientobject;
+
 
 /*
     @Autowired
@@ -124,10 +126,21 @@ public class ServletLinking {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/executeFromSpec")
-    public String learnLinkSpec(@FormParam("spec") String spec) throws Exception {
+    public String learnLinkSpec(@FormParam("spec") String spec, @FormParam("project") String project, @FormParam("username") String username) throws Exception {
+
+        // Build ressource path
+        StringBuilder graphressource = new StringBuilder();
+        graphressource.append(project);
+        graphressource.append("/");
+        graphressource.append(username);
+        graphressource.append("/geomized/");
+
+        Graph g = virtuosotarget.getGraph(graphressource.toString());
+        String retval = virtuosoclientobject.getJSON(graphressource.toString());
 
         ConfigReader config = gson.fromJson(spec, ConfigReader.class);
         config.afterPropertiesSet();
+
 
         //real methods
         UnsupervisedLinkSpecificationLearner learner = createAutoLearner(config);
@@ -143,7 +156,7 @@ public class ServletLinking {
         // end test methods
 
         Geomizer geomizer = GeomizerFactoryLimes.createGeomizer(config);
-        writeMapping(mapping, geomizer);
+        writeMapping(mapping, geomizer, g);
 
         //????
         //config = new ConfigReader();
@@ -166,7 +179,8 @@ public class ServletLinking {
         //String result = gson.toJson(config);
         */
 
-        return virtuosoclientobject;
+
+        return retval;
     }
 
     public static String createSparqlUpdateInsertData(Iterable<Triple> triples, String graphName) {
@@ -185,7 +199,9 @@ public class ServletLinking {
         return result;
     }
 
-    public void writeMapping(Mapping mapping, Geomizer geomizer) {
+    public void writeMapping(Mapping mapping, Geomizer geomizer, Graph g) {
+
+
 
         Map<Triple, Double> tripleToScore = GeomizerFactoryLimes.mappingToTriples(mapping, OWL.sameAs.asNode());
 
@@ -215,7 +231,7 @@ public class ServletLinking {
         */
 
 
-        targetgraph.clear();
+        g.clear();
 
         //targetgraph.remove(s, p, null);;
 
@@ -225,7 +241,7 @@ public class ServletLinking {
 
         //vur.exec();
 
-        GraphUtil.add(targetgraph, triples.iterator());
+        GraphUtil.add(g, triples.iterator());
 
         //close results in error. Same graph for all servlets???
         //targetgraph.close();

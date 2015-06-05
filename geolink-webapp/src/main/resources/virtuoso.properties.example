@@ -1,5 +1,5 @@
 virtuoso_server_url = jdbc:virtuoso://example.org:1111
-virtuoso_graph_url = http://example.org/geomizeddata
+virtuoso_graph_url_prefix = http://example.org/
 virtuoso_sparql_url = http://example.org:8890/sparql
 virtuoso_user = dba
 virtuoso_password = dba

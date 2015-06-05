@@ -111,22 +111,19 @@ app.controller('AppCtrl', ['$scope','$http', function ($scope, $http) {
         $scope.mapConfig.zoom = 17;
     };
 
-    // TODO umsetzen
     $scope.setDenver = function () {
-        var foo1 = $scope.dataSources[0].fetchData(bounds);
-        foo1.then(function (entries){
-            console.log(entries);
-        });
-        var foo2 = $scope.dataSources[1].fetchData(bounds);
-        foo2.then(function (entries){
-            console.log(entries);
-        });
-        var foo3 = $scope.dataSources[2].fetchData(bounds);
-        foo3.then(function (entries){
-            console.log(entries);
-        });
-        //$scope.mapConfig.center = {lon: 255.46310301, lat: 39.7882984};
-        //$scope.mapConfig.zoom = 15;
+        $scope.mapConfig.center = {lon: 255.46310301, lat: 39.7882984};
+        $scope.mapConfig.zoom = 15;
+    };
+
+    $scope.logDatasources = function () {
+
+        for (var i = 0; i < $scope.dataSources.length; i++) {
+            var foo1 = $scope.dataSources[i].fetchData(bounds);
+            foo1.then(function (entries) {
+                console.log(entries);
+            });
+        }
     };
 
     $scope.prefixes = {

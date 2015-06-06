@@ -11,13 +11,10 @@ app.controller('AppCtrl', ['$scope', '$rootScope', function ($scope, $rootScope)
     
     //var sparqlServiceA = createSparqlService('http://dbpedia.org/sparql', ['http://dbpedia.org']);
     //var sparqlServiceB = createSparqlService('http://linkedgeodata.org/sparql', ['http://linkedgeodata.org']);
-    var sparqlServiceA = createSparqlService('http://fastreboot.de:8890/sparql', ['http://fastreboot.de/dbpediatest']);
-    var sparqlServiceB = createSparqlService('http://fastreboot.de:8890/sparql', ['http://fastreboot.de/lgdtest']);
-    var sparqlServiceC; // = createSparqlService('http://fastreboot.de:8890/sparql', ['http://fastreboot.de/geomizeddata']);
+//    var sparqlServiceA = createSparqlService('http://fastreboot.de:8890/sparql', ['http://fastreboot.de/dbpediatest']);
+//    var sparqlServiceB = createSparqlService('http://fastreboot.de:8890/sparql', ['http://fastreboot.de/lgdtest']);
     //var sparqlServiceC = createSparqlService('http://fastreboot.de:8890/sparql', ['http://fastreboot.de/geomizeddata']);
-    var conceptA = jassa.sparql.ConceptUtils.createTypeConcept('http://dbpedia.org/ontology/Airport');
-    var conceptB = jassa.sparql.ConceptUtils.createTypeConcept('http://linkedgeodata.org/ontology/Airport');
-    var conceptC = jassa.sparql.ConceptUtils.createTypeConcept('http://www.linklion.org/ontology#Link');
+
 
     $scope.langs = ['en', 'de'];
 
@@ -69,30 +66,11 @@ app.controller('AppCtrl', ['$scope', '$rootScope', function ($scope, $rootScope)
         return result;
     };
 
-/*
-    var createMapDataSource = function (sparqlService, geoMapFactory, concept, fillColor) {
-        var attrs = {
-            fillColor: fillColor,
-            fontColor: fillColor,
-            strokeColor: fillColor,
-
-            stroke: true,
-            strokeLinecap: 'round',
-            strokeWidth: 100,
-            pointRadius: 12,
-            labelAlign: 'cm'
-        };
-
-        var result = jassa.geo.GeoDataSourceUtils.createGeoDataSourceLabels(sparqlService, geoMapFactory, concept, attrs);
-        console.log(result);
-        return result;
-    };
-*/
     var bounds = new jassa.geo.Bounds(7.0, 49.0, 9, 51.0);
-
+    
     $scope.dataSources = [
-        createMapDataSource(sparqlServiceA, geoMapFactoryVirt, conceptA, '#CC0020'),
-        createMapDataSource(sparqlServiceB, geoMapFactoryWgs, conceptB, '#2000CC')
+//        createMapDataSource(sparqlServiceA, geoMapFactoryVirt, conceptA, '#CC0020'),
+//        createMapDataSource(sparqlServiceB, geoMapFactoryWgs, conceptB, '#2000CC')
         //createMapDataSource(sparqlServiceC, geoMapFactoryAsWktVirt, conceptC, '#20CC20')
     ];
 
@@ -125,14 +103,6 @@ app.controller('AppCtrl', ['$scope', '$rootScope', function ($scope, $rootScope)
             });
         }
     };
-
-    $scope.addGraph = function(sparql, graph) {
-        sparqlServiceC = createSparqlService(sparql, [graph]);
-        var mapsource = createMapDataSource(sparqlServiceC, geoMapFactoryAsWktVirt, conceptC, '#20CC20');
-        console.log("add to datasource geomized");
-        $scope.dataSources.push(mapsource);
-    };
-
 
     $scope.$watch('mapConfig', function (v) {
         console.log('Config changed: ' + JSON.stringify(v));
@@ -213,95 +183,31 @@ app.controller('AppCtrl', ['$scope', '$rootScope', function ($scope, $rootScope)
         }]
     }
     ]
-    $rootScope.$on("Update", function(event, data) {
-    	$scope.addGraph(data.sparql, data.graph);
-      });
-}]);
-
-
-app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $http, $rootScope) {
-//	test menu
-	$scope.isCollapsed1 = true;
-	$scope.isCollapsed2 = false;
-	$scope.isCollapsed3 = true;
-	$scope.isCollapsed4 = true;
-	
-//	accordion-group
-	$scope.oneAtATime = false;
-	$scope.status = {
-		isFirstOpen: true,
-	    isFirstDisabled: false,	
-	};
-	
-//	md-input-container
-	$scope.session = {
-		username: "BobJr",
-		project: "ThisProject",
-	};
-	$scope.sparql1 = {
-		id: 'DBpedia',
-		type: 'sparql',
-		//endpoint: 'http://dbpedia.org/sparql',
-		endpoint: 'http://fastreboot.de:8890/sparql',
-		//graph: 'http://dbpedia.org',
-		graph: 'http://fastreboot.de/dbpediatest',
-		restrictions: ['?x a <http://dbpedia.org/ontology/Airport>'],
-		'var': '?x',
-		properties: ['rdfs:label AS nolang->lowercase']
-	};
-	$scope.sparql2 = {
-		id: 'LinkedGeoData',
-		type: 'sparql',
-		//endpoint: 'http://linkedgeodata.org/sparql',
-		endpoint: 'http://fastreboot.de:8890/sparql',
-		//graph: 'http://linkedgeodata.org',
-		graph: 'http://fastreboot.de/lgdtest',
-		restrictions: ['?y a <http://linkedgeodata.org/ontology/Airport>'],
-		'var': '?y',
-		properties: ['rdfs:label AS nolang->lowercase']
-	};
-	$scope.prefixes = {
-	        rdfs: 'http://www.w3.org/2000/01/rdf-schema#'
-	    };
-    $scope.linkspec = {
-        prefixes: $scope.prefixes,
-        sourceInfo: $scope.sparql1,
-        targetInfo: $scope.sparql2,
-        metricExpression: 'trigrams(x.rdfs:label, y.rdfs:label)',
-        acceptanceThreshold: 0.9
-    }; 
-	$scope.options =     [{ name: "SPARQL A", id: 1 },
-	                      { name: "SPARQL B", id: 2 },
-	                      { name: "SPARQL C", id: 3 },];
-	$scope.selectedOption1 = $scope.options[0];
-	$scope.selectedOption2 = $scope.options[1];
-	
-	$scope.toggleDropdown = function($event) {
-		$event.preventDefault();
-	    $event.stopPropagation();
-	    $scope.status.isopen = !$scope.status.isopen;
-	};
-	
-	
-//	SEND THE LINKSPEC
-    $scope.sendLinkSpec = function () {
-    	console.log($scope.sparql1);
-    	console.log($scope.sparql2);
-        console.log('Send LinkSpec');
-        console.log($scope.linkspec);
-        $http({
-            method:'POST',
-            url:'api/linking/executeFromSpec',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
-            data: "spec=" + encodeURIComponent(JSON.stringify($scope.linkspec)) + "&" +
-            "project=" + encodeURIComponent($scope.session.project) + "&" +
-            "username=" + encodeURIComponent($scope.session.username)
-        }).success( function (data, status, headers, config) {
-            console.log(JSON.stringify(data));
-//            $scope.addGraph(data.sparql, data.graph);
-            $rootScope.$broadcast("Update", data);
-        }).error( function(data, status, headers, config) {
-            console.log(data);
-        });
-    };
+    $rootScope.$on("Clear", function() {
+        $scope.dataSources = [];
+    });
+    $rootScope.$on("Source1", function(event, data) {
+    	sparqlService = createSparqlService(data.sparql, data.graph);
+        var conceptA = jassa.sparql.ConceptUtils.createTypeConcept('http://dbpedia.org/ontology/Airport');
+    	var mapsource = createMapDataSource(sparqlService, geoMapFactoryVirt, conceptA, '#CC0020');
+        console.log("add to datasource 1");
+        console.log(mapsource);
+        $scope.dataSources.push(mapsource);
+    });
+    $rootScope.$on("Source2", function(event, data) {
+    	sparqlService = createSparqlService(data.sparql, data.graph);
+        var conceptB = jassa.sparql.ConceptUtils.createTypeConcept('http://linkedgeodata.org/ontology/Airport');
+    	var mapsource = createMapDataSource(sparqlService, geoMapFactoryWgs, conceptB, '#2000CC');
+        console.log("add to datasource 2");
+        console.log(mapsource);
+        $scope.dataSources.push(mapsource);
+    });
+    $rootScope.$on("Source3", function(event, data) {
+    	sparqlService = createSparqlService(data.sparql, data.graph);
+        var conceptC = jassa.sparql.ConceptUtils.createTypeConcept('http://www.linklion.org/ontology#Link');
+        var mapsource = createMapDataSource(sparqlService, geoMapFactoryAsWktVirt, conceptC, '#20CC20');
+        console.log("add to datasource 3");
+        console.log(mapsource);
+        $scope.dataSources.push(mapsource);
+    });
 }]);

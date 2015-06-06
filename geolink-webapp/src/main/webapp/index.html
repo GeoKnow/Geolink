@@ -128,7 +128,6 @@
 
     <button ng-click="setLeipzig();" style="position: absolute; right: 10px; top: 10px;">Set Leipzig</button >
     <button ng-click="setDenver();" style="position: absolute; right: 10px; top: 40px;">Set Denver</button>
-    <button ng-click="sendLinkSpec();" style="position: absolute; right: 10px; top: 90px;">Send LinkSpec</button>
     <button ng-click="logDatasources();" style="position: absolute; right: 10px; top: 140px;">[DEBUG] log datasources to console</button>
 
     <!-- Modules -->
@@ -146,133 +145,102 @@
     <!-- Services -->
     
 	<!-- GUI --> 
-
-	<div ng-controller="guiCtrl" style="position: absolute; top: 200px">
+	<style>
+	input
+	{	
+		width: 400px;
+      	display: inline-block;
+      	vertical-align: middle;
+      	padding: 5px;
+     }
+     label
+     {
+      	padding: 5px;
+      	display: inline-block;
+     }
+	</style>
+	
+	<div ng-controller="guiCtrl" style="position: absolute; top: 10px">
 	  <accordion close-others="oneAtATime">
 	    <accordion-group heading="Session Menu" is-open="status.isFirstOpen" is-disabled="status.isFirstDisabled">
-	      Session Stuff Here<br><br>
 		      <md-input-container><label>Username</label>
-			    <input ng-model="session.username" required md-maxlength="42" type="text" style="padding: 5px">
+			    <input ng-model="session.username" type="text" >
 			  </md-input-container><br>
 			  <md-input-container><label>Project Name</label>
-			    <input ng-model="session.project" required md-maxlength="42" type="text" style="padding: 5px">
+			    <input ng-model="session.project" type="text">
 			  </md-input-container>
 	    </accordion-group>
-	    <accordion-group heading="LinkSpec Creation" is-open="status.isFirstOpen">
-			<h>LinkSpec Stuff Here </h> 
-			<br>
-			<select class="btn-group" data-ng-options="o.name for o in options" data-ng-model="selectedOption1"></select>
-			<select class="btn-group" data-ng-options="o.name for o in options" data-ng-model="selectedOption2"></select>
-			<hr>
-			
-		    <div class="btn-group" dropdown is-open="dropdown1.status.isopen">
-		      <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle ng-disabled="disabled">
-		        Source 1 <span class="caret"></span>
+	    <accordion-group heading="LinkSpec Creation" is-open="status.isLinkSpecOpen">
+			<div class="btn-group" dropdown>
+		      <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle>
+		        Fill with Source Template <span class="caret"></span>
 		      </button>
 				<ul class="dropdown-menu">
-			        <li ng-repeat="sparql in options">
-			          <a href>{{sparql.name}}</a>
+			        <li ng-repeat="sparql in servers">
+			        	<a ng-click="selectDropdown1(sparql.num)">{{sparql.data.id}}</a>
 			        </li>
 			    </ul>
 		    </div><br>
 			<md-input-container><label>ID</label>
-			    <input ng-model="sparql1.id" required md-maxlength="42" type="text" style="padding: 5px">
+			    <input ng-model="sparql1.id" required md-maxlength="42" type="text">
 			</md-input-container><br>
 			<md-input-container><label>Endpoint</label>
-				<input ng-model="sparql1.endpoint" required md-maxlength="42" type="url" style="padding: 5px">
+				<input ng-model="sparql1.endpoint" required md-maxlength="42" type="url">
 			</md-input-container><br>
 			<md-input-container><label>Graph</label>
-				<input ng-model="sparql1.graph" required md-maxlength="42" type="url" style="padding: 5px">
+				<input ng-model="sparql1.graph" required md-maxlength="42" type="url">
 			</md-input-container><br>
 			<md-input-container><label>Restrictions</label>
-				<input ng-model="sparql1.restrictions" required md-maxlength="42" type="text" style="padding: 5px">
+				<input ng-model="sparql1.restrictions" required md-maxlength="42" type="text">
 			</md-input-container><br>
 			<md-input-container><label>Var</label>
-				<input ng-model="sparql1.var" required md-maxlength="42" type="text" style="padding: 5px">
+				<input ng-model="sparql1.var" required md-maxlength="42" type="text">
 			</md-input-container> <br>
 			<md-input-container><label>Properties</label>
-				<input ng-model="sparql1.properties" required md-maxlength="42" type="text" style="padding: 5px">
+				<input ng-model="sparql1.properties" required md-maxlength="42" type="text">
 			</md-input-container><br>
 			  
 			
-			<hr><br>  
-  			<div class="btn-group" dropdown is-open="status.isopen">
-				<button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle ng-disabled="disabled">
-	 					Source 2 <span class="caret"></span>
-				</button>
+			<hr> 
+  			<div class="btn-group" dropdown>
+		      <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle>
+		        Fill with Target Template  <span class="caret"></span>
+		      </button>
 				<ul class="dropdown-menu">
-   					<li ng-repeat="sparql in options">
-			        	<a href>{{sparql.name}}</a>
-			      	</li>
-				</ul>
-			</div> 
-			 
+			        <li ng-repeat="sparql in servers">
+			        	<a ng-click="selectDropdown2(sparql.num)">{{sparql.data.id}}</a>
+			        </li>
+			    </ul>
+		    </div><br>
  			<md-input-container><label>ID</label>
-			    <input ng-model="sparql2.id" type="text" style="padding: 5px">
+			    <input ng-model="sparql2.id" type="text">
 			</md-input-container><br>
 			<md-input-container><label>Endpoint</label>
-				<input ng-model="sparql2.endpoint" type="url" style="padding: 5px">
+				<input ng-model="sparql2.endpoint" type="url">
 			</md-input-container><br>
 			<md-input-container><label>Graph</label>
-				<input ng-model="sparql2.graph"type="url" style="padding: 5px">
+				<input ng-model="sparql2.graph"type="url">
 			</md-input-container><br>
 			<md-input-container><label>Restrictions</label>
-				<input ng-model="sparql2.restrictions" type="text" style="padding: 5px">
+				<input ng-model="sparql2.restrictions" type="text">
 			</md-input-container><br>
 			<md-input-container><label>Var</label>
-				<input ng-model="sparql2.var"  type="text" style="padding: 5px">
+				<input ng-model="sparql2.var"  type="text">
 			</md-input-container> <br>
 			<md-input-container><label>Properties</label>
-				<input ng-model="sparql2.properties" type="text" style="padding: 5px">
+				<input ng-model="sparql2.properties" type="text">
 			</md-input-container><br>
-
+		<hr> 
+		<md-input-container><label>Metric Expression</label>
+				<input ng-model="linkspec.metricExpression" type="text">
+		</md-input-container><br>
+		<md-input-container><label>Acceptance Threshold</label>
+			<input ng-model="linkspec.acceptanceThreshold" type="number">
+		</md-input-container><br>
+		<hr>
+	  	<button ng-click="sendLinkSpec();">Send LinkSpec</button>
 	    </accordion-group>
-	    
-	    
-<!-- SEND LINKSPEC -->
-	    <accordion-group heading="Other Stuff" is-open="status.isFirstOpen">
-	      	<p>The body of the accordion group grows to fit the contents--------------------------</p>
- 			<button ng-click="sendLinkSpec();">Send LinkSpec</button>
-	    </accordion-group>
-	  </accordion>
-	</div>   
-    	
-	<div ng-controller="guiCtrl" style="position: absolute">
-		<button class="btn btn-default" ng-click="isCollapsed1 = !isCollapsed1">Toggle Menu</button>
-		
-		<div collapse="isCollapsed1">
-			<div class="well well-lg">
-			Test Menu
-				<div collapse="isCollapsed2">
-					<div class="well well-lg">
-						Session Menu 
-						<br><br>
-						<button disabled = "true" class="btn btn-default" ng-click="isCollapsed3 = true; isCollapsed2 = false">Previous</button>
-						<button class="btn btn-default" ng-click="isCollapsed2 = true; isCollapsed3 = false">Next</button>
-						<br>
-					</div>
-				</div>
-				<div collapse="isCollapsed3">
-					<div class="well well-lg">
-						LinkSpec Menu 
-						<br><br>
-						<button class="btn btn-default" ng-click="isCollapsed3 = true; isCollapsed2 = false">Previous</button>
-						<button class="btn btn-default" ng-click="isCollapsed3 = true; isCollapsed4 = false">Next</button>
-						<br>
-					</div>
-				</div>
-				<div collapse="isCollapsed4">
-					<div class="well well-lg">
-						Geomize Menu 
-						<br><br>
-						<button class="btn btn-default" ng-click="isCollapsed4 = true; isCollapsed3 = false">Previous</button>
-						<button disabled = "true" class="btn btn-default" ng-click="isCollapsed3 = true; isCollapsed4 = false">Next</button>
-						<br>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+	</div>	
 </body>
 
 </html>

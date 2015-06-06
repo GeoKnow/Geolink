@@ -1,4 +1,4 @@
-app.controller('AppCtrl', ['$scope','$http', function ($scope, $http) {
+app.controller('AppCtrl', ['$scope', '$rootScope', function ($scope, $rootScope) {
 
     var geoMapFactoryVirt = jassa.geo.GeoMapFactoryUtils.createWktMapFactory('http://www.w3.org/2003/01/geo/wgs84_pos#geometry', 'bif:st_intersects', 'bif:st_geomFromText');
     var geoMapFactoryAsWktVirt = jassa.geo.GeoMapFactoryUtils.createWktMapFactory('http://www.opengis.net/ont/geosparql#asWKT', 'bif:st_intersects', 'bif:st_geomFromText');
@@ -8,7 +8,7 @@ app.controller('AppCtrl', ['$scope','$http', function ($scope, $http) {
         var result = jassa.service.SparqlServiceBuilder.http(url, graphUris, {type: 'POST'}).cache().virtFix().paginate(1000).create();
         return result;
     };
-
+    
     //var sparqlServiceA = createSparqlService('http://dbpedia.org/sparql', ['http://dbpedia.org']);
     //var sparqlServiceB = createSparqlService('http://linkedgeodata.org/sparql', ['http://linkedgeodata.org']);
     var sparqlServiceA = createSparqlService('http://fastreboot.de:8890/sparql', ['http://fastreboot.de/dbpediatest']);
@@ -133,62 +133,10 @@ app.controller('AppCtrl', ['$scope','$http', function ($scope, $http) {
         $scope.dataSources.push(mapsource);
     };
 
-    $scope.sendLinkSpec = function () {
-        console.log('Send LinkSpec');
-        $http({
-            method:'POST',
-            url:'api/linking/executeFromSpec',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
-            data: "spec=" + encodeURIComponent(JSON.stringify($scope.linkspec)) + "&" +
-            "project=" + encodeURIComponent($scope.project) + "&" +
-            "username=" + encodeURIComponent($scope.username)
-        }).success( function (data, status, headers, config) {
-            console.log(JSON.stringify(data));
-            $scope.addGraph(data.sparql, data.graph);
-        }).error( function(data, status, headers, config) {
-            console.log(data);
-        });
-    };
 
     $scope.$watch('mapConfig', function (v) {
         console.log('Config changed: ' + JSON.stringify(v));
     }, true);
-
-
-    $scope.project = 'FooBar';
-    $scope.username = 'Bob';
-
-    $scope.prefixes = {
-        rdfs: 'http://www.w3.org/2000/01/rdf-schema#'
-    };
-
-    $scope.linkspec = {
-        prefixes: $scope.prefixes,
-        sourceInfo: {
-            id: 'DBpedia',
-            type: 'sparql',
-            //endpoint: 'http://dbpedia.org/sparql',
-            endpoint: 'http://fastreboot.de:8890/sparql',
-            //graph: 'http://dbpedia.org',
-            graph: 'http://fastreboot.de/dbpediatest',
-            restrictions: ['?x a <http://dbpedia.org/ontology/Airport>'],
-            'var': '?x',
-            properties: ['rdfs:label AS nolang->lowercase']
-        },
-        targetInfo: {
-            id: 'LinkedGeoData',
-            type: 'sparql',
-            //endpoint: 'http://linkedgeodata.org/sparql',
-            endpoint: 'http://fastreboot.de:8890/sparql',
-            //graph: 'http://linkedgeodata.org',
-            graph: 'http://fastreboot.de/lgdtest',
-            restrictions: ['?y a <http://linkedgeodata.org/ontology/Airport>'],
-            'var': '?y',
-            properties: ['rdfs:label AS nolang->lowercase']
-        },
-        metricExpression: 'trigrams(x.rdfs:label, y.rdfs:label)',
-        acceptanceThreshold: 0.9
-    };
 
     $scope.links = ['test', 'foobar'];
 
@@ -265,4 +213,95 @@ app.controller('AppCtrl', ['$scope','$http', function ($scope, $http) {
         }]
     }
     ]
+    $rootScope.$on("Update", function(event, data) {
+    	$scope.addGraph(data.sparql, data.graph);
+      });
+}]);
+
+
+app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $http, $rootScope) {
+//	test menu
+	$scope.isCollapsed1 = true;
+	$scope.isCollapsed2 = false;
+	$scope.isCollapsed3 = true;
+	$scope.isCollapsed4 = true;
+	
+//	accordion-group
+	$scope.oneAtATime = false;
+	$scope.status = {
+		isFirstOpen: true,
+	    isFirstDisabled: false,	
+	};
+	
+//	md-input-container
+	$scope.session = {
+		username: "BobJr",
+		project: "ThisProject",
+	};
+	$scope.sparql1 = {
+		id: 'DBpedia',
+		type: 'sparql',
+		//endpoint: 'http://dbpedia.org/sparql',
+		endpoint: 'http://fastreboot.de:8890/sparql',
+		//graph: 'http://dbpedia.org',
+		graph: 'http://fastreboot.de/dbpediatest',
+		restrictions: ['?x a <http://dbpedia.org/ontology/Airport>'],
+		'var': '?x',
+		properties: ['rdfs:label AS nolang->lowercase']
+	};
+	$scope.sparql2 = {
+		id: 'LinkedGeoData',
+		type: 'sparql',
+		//endpoint: 'http://linkedgeodata.org/sparql',
+		endpoint: 'http://fastreboot.de:8890/sparql',
+		//graph: 'http://linkedgeodata.org',
+		graph: 'http://fastreboot.de/lgdtest',
+		restrictions: ['?y a <http://linkedgeodata.org/ontology/Airport>'],
+		'var': '?y',
+		properties: ['rdfs:label AS nolang->lowercase']
+	};
+	$scope.prefixes = {
+	        rdfs: 'http://www.w3.org/2000/01/rdf-schema#'
+	    };
+    $scope.linkspec = {
+        prefixes: $scope.prefixes,
+        sourceInfo: $scope.sparql1,
+        targetInfo: $scope.sparql2,
+        metricExpression: 'trigrams(x.rdfs:label, y.rdfs:label)',
+        acceptanceThreshold: 0.9
+    }; 
+	$scope.options =     [{ name: "SPARQL A", id: 1 },
+	                      { name: "SPARQL B", id: 2 },
+	                      { name: "SPARQL C", id: 3 },];
+	$scope.selectedOption1 = $scope.options[0];
+	$scope.selectedOption2 = $scope.options[1];
+	
+	$scope.toggleDropdown = function($event) {
+		$event.preventDefault();
+	    $event.stopPropagation();
+	    $scope.status.isopen = !$scope.status.isopen;
+	};
+	
+	
+//	SEND THE LINKSPEC
+    $scope.sendLinkSpec = function () {
+    	console.log($scope.sparql1);
+    	console.log($scope.sparql2);
+        console.log('Send LinkSpec');
+        console.log($scope.linkspec);
+        $http({
+            method:'POST',
+            url:'api/linking/executeFromSpec',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+            data: "spec=" + encodeURIComponent(JSON.stringify($scope.linkspec)) + "&" +
+            "project=" + encodeURIComponent($scope.session.project) + "&" +
+            "username=" + encodeURIComponent($scope.session.username)
+        }).success( function (data, status, headers, config) {
+            console.log(JSON.stringify(data));
+//            $scope.addGraph(data.sparql, data.graph);
+            $rootScope.$broadcast("Update", data);
+        }).error( function(data, status, headers, config) {
+            console.log(data);
+        });
+    };
 }]);

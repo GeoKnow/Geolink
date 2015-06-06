@@ -32,6 +32,7 @@ geolink-webapp/target/
 .classpath
 .project
 .settings/
+.tern-project
 geolink-core/.classpath
 geolink-core/.project
 geolink-core/.settings/

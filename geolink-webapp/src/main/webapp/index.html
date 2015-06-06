@@ -46,8 +46,7 @@
     <!--     <script src="scripts/lib/angular-ui/0.10.0/ui-bootstrap-tpls-0.10.0.js"></script> -->
     <!--     <script src="bower_components/underscore.string/lib/underscore.string.js"></script> -->
 
-    <script src="bower_components/openlayers/lib/OpenLayers.js"></script>
-
+	<script src="bower_components/openlayers/lib/OpenLayers.js"></script>
     <!-- endbuild -->
 
     <script type="text/ng-template" id="predicateGroup.html">
@@ -89,9 +88,6 @@
                     });
             return r;
         });
-
-
-
     </script>
 
 </head>
@@ -140,6 +136,7 @@
 
     <!-- Controllers -->
     <script src="scripts/js/controllers/MainController.js"></script>
+    <script src="scripts/js/controllers/GUIController.js"></script>
 
     <!-- Directives -->
     <!--
@@ -149,53 +146,103 @@
     <!-- Services -->
     
 	<!-- GUI --> 
-    <script>
-		app.controller('CollapseCtrl', function($scope) {
-			$scope.isCollapsed1 = true;
-			$scope.isCollapsed2 = false;
-			$scope.isCollapsed3 = true;
-			$scope.isCollapsed4 = true;
-			});
-		app.controller('AccordionCtrl', function ($scope) {
-			  $scope.oneAtATime = false;
-			  $scope.status = {
-			    isFirstOpen: true,
-			    isFirstDisabled: false,	
-			  };
-			});
-		app.controller('DropdownCtrl', function ($scope, $log) {
-			  $scope.items = [
-			    'SPARQL12',
-			    'SPARQL2',
-			    'SPARQL3'
-			  ];
 
-			  $scope.status = {
-			    isopen: false
-			  };
-
-			  $scope.toggled = function(open) {
-			    $log.log('Dropdown is now: ', open);
-			  };2
-
-			  $scope.toggleDropdown = function($event) {
-			    $event.preventDefault();
-			    $event.stopPropagation();
-			    $scope.status.isopen = !$scope.status.isopen;
-			  };
+	<div ng-controller="guiCtrl" style="position: absolute; top: 200px">
+	  <accordion close-others="oneAtATime">
+	    <accordion-group heading="Session Menu" is-open="status.isFirstOpen" is-disabled="status.isFirstDisabled">
+	      Session Stuff Here<br><br>
+		      <md-input-container><label>Username</label>
+			    <input ng-model="session.username" required md-maxlength="42" type="text" style="padding: 5px">
+			  </md-input-container><br>
+			  <md-input-container><label>Project Name</label>
+			    <input ng-model="session.project" required md-maxlength="42" type="text" style="padding: 5px">
+			  </md-input-container>
+	    </accordion-group>
+	    <accordion-group heading="LinkSpec Creation" is-open="status.isFirstOpen">
+			<h>LinkSpec Stuff Here </h> 
+			<br>
+			<select class="btn-group" data-ng-options="o.name for o in options" data-ng-model="selectedOption1"></select>
+			<select class="btn-group" data-ng-options="o.name for o in options" data-ng-model="selectedOption2"></select>
+			<hr>
+			
+		    <div class="btn-group" dropdown is-open="dropdown1.status.isopen">
+		      <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle ng-disabled="disabled">
+		        Source 1 <span class="caret"></span>
+		      </button>
+				<ul class="dropdown-menu">
+			        <li ng-repeat="sparql in options">
+			          <a href>{{sparql.name}}</a>
+			        </li>
+			    </ul>
+		    </div><br>
+			<md-input-container><label>ID</label>
+			    <input ng-model="sparql1.id" required md-maxlength="42" type="text" style="padding: 5px">
+			</md-input-container><br>
+			<md-input-container><label>Endpoint</label>
+				<input ng-model="sparql1.endpoint" required md-maxlength="42" type="url" style="padding: 5px">
+			</md-input-container><br>
+			<md-input-container><label>Graph</label>
+				<input ng-model="sparql1.graph" required md-maxlength="42" type="url" style="padding: 5px">
+			</md-input-container><br>
+			<md-input-container><label>Restrictions</label>
+				<input ng-model="sparql1.restrictions" required md-maxlength="42" type="text" style="padding: 5px">
+			</md-input-container><br>
+			<md-input-container><label>Var</label>
+				<input ng-model="sparql1.var" required md-maxlength="42" type="text" style="padding: 5px">
+			</md-input-container> <br>
+			<md-input-container><label>Properties</label>
+				<input ng-model="sparql1.properties" required md-maxlength="42" type="text" style="padding: 5px">
+			</md-input-container><br>
 			  
-			  $scope.options = [{ name: "SPARQL1", id: 1 },
-			                    { name: "SPARQL2", id: 2 },
-			                    { name: "SPARQL3", id: 3 },];
-			  $scope.selectedOption = $scope.options[0];
-			});
-	</script>
-	
-	<div ng-controller="CollapseCtrl" style="position: absolute">
+			
+			<hr><br>  
+  			<div class="btn-group" dropdown is-open="status.isopen">
+				<button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle ng-disabled="disabled">
+	 					Source 2 <span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+   					<li ng-repeat="sparql in options">
+			        	<a href>{{sparql.name}}</a>
+			      	</li>
+				</ul>
+			</div> 
+			 
+ 			<md-input-container><label>ID</label>
+			    <input ng-model="sparql2.id" type="text" style="padding: 5px">
+			</md-input-container><br>
+			<md-input-container><label>Endpoint</label>
+				<input ng-model="sparql2.endpoint" type="url" style="padding: 5px">
+			</md-input-container><br>
+			<md-input-container><label>Graph</label>
+				<input ng-model="sparql2.graph"type="url" style="padding: 5px">
+			</md-input-container><br>
+			<md-input-container><label>Restrictions</label>
+				<input ng-model="sparql2.restrictions" type="text" style="padding: 5px">
+			</md-input-container><br>
+			<md-input-container><label>Var</label>
+				<input ng-model="sparql2.var"  type="text" style="padding: 5px">
+			</md-input-container> <br>
+			<md-input-container><label>Properties</label>
+				<input ng-model="sparql2.properties" type="text" style="padding: 5px">
+			</md-input-container><br>
+
+	    </accordion-group>
+	    
+	    
+<!-- SEND LINKSPEC -->
+	    <accordion-group heading="Other Stuff" is-open="status.isFirstOpen">
+	      	<p>The body of the accordion group grows to fit the contents--------------------------</p>
+ 			<button ng-click="sendLinkSpec();">Send LinkSpec</button>
+	    </accordion-group>
+	  </accordion>
+	</div>   
+    	
+	<div ng-controller="guiCtrl" style="position: absolute">
 		<button class="btn btn-default" ng-click="isCollapsed1 = !isCollapsed1">Toggle Menu</button>
 		
 		<div collapse="isCollapsed1">
 			<div class="well well-lg">
+			Test Menu
 				<div collapse="isCollapsed2">
 					<div class="well well-lg">
 						Session Menu 
@@ -226,36 +273,6 @@
 			</div>
 		</div>
 	</div>
-
-	<div ng-controller="AccordionCtrl" style="position: absolute; top: 220px">
-	  <accordion close-others="oneAtATime">
-	    <accordion-group heading="Session Menu" is-open="status.isFirstOpen" is-disabled="status.isFirstDisabled">
-	      Session Stuff Here
-	    </accordion-group>
-	    <accordion-group heading="LinkSpec Creation" is-open="status.isFirstOpen">
-			<h>LinkSpec Stuff Here </h> 
-			<br><br>
-			<div ng-controller="DropdownCtrl">
-			    <div class="btn-group" dropdown is-open="status.isopen">
-			      <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle ng-disabled="disabled">
-			        Source <span class="caret"></span>
-			      </button>
-			      <ul class="dropdown-menu" role="menu">
-			        <li><a href="#">SPARQL 1</a></li>
-			        <li><a href="#">SPARQL 2</a></li>
-			        <li><a href="#">SPARQL 3</a></li>
-			      </ul>
-			    </div>
-			    <select class="btn-group" data-ng-options="o.name for o in options" data-ng-model="selectedOption"></select>
-			</div> 
-	    </accordion-group>
-	    <accordion-group heading="Other Stuff" is-open="status.isFirstOpen">
-	      <p>The body of the accordion group grows to fit the contents--------------------------</p>
- 
-	    </accordion-group>
-	  </accordion>
-	</div>   
-    
 </body>
 
 </html>

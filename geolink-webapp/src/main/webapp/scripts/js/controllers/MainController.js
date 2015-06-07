@@ -166,13 +166,13 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
         linkStore.addMap({
             name: 'dbpedia-data',
             template: 'spo',
-            service: $scope.sparqlServices[1]
+            service: $scope.sparqlServices[0]
         });
 
         linkStore.addMap({
             name: 'lgd-data',
             template: 'spo',
-            service: $scope.sparqlServices[0]
+            service: $scope.sparqlServices[1]
         });
 
         linkStore.addMap({
@@ -196,7 +196,6 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
     $scope.numItems = 10;
 
     var orderBySource = function(map) {
-        console.log("ORDER Source!!!!!");
         var result = Object.keys(map);
         _(result).orderBy(function(item) {
             var s = item.sources;
@@ -207,7 +206,6 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
     };
 
     $scope.sourceOrderFn = function(item) {
-        console.log("ORDER FN!!!!!");
         var s = item.sources;
         var r = s.length + '-' + s.join('-');
         //console.log('Item: ', item, r);

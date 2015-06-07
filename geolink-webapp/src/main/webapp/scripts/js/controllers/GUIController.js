@@ -1,10 +1,10 @@
 app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $http, $rootScope) {
 //	accordion-group
-	$scope.oneAtATime = false;
+	$scope.oneAtATime = true;
 	$scope.status = {
 		isFirstOpen: true,
 	    isFirstDisabled: false,	
-	    isLinkSpecOpen: true
+	    isLinkSpecOpen: false
 	};
 	
 //	md-input-container

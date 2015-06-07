@@ -1,5 +1,11 @@
 var app = angular.module('GeolinkClient', ['ui.bootstrap', 'ui.jassa', 'ui.jassa.openlayers']);
 
+app.filter('objectToArray', function() {
+    return function (input) {
+        var r = _.values(input);
+        return r;
+    }
+});
 
 
 /*

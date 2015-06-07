@@ -1,4 +1,4 @@
-app.controller('AppCtrl', ['$scope', '$rootScope', function ($scope, $rootScope) {
+app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $rootScope) {
 
     var geoMapFactoryVirt = jassa.geo.GeoMapFactoryUtils.createWktMapFactory('http://www.w3.org/2003/01/geo/wgs84_pos#geometry', 'bif:st_intersects', 'bif:st_geomFromText');
     var geoMapFactoryAsWktVirt = jassa.geo.GeoMapFactoryUtils.createWktMapFactory('http://www.opengis.net/ont/geosparql#asWKT', 'bif:st_intersects', 'bif:st_geomFromText');
@@ -9,13 +9,6 @@ app.controller('AppCtrl', ['$scope', '$rootScope', function ($scope, $rootScope)
         return result;
     };
     
-    //var sparqlServiceA = createSparqlService('http://dbpedia.org/sparql', ['http://dbpedia.org']);
-    //var sparqlServiceB = createSparqlService('http://linkedgeodata.org/sparql', ['http://linkedgeodata.org']);
-//    var sparqlServiceA = createSparqlService('http://fastreboot.de:8890/sparql', ['http://fastreboot.de/dbpediatest']);
-//    var sparqlServiceB = createSparqlService('http://fastreboot.de:8890/sparql', ['http://fastreboot.de/lgdtest']);
-    //var sparqlServiceC = createSparqlService('http://fastreboot.de:8890/sparql', ['http://fastreboot.de/geomizeddata']);
-
-
     $scope.langs = ['en', 'de'];
 
     // TODO: Whenever the facet selection changes, we need to recreate the map data source service for the modified concept
@@ -68,11 +61,9 @@ app.controller('AppCtrl', ['$scope', '$rootScope', function ($scope, $rootScope)
 
     var bounds = new jassa.geo.Bounds(7.0, 49.0, 9, 51.0);
     
-    $scope.dataSources = [
-//        createMapDataSource(sparqlServiceA, geoMapFactoryVirt, conceptA, '#CC0020'),
-//        createMapDataSource(sparqlServiceB, geoMapFactoryWgs, conceptB, '#2000CC')
-        //createMapDataSource(sparqlServiceC, geoMapFactoryAsWktVirt, conceptC, '#20CC20')
-    ];
+    $scope.dataSources = [];
+
+    $scope.sparqlServices = [];
 
     $scope.selectGeom = function (data) {
         alert(JSON.stringify(data.id));
@@ -110,106 +101,143 @@ app.controller('AppCtrl', ['$scope', '$rootScope', function ($scope, $rootScope)
 
     $scope.links = ['test', 'foobar'];
 
-    $scope.diff = [{
-        id: 'http://myfirstList',
-        displayLabel: 'Link1',
-        source: {
-            id: 'http://foo',
-            displayLabel: 'Foo'
-        },
-        target: {
-            id: 'http://bar',
-            displayLabel: 'Bar'
-        },
-        predicateGroups: [{
-            id: 'http://my-label-group',
-            displayLabel: 'LabelGroup',
-            members: [{
-                predicate: {
-                    id: 'http://rdfs/label',
-                    displayLabel: 'label'
-                },
-                value: {
-                    id: 'http://foo/Anne',
-                    displayLabel: 'Anne'
-                },
-                status: 'added'
-            }, {
-                predicate: {
-                    id: 'http://skos/label',
-                    displayLabel: 'skos-label'
-                },
-                value: {
-                    id: 'http://foo/Anne',
-                    displayLabel: 'Anne'
-                },
-                status: 'added'
-            }]
-        }, {
-            id: 'http://my-label-group',
-            displayLabel: 'TypeGroup',
-            children: [{
-                id: 'http://my-type-subgroup',
-                displayLabel: 'TypeSubGroup',
-                children: [{
-                    id: 'http://subsub',
-                    displayLabel: 'TypeSubSubGroup'
-                }
-                ]
-
-            }
-            ],
-            members: [{
-                predicate: {
-                    id: 'http://rdfs/label',
-                    displayLabel: 'label'
-                },
-                value: {
-                    id: 'http://foo/Anne',
-                    displayLabel: 'Anne'
-                },
-                status: 'added'
-            }, {
-                predicate: {
-                    id: 'http://skos/label',
-                    displayLabel: 'skos-label'
-                },
-                value: {
-                    id: 'http://foo/Anne',
-                    displayLabel: 'Anne'
-                },
-                status: 'added'
-            }]
-        }]
-    }
-    ]
     $rootScope.$on("Clear", function() {
         for(var i=0; i < $scope.dataSources.length; ++i) {
             delete $scope.dataSources[i];
         }
+        for(var i=0; i < $scope.sparqlServices.length; ++i) {
+            delete $scope.sparqlServices[i];
+        }
     });
+
     $rootScope.$on("Source1", function(event, data) {
-    	sparqlService = createSparqlService(data.sparql, data.graph);
+    	var sparqlService = createSparqlService(data.sparql, data.graph);
+        $scope.sparqlServices.push(sparqlService);
         var conceptA = jassa.sparql.ConceptUtils.createTypeConcept('http://dbpedia.org/ontology/Airport');
-    	var mapsource = createMapDataSource(sparqlService, geoMapFactoryVirt, conceptA, '2000CC#');
+    	var mapsource = createMapDataSource(sparqlService, geoMapFactoryVirt, conceptA, '#2000CC');
         console.log("add to datasource 1");
         console.log(mapsource);
         $scope.dataSources.push(mapsource);
     });
+
     $rootScope.$on("Source2", function(event, data) {
-    	sparqlService = createSparqlService(data.sparql, data.graph);
+    	var sparqlService = createSparqlService(data.sparql, data.graph);
+        $scope.sparqlServices.push(sparqlService);
         var conceptB = jassa.sparql.ConceptUtils.createTypeConcept('http://linkedgeodata.org/ontology/Airport');
     	var mapsource = createMapDataSource(sparqlService, geoMapFactoryWgs, conceptB, '#CC0020');
         console.log("add to datasource 2");
         console.log(mapsource);
         $scope.dataSources.push(mapsource);
     });
+
     $rootScope.$on("Source3", function(event, data) {
-    	sparqlService = createSparqlService(data.sparql, data.graph);
+    	var sparqlService = createSparqlService(data.sparql, data.graph);
+        $scope.sparqlServices.push(sparqlService);
         var conceptC = jassa.sparql.ConceptUtils.createTypeConcept('http://www.linklion.org/ontology#Link');
         var mapsource = createMapDataSource(sparqlService, geoMapFactoryAsWktVirt, conceptC, '#20CC20');
         console.log("add to datasource 3");
         console.log(mapsource);
         $scope.dataSources.push(mapsource);
+
+
+        // Link List
+        linkStore = new jassa.sponate.StoreFacade($scope.sparqlServices[2], {
+            'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+            'llo': 'http://www.linklion.org/ontology#'
+        });
+
+        linkStore.addTemplate({
+            name: 'spo',
+            template: [{
+                id: '?s',
+                displayLabel: { $ref: { target: mappedConcept, attr: 'displayLabel' }},
+                predicates: [{
+                    id: '?p',
+                    displayLabel: { $ref: { target: mappedConcept, attr: 'displayLabel', on: '?p' }},
+                    values: [{
+                        id: '?o',
+                        displayLabel: { $ref: { target: mappedConcept, attr: 'displayLabel', on: '?o' }}
+                    }]
+                }]
+            }],
+            from: '?s ?p ?o'
+        });
+
+        linkStore.addMap({
+            name: 'dbpedia-data',
+            template: 'spo',
+            service: $scope.sparqlServices[1]
+        });
+
+        linkStore.addMap({
+            name: 'lgd-data',
+            template: 'spo',
+            service: $scope.sparqlServices[0]
+        });
+
+        linkStore.addMap({
+            name: 'links',
+            template: [{
+                id: '?l',
+                source: { $ref: { target: 'dbpedia-data', on: '?s' } },
+                target: { $ref: { target: 'lgd-data', on: '?t' } }
+            }],
+            from: '?l a llo:Link; rdf:subject ?s; rdf:object ?t'
+        });
+
+
+    });
+
+    var bestLiteralConfig = new jassa.sparql.BestLabelConfig(); //['ja', 'ko', 'en', '']);
+    var mappedConcept = jassa.sponate.MappedConceptUtils.createMappedConceptBestLabel(bestLiteralConfig);
+
+    $scope.offset = 0;
+
+    $scope.numItems = 10;
+
+    var orderBySource = function(map) {
+        console.log("ORDER Source!!!!!");
+        var result = Object.keys(map);
+        _(result).orderBy(function(item) {
+            var s = item.sources;
+            var r = s.length + '-' + s.join('-');
+            return r;
+        });
+        return result;
+    };
+
+    $scope.sourceOrderFn = function(item) {
+        console.log("ORDER FN!!!!!");
+        var s = item.sources;
+        var r = s.length + '-' + s.join('-');
+        //console.log('Item: ', item, r);
+        return r;
+    };
+
+    $scope.$watchCollection('[offset, numItems]', function(newi, oldi) {
+        console.log("HIIIIIIIEEEEERRRRRRRR");
+        console.log(oldi);
+        console.log(newi);
+        if(typeof linkStore != "undefined") {
+            console.log(linkStore);
+            $q.when(linkStore.links.getListService().fetchItems(null, $scope.numItems, $scope.offset).then(function (entries) {
+                return entries.map(function (entry) {
+                    return entry.val;
+                });
+            })).then(function (links) {
+                // Enrich links with a cluster for the predicates
+                links.forEach(function (link) {
+                    var cluster = jassa.util.ClusterUtils.clusterLink(link);
+                    // TODO Add the property display labels
+//                     _(cluster).forEach(function(cluster) {
+//                     })
+                    link.cluster = cluster;
+                });
+                //console.log('Links: ', links);
+                $scope.links = links;
+                console.log("LINKS");
+                console.log($scope.links);
+            })
+        }
     });
 }]);

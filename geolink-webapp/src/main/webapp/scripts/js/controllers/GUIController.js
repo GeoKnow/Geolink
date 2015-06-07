@@ -71,26 +71,28 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
         targetInfo: $scope.servers[3].data,
         metricExpression: 'trigrams(x.rdfs:label, y.rdfs:label)',
         acceptanceThreshold: 0.9
-    }; 
+    };
 
-	$scope.selectDropdown1 = function(id) {
+    $rootScope.$broadcast("Source",{"graph": $scope.linkspec.sourceInfo.graph, "sparql": $scope.linkspec.sourceInfo.endpoint});
+    $rootScope.$broadcast("Target",{"graph": $scope.linkspec.targetInfo.graph, "sparql": $scope.linkspec.targetInfo.endpoint});
+
+    $scope.selectDropdown1 = function(id) {
 	    console.log("selectDropdown1 THE IS IS: " + id);
 	    $scope.linkspec.sourceInfo = $scope.servers[id].data;
-	};
+        $rootScope.$broadcast("Source",{"graph": $scope.linkspec.sourceInfo.graph, "sparql": $scope.linkspec.sourceInfo.endpoint});
+    };
 	
 	$scope.selectDropdown2 = function(id) {
 	    console.log("selectDropdown2 THE IS IS: " + id);
 	    $scope.linkspec.targetInfo = $scope.servers[id].data;
-	};
-	
+        $rootScope.$broadcast("Target",{"graph": $scope.linkspec.targetInfo.graph, "sparql": $scope.linkspec.targetInfo.endpoint});
+    };
+
+
 //	SEND THE LINKSPEC
     $scope.sendLinkSpec = function () {
         console.log('Send LinkSpec');
-        console.log($scope.linkspec);        
-        $rootScope.$broadcast("Clear");
-        $rootScope.$broadcast("Source1",{"graph": $scope.linkspec.sourceInfo.graph, "sparql": $scope.linkspec.sourceInfo.endpoint});
-        $rootScope.$broadcast("Source2",{"graph": $scope.linkspec.targetInfo.graph, "sparql": $scope.linkspec.targetInfo.endpoint});
-
+        console.log($scope.linkspec);
         $http({
             method:'POST',
             url:'api/linking/executeFromSpec',
@@ -101,7 +103,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
         }).success( function (data, status, headers, config) {
             console.log(JSON.stringify(data));
 //            $scope.addGraph(data.sparql, data.graph);
-            $rootScope.$broadcast("Source3", data);
+            $rootScope.$broadcast("Link", data);
         }).error( function(data, status, headers, config) {
             console.log(data);
         });

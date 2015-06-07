@@ -78,17 +78,16 @@
             white-space: pre;
         }
         td {
-        	border: 0px solid black;
-        }
-        padding {
-        	padding-top: 500px;
+            border: 0px solid black;
         }
     </style>
 </head>
 
 <body ng-controller="AppCtrl">
 
-<div jassa-map-ol="map" style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%" config="mapConfig" data-sources="dataSources" select="selectGeom(data)"></div>
+<div jassa-map-ol="map" style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%" config="mapConfig" data-sources="mapSources" select="selectGeom(data)">
+
+</div>
 
 <!-- GUI -->
 <div ng-controller="guiCtrl" style="position: absolute; top: 10px">
@@ -96,25 +95,25 @@
 
         <accordion-group heading="Session Menu" is-open="status.isFirstOpen" is-disabled="status.isFirstDisabled">
             <table class="linkspecTable">
-		  		<tr>
-		    		<td>
-            			<label>Username</label>
-           			</td><td>
-                		<input ng-model="session.username" type="text" >
-					</td>
-				</tr>
-	  			<tr>
-	  				<td>
-            			<label>Project Name</label>
-           			</td><td>
-                		<input ng-model="session.project" type="text">
-            		</td>
-				</tr>
-			</table>
+                <tr>
+                    <td>
+                        <label>Username</label>
+                    </td><td>
+                    <input ng-model="session.username" type="text" >
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Project Name</label>
+                    </td><td>
+                    <input ng-model="session.project" type="text">
+                </td>
+                </tr>
+            </table>
         </accordion-group>
 
         <accordion-group heading="LinkSpec Creation" is-open="status.isLinkSpecOpen">
-    		<div class="btn-group" dropdown>
+            <div class="btn-group" dropdown>
                 <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle>
                     Fill with Source Template <span class="caret"></span>
                 </button>
@@ -124,102 +123,102 @@
                     </li>
                 </ul>
             </div>
-	
-       		<input ng-model="linkspec.sourceInfo.id" style="width: 192px" type="text">
-	    		
-			<table class="linkspecTable">
-		  		<tr>
-		    		<td>
-		    			<label>Endpoint</label>
-	    			</td><td>
-		    			<input ng-model="linkspec.sourceInfo.endpoint" type="url">
-		    		</td>
-		  		</tr>
-		  		<tr>
-		    		<td>
-		    			<label>Graph</label>
-	    			</td><td>
-                		<input ng-model="linkspec.sourceInfo.graph" type="url">
-                	</td>
-		  		</tr>
-		  		<tr>
-		    		<td>
-		    			<label>Restrictions</label>
-	    			</td><td>
-                		<input ng-model="linkspec.sourceInfo.restrictions" type="text">
-		  			</td>
-		  		</tr>
-		  		<tr>
-		    		<td>
-		    			<label>Var</label>
-	    			</td><td>
-                		<input ng-model="linkspec.sourceInfo.var" type="text">
-		  			</td>
-		  		</tr>
-		  		<tr>
-		    		<td>
-		    			<label>Properties</label>
-	    			</td><td>
-                		<input ng-model="linkspec.sourceInfo.properties" type="text">
-		  			</td>
-		  		</tr>
-			</table>
-			
-			<div style="padding-top: 10px;">
-	            <div class="btn-group" dropdown>
-	                <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle>
-	                    Fill with Target Template  <span class="caret"></span>
-	                </button>
-	                <ul class="dropdown-menu">
-	                    <li ng-repeat="server in servers">
-	                        <a ng-click="selectDropdown2(server.num)">{{server.data.id}}</a>
-	                    </li>
-	                </ul>
-	            </div>
-            
-            	<input ng-model="linkspec.targetInfo.id" style="width: 195px" type="text">
-			</div>
-			
-			<table class="linkspecTable">
-		  		<tr>
-		    		<td>
-		    			<label>Endpoint</label>
-	    			</td><td>
-		    			<input ng-model="linkspec.targetInfo.endpoint" type="url">
-		    		</td>
-		  		</tr>
-		  		<tr>
-		    		<td>
-		    			<label>Graph</label>
-	    			</td><td>
-                		<input ng-model="linkspec.targetInfo.graph" type="url">
-                	</td>
-		  		</tr>
-		  		<tr>
-		    		<td>
-		    			<label>Restrictions</label>
-	    			</td><td>
-                		<input ng-model="linkspec.targetInfo.restrictions" type="text">
-		  			</td>
-		  		</tr>
-		  		<tr>
-		    		<td>
-		    			<label>Var</label>
-	    			</td><td>
-                		<input ng-model="linkspec.targetInfo.var" type="text">
-		  			</td>
-		  		</tr>
-		  		<tr>
-		    		<td>
-		    			<label>Properties</label>
-	    			</td><td>
-                		<input ng-model="linkspec.targetInfo.properties" type="text">
-		  			</td>
-		  		</tr>
-			</table>
-			<div style="padding-top: 10px;">
-            	<button class="btn btn-primary" ng-click="sendLinkSpec();" style="width: 100%; top: 10px; padding: 5px">Send LinkSpec</button>
-        	</div>
+
+            <input ng-model="linkspec.sourceInfo.id" style="width: 192px" type="text">
+
+            <table class="linkspecTable">
+                <tr>
+                    <td>
+                        <label>Endpoint</label>
+                    </td><td>
+                    <input ng-model="linkspec.sourceInfo.endpoint" type="url">
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Graph</label>
+                    </td><td>
+                    <input ng-model="linkspec.sourceInfo.graph" type="url">
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Restrictions</label>
+                    </td><td>
+                    <input ng-model="linkspec.sourceInfo.restrictions" type="text">
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Var</label>
+                    </td><td>
+                    <input ng-model="linkspec.sourceInfo.var" type="text">
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Properties</label>
+                    </td><td>
+                    <input ng-model="linkspec.sourceInfo.properties" type="text">
+                </td>
+                </tr>
+            </table>
+
+            <div style="padding-top: 10px;">
+                <div class="btn-group" dropdown>
+                    <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle>
+                        Fill with Target Template  <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li ng-repeat="server in servers">
+                            <a ng-click="selectDropdown2(server.num)">{{server.data.id}}</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <input ng-model="linkspec.targetInfo.id" style="width: 195px" type="text">
+            </div>
+
+            <table class="linkspecTable">
+                <tr>
+                    <td>
+                        <label>Endpoint</label>
+                    </td><td>
+                    <input ng-model="linkspec.targetInfo.endpoint" type="url">
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Graph</label>
+                    </td><td>
+                    <input ng-model="linkspec.targetInfo.graph" type="url">
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Restrictions</label>
+                    </td><td>
+                    <input ng-model="linkspec.targetInfo.restrictions" type="text">
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Var</label>
+                    </td><td>
+                    <input ng-model="linkspec.targetInfo.var" type="text">
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Properties</label>
+                    </td><td>
+                    <input ng-model="linkspec.targetInfo.properties" type="text">
+                </td>
+                </tr>
+            </table>
+            <div style="padding-top: 10px;">
+                <button class="btn btn-primary" ng-click="sendLinkSpec();" style="width: 100%; top: 10px; padding: 5px">Send LinkSpec</button>
+            </div>
         </accordion-group>
 </div>
 

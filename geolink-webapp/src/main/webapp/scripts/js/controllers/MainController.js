@@ -61,9 +61,9 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
 
     var bounds = new jassa.geo.Bounds(7.0, 49.0, 9, 51.0);
     
-    $scope.dataSources = [];
-
-    $scope.sparqlServices = [];
+    $scope.mapSources = [];
+    $scope.dataSources = {};
+    $scope.sparqlServices = {};
 
     $scope.selectGeom = function (data) {
         alert(JSON.stringify(data.id));
@@ -87,8 +87,8 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
 
     $scope.logDatasources = function () {
 
-        for (var i = 0; i < $scope.dataSources.length; i++) {
-            var foo1 = $scope.dataSources[i].fetchData(bounds);
+        for (var key in $scope.dataSources) {
+            var foo1 = $scope.dataSources[key].fetchData(bounds);
             foo1.then(function (entries) {
                 console.log(entries);
             });
@@ -101,43 +101,42 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
 
     $scope.links = ['test', 'foobar'];
 
-    $rootScope.$on("Clear", function() {
-        for(var i=0; i < $scope.dataSources.length; ++i) {
-            delete $scope.dataSources[i];
-        }
-        for(var i=0; i < $scope.sparqlServices.length; ++i) {
-            delete $scope.sparqlServices[i];
-        }
-    });
+    $scope.updateMapSources = function() {
 
-    $rootScope.$on("Source1", function(event, data) {
-    	var sparqlService = createSparqlService(data.sparql, data.graph);
-        $scope.sparqlServices.push(sparqlService);
+        for(var i = 0; i < $scope.mapSources; i++) {
+            delete $scope.mapSources[i];
+        }
+        $scope.mapSources = [];
+
+        for(var key in $scope.dataSources) {
+            $scope.mapSources.push($scope.dataSources[key]);
+        }
+                console.log($scope.mapSources);
+
+    };
+
+    $rootScope.$on("Source", function(event, data) {
+        $scope.sparqlServices[0] = createSparqlService(data.sparql, data.graph);
         var conceptA = jassa.sparql.ConceptUtils.createTypeConcept('http://dbpedia.org/ontology/Airport');
-    	var mapsource = createMapDataSource(sparqlService, geoMapFactoryVirt, conceptA, '#2000CC');
-        console.log("add to datasource 1");
-        console.log(mapsource);
-        $scope.dataSources.push(mapsource);
+        $scope.dataSources[0] = createMapDataSource($scope.sparqlServices[0], geoMapFactoryVirt, conceptA, '#2000CC');
+        $scope.updateMapSources();
+        console.log("add to source datasource");
     });
 
-    $rootScope.$on("Source2", function(event, data) {
-    	var sparqlService = createSparqlService(data.sparql, data.graph);
-        $scope.sparqlServices.push(sparqlService);
+    $rootScope.$on("Target", function(event, data) {
+        $scope.sparqlServices[1] = createSparqlService(data.sparql, data.graph);
         var conceptB = jassa.sparql.ConceptUtils.createTypeConcept('http://linkedgeodata.org/ontology/Airport');
-    	var mapsource = createMapDataSource(sparqlService, geoMapFactoryWgs, conceptB, '#CC0020');
-        console.log("add to datasource 2");
-        console.log(mapsource);
-        $scope.dataSources.push(mapsource);
+        $scope.dataSources[1] = createMapDataSource($scope.sparqlServices[1], geoMapFactoryWgs, conceptB, '#CC0020');
+        $scope.updateMapSources();
+        console.log("add to target datasource");
     });
 
-    $rootScope.$on("Source3", function(event, data) {
-    	var sparqlService = createSparqlService(data.sparql, data.graph);
-        $scope.sparqlServices.push(sparqlService);
+    $rootScope.$on("Link", function(event, data) {
+        $scope.sparqlServices[2] = createSparqlService(data.sparql, data.graph);
         var conceptC = jassa.sparql.ConceptUtils.createTypeConcept('http://www.linklion.org/ontology#Link');
-        var mapsource = createMapDataSource(sparqlService, geoMapFactoryAsWktVirt, conceptC, '#20CC20');
-        console.log("add to datasource 3");
-        console.log(mapsource);
-        $scope.dataSources.push(mapsource);
+        $scope.dataSources[2] = createMapDataSource($scope.sparqlServices[2], geoMapFactoryAsWktVirt, conceptC, '#20CC20');
+        $scope.updateMapSources();
+        console.log("add to link datasource");
 
 
         // Link List
@@ -164,13 +163,13 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
         });
 
         linkStore.addMap({
-            name: 'dbpedia-data',
+            name: 'source',
             template: 'spo',
             service: $scope.sparqlServices[0]
         });
 
         linkStore.addMap({
-            name: 'lgd-data',
+            name: 'target',
             template: 'spo',
             service: $scope.sparqlServices[1]
         });
@@ -179,8 +178,8 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
             name: 'links',
             template: [{
                 id: '?l',
-                source: { $ref: { target: 'dbpedia-data', on: '?s' } },
-                target: { $ref: { target: 'lgd-data', on: '?t' } }
+                source: { $ref: { target: 'source', on: '?s' } },
+                target: { $ref: { target: 'target', on: '?t' } }
             }],
             from: '?l a llo:Link; rdf:subject ?s; rdf:object ?t'
         });
@@ -213,9 +212,6 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
     };
 
     $scope.$watchCollection('[offset, numItems]', function(newi, oldi) {
-        console.log("HIIIIIIIEEEEERRRRRRRR");
-        console.log(oldi);
-        console.log(newi);
         if(typeof linkStore != "undefined") {
             console.log(linkStore);
             $q.when(linkStore.links.getListService().fetchItems(null, $scope.numItems, $scope.offset).then(function (entries) {

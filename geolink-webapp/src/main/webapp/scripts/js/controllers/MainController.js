@@ -184,12 +184,14 @@ app.controller('AppCtrl', ['$scope', '$rootScope', function ($scope, $rootScope)
     }
     ]
     $rootScope.$on("Clear", function() {
-        $scope.dataSources = [];
+        for(var i=0; i < $scope.dataSources.length; ++i) {
+            delete $scope.dataSources[i];
+        }
     });
     $rootScope.$on("Source1", function(event, data) {
     	sparqlService = createSparqlService(data.sparql, data.graph);
         var conceptA = jassa.sparql.ConceptUtils.createTypeConcept('http://dbpedia.org/ontology/Airport');
-    	var mapsource = createMapDataSource(sparqlService, geoMapFactoryVirt, conceptA, '#CC0020');
+    	var mapsource = createMapDataSource(sparqlService, geoMapFactoryVirt, conceptA, '2000CC#');
         console.log("add to datasource 1");
         console.log(mapsource);
         $scope.dataSources.push(mapsource);
@@ -197,7 +199,7 @@ app.controller('AppCtrl', ['$scope', '$rootScope', function ($scope, $rootScope)
     $rootScope.$on("Source2", function(event, data) {
     	sparqlService = createSparqlService(data.sparql, data.graph);
         var conceptB = jassa.sparql.ConceptUtils.createTypeConcept('http://linkedgeodata.org/ontology/Airport');
-    	var mapsource = createMapDataSource(sparqlService, geoMapFactoryWgs, conceptB, '#2000CC');
+    	var mapsource = createMapDataSource(sparqlService, geoMapFactoryWgs, conceptB, '#CC0020');
         console.log("add to datasource 2");
         console.log(mapsource);
         $scope.dataSources.push(mapsource);

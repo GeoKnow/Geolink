@@ -141,6 +141,7 @@ public class ServletLinking {
         ConfigReader config = gson.fromJson(spec, ConfigReader.class);
         config.afterPropertiesSet();
 
+        System.out.println(config.toString());
 
         //real methods
         UnsupervisedLinkSpecificationLearner learner = createAutoLearner(config);

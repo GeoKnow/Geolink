@@ -14,6 +14,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import edu.jas.structure.StarRingElem;
 import org.aksw.jena_sparql_api.geo.GeoMapSupplierUtils;
 import org.aksw.jena_sparql_api.utils.TripleUtils;
@@ -60,12 +62,6 @@ public class ServletLinking {
 
     @Resource(name="virtuosoclientobject")
     private VirtuosoClientObjectFactory virtuosoclientobject;
-
-
-/*
-    @Autowired
-    VirtGraphFactory targetGraphFactory; // VirtGraph graph = targetGraphFactory.getGraph(REST-params);
-*/
 
     @Context
     private HttpServletRequest req;
@@ -123,6 +119,72 @@ public class ServletLinking {
     // @Produces(MediaType.APPLICATION_JSON)
     // public String getSomething(@QueryParam("id") String) {
 
+    public static String createSparqlUpdateInsertData(Iterable<Triple> triples, String graphName) {
+        String result = "Insert ";
+
+        if(graphName != null) {
+            result += "Into <" + graphName + "> ";
+        }
+
+        result += "{\n";
+        for(Triple t : triples) {
+            result += "  " + TripleUtils.toNTripleString(t) + "\n";
+        }
+        result += "}";
+
+        return result;
+    }
+
+    public void writeMapping(Mapping mapping, Geomizer geomizer, Graph g) {
+
+        Map<Triple, Double> tripleToScore = GeomizerFactoryLimes.mappingToTriples(mapping, OWL.sameAs.asNode());
+
+        Map<Triple, Geometry> geomized = geomizer.geomize(tripleToScore.keySet());
+
+        Set<Triple> triples = GeoMapSupplierUtils.geomizedToRdf(geomized);
+
+        triples = GeoMapSupplierUtils.convertOgcToVirt(triples);
+
+
+        /*
+        Graph test = GraphFactory.createDefaultGraph();
+        GraphUtil.add(test, triples.iterator());
+        Model testm = ModelFactory.createModelForGraph(test);
+        testm.write(System.out, "TURTLE");
+        */
+        //System.out.println(triples);
+
+
+        g.clear();
+
+        //targetgraph.remove(s, p, null);;
+
+        //String queryString = createSparqlUpdateInsertData(triples, targetgraph.getGraphName());
+        //VirtuosoUpdateRequest vur = VirtuosoUpdateFactory.create(queryString, targetgraph);
+
+
+        //vur.exec();
+
+        GraphUtil.add(g, triples.iterator());
+
+        //close results in error. Same graph for all servlets???
+        //targetgraph.close();
+    }
+
+    public static Mapping toMapping(Iterable<Triple> triples) {
+        Mapping result = new Mapping();
+        for(Triple t : triples) {
+            Node s = t.getSubject();
+            Node o = t.getObject();
+
+            if(s.isURI() && o.isURI()) {
+                result.add(s.getURI(), o.getURI(), 1.0);
+            }
+        }
+        return result;
+    }
+
+
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/executeFromSpec")
@@ -159,6 +221,66 @@ public class ServletLinking {
         Geomizer geomizer = GeomizerFactoryLimes.createGeomizer(config);
         writeMapping(mapping, geomizer, g);
 
+
+        return retval;
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/evaluation")
+    public String evaluate(@FormParam("evaluation") String evaluation, @FormParam("project") String project, @FormParam("username") String username) throws Exception {
+
+        // Build ressource path for geomized graph
+        StringBuilder geomized_graphressource = new StringBuilder();
+        geomized_graphressource.append(project);
+        geomized_graphressource.append("/");
+        geomized_graphressource.append(username);
+        geomized_graphressource.append("/geomized/");
+
+        //Get graph
+        Graph geomized_graph = virtuosotarget.getGraph(geomized_graphressource.toString());
+
+        // Build ressource path eval grapg
+        StringBuilder eval_graphressource = new StringBuilder();
+        eval_graphressource.append(username);
+        eval_graphressource.append("/eval/");
+
+        Graph eval_graph = virtuosotarget.getGraph(eval_graphressource.toString());
+
+        System.out.println(evaluation);
+        Type type = new TypeToken<HashMap<String, Boolean>>(){}.getType();
+        HashMap<String, Boolean> map = gson.fromJson(evaluation, type);
+
+        for(String key: map.keySet()) {
+            System.out.println("key: " + key + "  ----> val: " + map.get(key));
+        }
+
+        /*
+        Model m = ModelFactory.createDefaultModel();
+
+        m.add(m.createResource("http://foo"), RDF.type, FOAF.Agent);
+        GraphUtil.add(evaluationGraph, g);
+        */
+
+        return gson.toJson(map);
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/learnFromMapping")
+    public String learnFromMapping(@FormParam("spec") String spec,
+            @FormParam("mapping") String json) throws Exception
+    {
+        // user methode
+
+        // muss getrennt werden
+        // spec raus
+        // zusätzlich writeEvaluationData mit mapping
+        //  * default auf aktuellen user
+        //  * optional query auf bsp anderen user
+        // lernen hier zusätzlich
+
+
         //????
         //config = new ConfigReader();
         //config.validateAndRead("/home/raven/Projects/Eclipse/LIMES/Examples/Paper/largescale/lgd-dbpedia.limes.xml");
@@ -181,104 +303,11 @@ public class ServletLinking {
         */
 
 
-        return retval;
-    }
-
-    public static String createSparqlUpdateInsertData(Iterable<Triple> triples, String graphName) {
-        String result = "Insert ";
-
-        if(graphName != null) {
-            result += "Into <" + graphName + "> ";
-        }
-
-        result += "{\n";
-        for(Triple t : triples) {
-            result += "  " + TripleUtils.toNTripleString(t) + "\n";
-        }
-        result += "}";
-
-        return result;
-    }
-
-    public void writeMapping(Mapping mapping, Geomizer geomizer, Graph g) {
 
 
-
-        Map<Triple, Double> tripleToScore = GeomizerFactoryLimes.mappingToTriples(mapping, OWL.sameAs.asNode());
-
-        Map<Triple, Geometry> geomized = geomizer.geomize(tripleToScore.keySet());
-
-        Set<Triple> triples = GeoMapSupplierUtils.geomizedToRdf(geomized);
-
-        triples = GeoMapSupplierUtils.convertOgcToVirt(triples);
-
-
-        /*
-        Graph test = GraphFactory.createDefaultGraph();
-        GraphUtil.add(test, triples.iterator());
-        Model testm = ModelFactory.createModelForGraph(test);
-        testm.write(System.out, "TURTLE");
-        */
-        //System.out.println(triples);
-
-
-
-        /*
-        Model m = ModelFactory.createDefaultModel();
-
-        m.add(m.createResource("http://foo"), RDF.type, FOAF.Agent);
-        Graph gm = m.getGraph();
-        GraphUtil.add(evaluationGraph, gm);
-        */
-
-
-        g.clear();
-
-        //targetgraph.remove(s, p, null);;
-
-        //String queryString = createSparqlUpdateInsertData(triples, targetgraph.getGraphName());
-        //VirtuosoUpdateRequest vur = VirtuosoUpdateFactory.create(queryString, targetgraph);
-
-
-        //vur.exec();
-
-        GraphUtil.add(g, triples.iterator());
-
-        //close results in error. Same graph for all servlets???
-        //targetgraph.close();
-    }
-
-    public static Mapping toMapping(Iterable<Triple> triples) {
-        Mapping result = new Mapping();
-        for(Triple t : triples) {
-            Node s = t.getSubject();
-            Node o = t.getObject();
-
-            if(s.isURI() && o.isURI()) {
-                result.add(s.getURI(), o.getURI(), 1.0);
-            }
-        }
-        return result;
-    }
-
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/learnFromMapping")
-    public String learnFromMapping(@FormParam("spec") String spec,
-            @FormParam("mapping") String json) throws Exception
-    {
-        // user methode
-
-        // muss getrennt werden
-        // spec raus
-        // zusätzlich writeEvaluationData mit mapping
-        //  * default auf aktuellen user
-        //  * optional query auf bsp anderen user
-        // lernen hier zusätzlich
         ConfigReader config = gson.fromJson(spec, ConfigReader.class);
 
         Type mappingType = new TypeToken<Map<String, HashMap<String, Double>>>() {}.getType();
-
         Map<String, HashMap<String, Double>> map = gson.fromJson(json, mappingType);
 
         Mapping mapping = new Mapping();

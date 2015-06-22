@@ -95,6 +95,16 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
         }
     };
 
+    // Move to GUIController to avoid broadcast
+    $scope.sendEvaluation = function () {
+        testdata = {
+            "http://example.org/link-59561a9a0883af8df367c1c4476be3bb" : true,
+            "http://example.org/link-90e5df2f8ace81dd014d82e1795d3555" : true,
+            "http://example.org/link-fba73f9fd33fa990bd32d441716fe79e" : false
+        };
+        $rootScope.$broadcast("Evaluation",testdata);
+    };
+
     $scope.$watch('mapConfig', function (v) {
         console.log('Config changed: ' + JSON.stringify(v));
     }, true);
@@ -131,6 +141,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
     });
 
     $rootScope.$on("Link", function(event, data) {
+        //geomized graph
         $scope.sparqlServices[2] = createSparqlService(data.sparql, data.graph);
         var conceptC = jassa.sparql.ConceptUtils.createTypeConcept('http://www.linklion.org/ontology#Link');
         $scope.dataSources[2] = createMapDataSource($scope.sparqlServices[2], geoMapFactoryAsWktVirt, conceptC, '#20CC20');

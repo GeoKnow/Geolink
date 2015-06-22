@@ -76,6 +76,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
     $rootScope.$broadcast("Source",{"graph": $scope.linkspec.sourceInfo.graph, "sparql": $scope.linkspec.sourceInfo.endpoint});
     $rootScope.$broadcast("Target",{"graph": $scope.linkspec.targetInfo.graph, "sparql": $scope.linkspec.targetInfo.endpoint});
 
+
     $scope.selectDropdown1 = function(id) {
 	    console.log("selectDropdown1 THE IS IS: " + id);
 	    $scope.linkspec.sourceInfo = angular.copy($scope.servers[id].data);
@@ -107,5 +108,26 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
         }).error( function(data, status, headers, config) {
             console.log(data);
         });
-    };   
+    };
+
+    $rootScope.$on("Evaluation", function(event, data) {
+        console.log('Send Evaluation');
+        console.log(data);
+        $http({
+            method:'POST',
+            url:'api/linking/evaluation',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+            data: "evaluation=" + encodeURIComponent(JSON.stringify(data)) + "&" +
+            "project=" + encodeURIComponent($scope.session.project) + "&" +
+            "username=" + encodeURIComponent($scope.session.username)
+        }).success( function (data, status, headers, config) {
+            console.log('done!!!!!!!!!!!: ');
+            console.log(data);
+//            $scope.addGraph(data.sparql, data.graph);
+        }).error( function(data, status, headers, config) {
+            console.log('fail on: ' + status);
+            console.log('data: ' + data);
+        });
+    });
+
 }]);

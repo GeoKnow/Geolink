@@ -10,7 +10,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
 //	md-input-container
 	$scope.session = {
 		username: "BobJr",
-		project: "ThisProject",
+		project: "ThisProject"
 	};
 
     $scope.servers = [  {	num: 0,
@@ -67,8 +67,8 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
 	
     $scope.linkspec = {
         prefixes: $scope.prefixes,
-        sourceInfo: $scope.servers[2].data,
-        targetInfo: $scope.servers[3].data,
+        sourceInfo: angular.copy($scope.servers[2].data),
+        targetInfo: angular.copy($scope.servers[3].data),
         metricExpression: 'trigrams(x.rdfs:label, y.rdfs:label)',
         acceptanceThreshold: 0.9
     };
@@ -78,13 +78,13 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
 
     $scope.selectDropdown1 = function(id) {
 	    console.log("selectDropdown1 THE IS IS: " + id);
-	    $scope.linkspec.sourceInfo = $scope.servers[id].data;
+	    $scope.linkspec.sourceInfo = angular.copy($scope.servers[id].data);
         $rootScope.$broadcast("Source",{"graph": $scope.linkspec.sourceInfo.graph, "sparql": $scope.linkspec.sourceInfo.endpoint});
     };
 	
 	$scope.selectDropdown2 = function(id) {
 	    console.log("selectDropdown2 THE IS IS: " + id);
-	    $scope.linkspec.targetInfo = $scope.servers[id].data;
+	    $scope.linkspec.targetInfo = angular.copy($scope.servers[id].data);
         $rootScope.$broadcast("Target",{"graph": $scope.linkspec.targetInfo.graph, "sparql": $scope.linkspec.targetInfo.endpoint});
     };
 

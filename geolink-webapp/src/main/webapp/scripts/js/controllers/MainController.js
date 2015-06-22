@@ -87,8 +87,8 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
 
     $scope.logDatasources = function () {
 
-        for (var key in $scope.dataSources) {
-            var foo1 = $scope.dataSources[key].fetchData(bounds);
+        for (var key in $scope.mapSources) {
+            var foo1 = $scope.mapSources[key].fetchData(bounds);
             foo1.then(function (entries) {
                 console.log(entries);
             });
@@ -111,8 +111,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
         for(var key in $scope.dataSources) {
             $scope.mapSources.push($scope.dataSources[key]);
         }
-                console.log($scope.mapSources);
-
+        console.log($scope.mapSources);
     };
 
     $rootScope.$on("Source", function(event, data) {

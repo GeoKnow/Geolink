@@ -102,9 +102,10 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
     // This one too
     $scope.sendEvaluation = function () {
         testdata = {
-            "http://example.org/link-59561a9a0883af8df367c1c4476be3bb" : true,
-            "http://example.org/link-90e5df2f8ace81dd014d82e1795d3555" : true,
-            "http://example.org/link-fba73f9fd33fa990bd32d441716fe79e" : false
+            "http://example.org/link-8e6fc3b7c321b1817504b50931e75ba7" : 0,
+            "http://example.org/link-59561a9a0883af8df367c1c4476be3bb" : 1,
+            "http://example.org/link-90e5df2f8ace81dd014d82e1795d3555" : 1,
+            "http://example.org/link-fba73f9fd33fa990bd32d441716fe79e" : 2
         };
         $rootScope.$broadcast("Evaluation",testdata);
     };

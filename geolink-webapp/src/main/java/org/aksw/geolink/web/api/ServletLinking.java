@@ -217,16 +217,18 @@ public class ServletLinking {
     @Path("/evaluation")
     public String evaluate(@FormParam("evaluation") String evaluation, @FormParam("project") String project, @FormParam("username") String username) throws Exception {
 
-        Type type = new TypeToken<HashMap<String, Boolean>>(){}.getType();
-        HashMap<String, Boolean> map = gson.fromJson(evaluation, type);
+        Type type = new TypeToken<HashMap<String, Integer>>(){}.getType();
+        HashMap<String, Integer> map = gson.fromJson(evaluation, type);
 
+        //sanitze
         if(map.isEmpty()) {
             res.sendError(HttpServletResponse.SC_BAD_REQUEST,"Evaluation was empty.");
         }
-
-        // Debug
         for(String key: map.keySet()) {
-            System.out.println("key: " + key + "  ----> val: " + map.get(key));
+            int value = map.get(key);
+            if(value < 0 || value > 2) {
+                res.sendError(HttpServletResponse.SC_BAD_REQUEST,"Evaluation for key:" + key + " with value " + map.get(key) + " must be between 0 and 2");
+            }
         }
 
         // Build ressource path for geomized graph
@@ -249,75 +251,57 @@ public class ServletLinking {
 
         //Get client object for sparql querys
         String retval = virtuosoclientobject.getJSON(eval_graphressource.toString());
-        System.out.println(retval);
 
         //Get current time
         Calendar cal = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy'-'MM'-'dd'T'HH:mm:ss");
         String xsdtimestamp = sdf.format(cal.getTime());
-        System.out.println("Evaluate at:" + sdf.format(cal.getTime()) );
 
         //iterate over keys
+        System.out.println("DEBUG: Evaluations");
         for(String key: map.keySet()) {
-            //ExtendedIterator<Triple> eval_triples = eval_graph.find(NodeFactory.createURI(key), null, null);
-            //ExtendedIterator<Triple> geomized_triples = geomized_graph.find(NodeFactory.createURI(key), null, null);
 
-            //DEBUG
-            System.out.println("PRINT TRIPELS");
-            /*
-            while(eval_triples.hasNext()) {
-                System.out.println("eval: " + eval_triples.next().toString());
-            }
+            //escape strings
+            StringBuilder sb = new StringBuilder();
+            sb.append("http://example.org/linkEvaluation-of-");
+            sb.append(key.split("/")[3]);
+            sb.append("-byuser-");
+            sb.append(username);
 
-            //DEBUG
-            while(geomized_triples.hasNext()) {
-                System.out.println("geomized: " + geomized_triples.next().toString());
-            }
-            */
+            String linkof = sb.toString();
+            System.out.println(linkof);
 
-            eval_graph.clear();
+            //Set<Triple> eval_triples = eval_graph.find(NodeFactory.createURI(key), null, null).toSet();
+            //Set<Triple> geomized_triples = geomized_graph.find(NodeFactory.createURI(key), null, null).toSet();
+            Set<Triple> linkof_triples = eval_graph.find(NodeFactory.createURI(linkof), null, null).toSet();
 
-            //update graphs
-            if (map.get(key)) {
-
-                //escape strings
-                StringBuilder sb = new StringBuilder();
-                sb.append("http://example.org/linkEvaluation-of-");
-                sb.append(key.split("/")[3]);
-                sb.append("-byuser-");
-                sb.append(username);
-
-                String linkof = sb.toString();
-                System.out.println(linkof);
+            // 0 = undefined; 1 = true; 2 = false
+            if (map.get(key) > 0) {
 
                 ArrayList<Triple> linktriples = new ArrayList<Triple>();
+
+                //clear linkof and geomize
+                GraphUtil.delete(eval_graph, linkof_triples.iterator());
+                //GraphUtil.delete(eval_graph, eval_triples.iterator());
+
+                // Build new eval triples
                 linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://www.linklion.org/ontology#storedAt"), NodeFactory.createURI(key)));
-                linktriples.add(Triple.create(NodeFactory.createURI(linkof), FOAF.Agent.asNode(), NodeFactory.createLiteral(username)));
-                linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://purl.org/dc/terms/modified"), NodeFactory.createLiteral(xsdtimestamp, XSDDatatype.XSDdateTime)));
+                linktriples.add(Triple.create(NodeFactory.createURI(linkof), FOAF.Agent.asNode(), NodeFactory.createLiteral(username, XSDDatatype.XSDstring)));
+                linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://purl.org/dc/terms/modified"), NodeFactory.createLiteral(xsdtimestamp)));
+                //linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://purl.org/dc/terms/modified"), NodeFactory.createLiteral(xsdtimestamp, XSDDatatype.XSDdateTime)));
+                linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#integer"), NodeFactory.createLiteral(map.get(key).toString(), XSDDatatype.XSDinteger))); //???
 
-
-                GraphUtil.delete(eval_graph, linktriples.iterator());
                 GraphUtil.add(eval_graph, linktriples.iterator());
-            /*    GraphUtil.delete(eval_graph, eval_triples);
-                GraphUtil.add(eval_graph, geomized_triples);
-                GraphUtil.delete(geomized_graph, geomized_triples);
-            */
+                //GraphUtil.add(eval_graph, geomized_triples.iterator());
+
             } else {
-                //GraphUtil.delete(eval_graph, eval_triples);
+                GraphUtil.delete(eval_graph, linkof_triples.iterator());
+                //GraphUtil.delete(eval_graph, eval_triples.iterator());
             }
         }
 
-        //Model m = ModelFactory.createDefaultModel();
-        //m.add(m.createResource(username), RDF.type, FOAF.Agent);
-
-        //direct load over local file (for local tests)
-        //System.out.println("Working Directory = " + System.getProperty("user.dir"));
-        //Model model = FileManager.get().loadModel("../test-data/positive.nt");
-        //Graph graph = model.getGraph();
-        //Set<Triple> triples = graph.find(null, null, null).toSet();
-        //triples = TripleUtils.swap(triples);
-        //Mapping mapping = toMapping(triples);
-        // end test methods
+        // clear geomized graph after evaluation
+        //geomized_graph.clear();
 
         return gson.toJson(retval);
     }
@@ -325,8 +309,7 @@ public class ServletLinking {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/learnFromMapping")
-    public String learnFromMapping(@FormParam("spec") String spec,
-            @FormParam("mapping") String json) throws Exception
+    public String learnFromMapping(@FormParam("spec") String spec, @FormParam("mapping") String json) throws Exception
     {
         // user methode
 

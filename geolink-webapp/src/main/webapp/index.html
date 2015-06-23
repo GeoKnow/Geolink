@@ -271,13 +271,12 @@
 		        </div> 
 	       	</td>
 	       	<td style="min-width: 40%">
-		        <button style="margin-left:10px; width: 30%; height: 48px;" type="button" class="btn btn-default" ng-class="{ 'disabled': offset === 0 }" ng-click="offset = offset > 0 ? offset - 1 : offset">Prev</button>
-		        <button style="width: 30%; height: 48px;" type="button" class="btn btn-default" ng-click="offset = offset + 1">Next</button>
-		        <button style="margin-left: 5%; width: 30%; height: 48px;" type="button" class="btn btn-primary" ng-click="sendEvaluation();" style="position: absolute; right: 10px; top: 10px;">Send Eval</button>
+		        <button id="prevBtn" style="margin-left:10px; width: 30%; height: 48px;" type="button" class="btn btn-default" ng-class="{ 'disabled': offset === 0 }">Prev</button>
+		        <button id="nextBtn" style="width: 30%; height: 48px;" class="btn btn-default">Next</button>
+		        <button style="margin-left: 5%; width: 30%; height: 48px;" type="button" class="btn btn-primary" ng-disabled="is_evalbutton_disabled" ng-click="sendEvaluation();">Send Eval</button>
 	        </td>
-        </table>
+        </table>                
 	</div>
-    
     <div class="popover-body">
 		<table class="table table-striped">
 

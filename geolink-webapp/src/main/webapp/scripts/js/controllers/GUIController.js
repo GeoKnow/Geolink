@@ -7,7 +7,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
 	    isLinkSpecOpen: true
 	};
 	$scope.isCollapsed = false;
-
+    
     $("[data-toggle=popover]").popover({
 	      html : true,
 	      container: 'body',
@@ -18,18 +18,22 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
 	      title: function() {
 	        var title = $(this).attr("data-popover-content");
 	        return $(title).children(".popover-heading").html();
-      }
+	      }
+    });
+
+    $('body').on('click', 'button#nextBtn', function () {
+    	console.log("CLICKED nextBtn");
+    	"offset = offset + 1"
+    }).on('click', 'button#prevBtn', function () {
+    	console.log("CLICKED prevBtn");
+    	"offset = offset > 0 ? offset - 1 : offset"
     });
     
-    $("[data-toggle=tooltip]").tooltip();
-
-    $('#btnToggleTip').click(function(){
-
-      $('#tip1').tooltip('toggle');
-      
-    })
+    $scope.setLeipzig = function () {
+        $scope.mapConfig.center = {lon: 12.236, lat: 51.4238};
+        $scope.mapConfig.zoom = 17;
+    };
     
-	
 //	md-input-container
 	$scope.session = {
 		username: "BobJr",

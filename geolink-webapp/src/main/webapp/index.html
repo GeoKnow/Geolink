@@ -42,7 +42,8 @@
     <script src="bower_components/jassa-ui-angular-openlayers/jassa-ui-angular-openlayers-tpls.js"></script>
     <!-- endbower -->
 
-    <script src="bower_components/openlayers/lib/OpenLayers.js"></script>
+	<script src="bower_components/openlayers/lib/OpenLayers.js"></script>
+
     <!-- endbuild -->
 
     <script type="text/javascript">
@@ -64,22 +65,45 @@
     <style>
         input
         {
-            width: 300px;
+            width: 100%;
             display: inline-block;
-            vertical-align: middle;
-            padding: 2px;
+            padding: 5px;
         }
         label
         {
+        	width: 75px;
             padding: 5px;
             display: inline-block;
         }
         .preserve-whitespace {
             white-space: pre;
         }
+        table {
+        	width: 100%
+        }
         td {
             border: 0px solid black;
         }
+		.accordion-toggle span {
+		    display: block;
+		    width:  450px;
+		}
+		.btn-group {
+			width: 170px;
+		}
+		.popover {
+			position:relative;
+			max-width: 98.5%;
+		}
+		.popover-title {
+			padding-bottom: 8px;
+		}
+		.popover-content {
+			height: 250px;
+		}
+		.alert {
+			margin-bottom: 0px;
+		}
     </style>
 </head>
 
@@ -113,19 +137,24 @@
         </accordion-group>
 
         <accordion-group heading="LinkSpec Creation" is-open="status.isLinkSpecOpen">
-            <div class="btn-group" dropdown>
-                <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle>
-                    Fill with Source Template <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li ng-repeat="server in servers">
-                        <a ng-click="selectDropdown1(server.num)">{{server.data.id}}</a>
-                    </li>
-                </ul>
-            </div>
-
-            <input ng-model="linkspec.sourceInfo.id" style="width: 192px" type="text">
-
+            <table>
+            	<td>
+		            <div class="btn-group" dropdown>
+		                <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle>
+		                    Fill with Source Template <span class="caret"></span>
+		                </button>
+		                <ul class="dropdown-menu">
+		                    <li ng-repeat="server in servers">
+		                        <a ng-click="selectDropdown1(server.num)">{{server.data.id}}</a>
+		                    </li>
+		                </ul>
+		            </div>
+				</td><td>
+		            <input ng-model="linkspec.sourceInfo.id" type="text">
+	            </td>
+			</table>
+			
+			
             <table class="linkspecTable">
                 <tr>
                     <td>
@@ -163,22 +192,26 @@
                 </td>
                 </tr>
             </table>
-
+            
             <div style="padding-top: 10px;">
-                <div class="btn-group" dropdown>
-                    <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle>
-                        Fill with Target Template  <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li ng-repeat="server in servers">
-                            <a ng-click="selectDropdown2(server.num)">{{server.data.id}}</a>
-                        </li>
-                    </ul>
-                </div>
-
-                <input ng-model="linkspec.targetInfo.id" style="width: 195px" type="text">
-            </div>
-
+	 			<table>
+	            	<td>
+		                <div class="btn-group" dropdown>
+		                    <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle>
+		                        Fill with Target Template  <span class="caret"></span>
+		                    </button>
+		                    <ul class="dropdown-menu">
+		                        <li ng-repeat="server in servers">
+		                            <a ng-click="selectDropdown2(server.num)">{{server.data.id}}</a>
+		                        </li>
+		                    </ul>
+		                </div>
+					</td><td>
+						<input ng-model="linkspec.targetInfo.id" type="text">
+		            </td>   
+				</table>
+			</div>
+			
             <table class="linkspecTable">
                 <tr>
                     <td>
@@ -220,14 +253,33 @@
                 <button class="btn btn-primary" ng-click="sendLinkSpec();" style="width: 100%; top: 10px; padding: 5px">Send LinkSpec</button>
             </div>
         </accordion-group>
+	</accordion>
 </div>
 
-<div style="position: absolute; bottom: 10px; left: 10px; right: 10px; height: 300px; overflow: auto; background-color: #fefefe">
-    <table class="table table-striped">
+<div ng-controller="guiCtrl" style="position: absolute; bottom: 1px; width: 100%">
 
-        <div class="alert alert-success" role="alert">
-            Legend: <span class="label label-success">Both resources</span> <span class="label label-primary">Source only</span> <span class="label label-warning">Target only</span>
-        </div>
+<!-- Popover -->			
+<a style="width: 98.5%; margin: 10px" id="popover" class="btn btn-primary" tabindex="0" data-toggle="popover" data-trigger="click" data-popover-content="#evalTable" data-placement="top">Toggle Evaluation Table</a>
+  
+<!-- Content for Popover -->
+<div id="evalTable" class="hidden">
+    <div class="popover-heading">
+    	<table>
+    		<td>
+				<div class="alert alert-success" role="alert">
+		            Legend: <span class="label label-success">Both resources</span> <span class="label label-primary">Source only</span> <span class="label label-warning">Target only</span>
+		        </div> 
+	       	</td>
+	       	<td style="min-width: 40%">
+		        <button style="margin-left:10px; width: 30%; height: 48px;" type="button" class="btn btn-default" ng-class="{ 'disabled': offset === 0 }" ng-click="offset = offset > 0 ? offset - 1 : offset">Prev</button>
+		        <button style="width: 30%; height: 48px;" type="button" class="btn btn-default" ng-click="offset = offset + 1">Next</button>
+		        <button style="margin-left: 5%; width: 30%; height: 48px;" type="button" class="btn btn-primary" ng-click="sendEvaluation();" style="position: absolute; right: 10px; top: 10px;">Send Eval</button>
+	        </td>
+        </table>
+	</div>
+    
+    <div class="popover-body">
+		<table class="table table-striped">
 
         <tr><th>Link</th><th>Source</th><th>Target</th></tr>
         <tr ng-repeat="link in links">
@@ -235,11 +287,6 @@
                 <span class="label label-warning" title="{{link.source.id}}">{{link.source.displayLabel}}</span>
                 <span class="label label-primary" title="{{link.target.id}}">{{link.target.displayLabel}}</span>
             </td>
-
-
-            <button ng-class="{ 'disabled': offset === 0 }" type="button" class="btn btn-default" ng-click="offset = offset > 0 ? offset - 1 : offset">Prev</button>
-            <button type="button" class="btn btn-default" ng-click="offset = offset + 1">Next</button>
-            <button ng-click="sendEvaluation();" style="position: absolute; right: 10px; top: 10px;">Send Evaluation</button >
             <td>
                 <table class="table table-striped">
                     <tr ng-repeat="predicate in link.cluster | objectToArray | orderBy:sourceOrderFn:true">
@@ -256,16 +303,17 @@
                     </tr>
                 </table>
             </td>
-
         </tr>
-    </table>
+    	</table>
+    </div>
 </div>
-
+</div>
 
 <!-- debug Buttons -->
 <button ng-click="setLeipzig();" style="position: absolute; right: 10px; top: 10px;">Set Leipzig</button >
 <button ng-click="setDenver();" style="position: absolute; right: 10px; top: 40px;">Set Denver</button>
 <button ng-click="logDatasources();" style="position: absolute; right: 10px; top: 140px;">[DEBUG] log datasources to console</button>
+
 
 <!-- Modules -->
 <script src="scripts/js/app.js"></script>

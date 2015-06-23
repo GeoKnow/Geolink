@@ -2,10 +2,33 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
 //	accordion-group
 	$scope.oneAtATime = true;
 	$scope.status = {
-		isFirstOpen: true,
+		isFirstOpen: false,
 	    isFirstDisabled: false,	
-	    isLinkSpecOpen: false
+	    isLinkSpecOpen: true
 	};
+	$scope.isCollapsed = false;
+
+    $("[data-toggle=popover]").popover({
+	      html : true,
+	      container: 'body',
+	      content: function() {
+	        var content = $(this).attr("data-popover-content");
+	        return $(content).children(".popover-body").html();
+	      },
+	      title: function() {
+	        var title = $(this).attr("data-popover-content");
+	        return $(title).children(".popover-heading").html();
+      }
+    });
+    
+    $("[data-toggle=tooltip]").tooltip();
+
+    $('#btnToggleTip').click(function(){
+
+      $('#tip1').tooltip('toggle');
+      
+    })
+    
 	
 //	md-input-container
 	$scope.session = {

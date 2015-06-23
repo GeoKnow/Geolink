@@ -137,6 +137,25 @@
         </accordion-group>
 
         <accordion-group heading="LinkSpec Creation" is-open="status.isLinkSpecOpen">
+            <!--
+            <table class="linkspecTable">
+                <tr>
+                    <td>
+                        <label>Prefix</label>
+                    </td><td>
+                    <input ng-model="prefixes.rdfs" type="text">
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Prefix</label>
+                    </td><td>
+                    <input ng-model="prefixes.geo" type="text">
+                </td>
+                </tr>
+            </table>
+            -->
+
             <table>
             	<td>
 		            <div class="btn-group" dropdown>
@@ -249,6 +268,26 @@
                 </td>
                 </tr>
             </table>
+            <div style="margin: 10px;">
+
+            </div>
+            <table class="linkspecTable">
+                <tr>
+                    <td>
+                        <label>Metric</label>
+                    </td><td>
+                    <input ng-model="linkspec.metricExpression" type="text">
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Threshold</label>
+                    </td><td>
+                    <input ng-model="linkspec.acceptanceThreshold" type="number">
+                </td>
+                </tr>
+            </table>
+
             <div style="padding-top: 10px;">
                 <button class="btn btn-primary" ng-click="sendLinkSpec();" style="width: 100%; top: 10px; padding: 5px">Send LinkSpec</button>
             </div>

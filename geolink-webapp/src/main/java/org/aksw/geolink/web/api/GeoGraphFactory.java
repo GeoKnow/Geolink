@@ -23,8 +23,10 @@ public class GeoGraphFactory {
 
     public Graph getGraph(String graphressource) {
         if(this.virtuososerver == null) {
+            System.err.println("DEBUG: Creating virtual graph without connection!");
             return GraphFactory.createDefaultGraph();
         } else {
+            System.err.println("DEBUG: Creating graph with connection to server " + virtuososerver + " on graph " + virtuosographprefix + graphressource);
             return new VirtGraph(virtuosographprefix+graphressource, virtuososerver, virtuosouser, virtuosopassword);
         }
     }

@@ -8,31 +8,26 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
 	};
 	$scope.isCollapsed = false;
     
-    $("[data-toggle=popover]").popover({
-	      html : true,
-	      container: 'body',
-	      content: function() {
-	        var content = $(this).attr("data-popover-content");
-	        return $(content).children(".popover-body").html();
-	      },
-	      title: function() {
-	        var title = $(this).attr("data-popover-content");
-	        return $(title).children(".popover-heading").html();
-	      }
-    });
-
-    $('body').on('click', 'button#nextBtn', function () {
-    	console.log("CLICKED nextBtn");
-    	"offset = offset + 1"
-    }).on('click', 'button#prevBtn', function () {
-    	console.log("CLICKED prevBtn");
-    	"offset = offset > 0 ? offset - 1 : offset"
-    });
-    
-    $scope.setLeipzig = function () {
-        $scope.mapConfig.center = {lon: 12.236, lat: 51.4238};
-        $scope.mapConfig.zoom = 17;
-    };
+//    $("[data-toggle=popover]").popover({
+//	      html : true,
+//	      container: 'body',
+//	      content: function() {
+//	        var content = $(this).attr("data-popover-content");
+//	        return $(content).children(".popover-body").html();
+//	      },
+//	      title: function() {
+//	        var title = $(this).attr("data-popover-content");
+//	        return $(title).children(".popover-heading").html();
+//	      }
+//    });
+//
+//    $('body').on('click', 'button#nextBtn', function () {
+//    	console.log("CLICKED nextBtn");
+//    	"offset = offset + 1"
+//    }).on('click', 'button#prevBtn', function () {
+//    	console.log("CLICKED prevBtn");
+//    	"offset = offset > 0 ? offset - 1 : offset"
+//    });
     
 //	md-input-container
 	$scope.session = {

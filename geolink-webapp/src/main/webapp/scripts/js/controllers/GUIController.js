@@ -43,7 +43,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
             graph: 'http://dbpedia.org',
             restrictions: ['?x a <http://dbpedia.org/ontology/Airport>'],
             'var': '?x',
-            properties: ['rdfs:label AS nolang->lowercase']
+            properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']
         }
     },
         {
@@ -55,7 +55,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
                 graph: 'http://linkedgeodata.org',
                 restrictions: ['?y a <http://linkedgeodata.org/ontology/Airport>'],
                 'var': '?y',
-                properties: ['rdfs:label AS nolang->lowercase']
+                properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']
             }
         },
         {	num: 2,
@@ -66,7 +66,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
                 graph: 'http://fastreboot.de/dbpediatest',
                 restrictions: ['?x a <http://dbpedia.org/ontology/Airport>'],
                 'var': '?x',
-                properties: ['rdfs:label AS nolang->lowercase']
+                properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']
             }
         },
         {
@@ -78,21 +78,22 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
                 graph: 'http://fastreboot.de/lgdtest',
                 restrictions: ['?y a <http://linkedgeodata.org/ontology/Airport>'],
                 'var': '?y',
-                properties: ['rdfs:label AS nolang->lowercase']
+                properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']
             }
         }
     ];
 
 	$scope.prefixes = {
-	        rdfs: 'http://www.w3.org/2000/01/rdf-schema#'
-	};
+        rdfs: 'http://www.w3.org/2000/01/rdf-schema#',
+        geo: 'http://www.w3.org/2003/01/geo/wgs84_pos#'
+    };
 	
     $scope.linkspec = {
-        prefixes: $scope.prefixes,
+        prefixes: angular.copy($scope.prefixes),
         sourceInfo: angular.copy($scope.servers[2].data),
         targetInfo: angular.copy($scope.servers[3].data),
-        metricExpression: 'trigrams(x.rdfs:label, y.rdfs:label)',
-        acceptanceThreshold: 0.9
+        metricExpression: 'AND(trigrams(x.rdfs:label, y.rdfs:label)|0.99, euclidian(x.lat|x.long, y.latitude|y.long)|0.8)',
+        acceptanceThreshold: 0.95
     };
 
     $rootScope.$broadcast("Source",{"graph": $scope.linkspec.sourceInfo.graph, "sparql": $scope.linkspec.sourceInfo.endpoint});

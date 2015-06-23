@@ -85,8 +85,10 @@ public class ServletLinking {
 
         UnSupervisedLearnerParameters params = new UnSupervisedLearnerParameters(config, propertyMapping);
         //anpassen fuer demo
-        params.setGenerations(10);
+        params.setGenerations(50);
         params.setPopulationSize(100); //50-100
+        //params.setMutationRate(0.5F);
+        //params.setPreserveFittestIndividual(true);
 
         UnsupervisedLinkSpecificationLearner result = new UnsupervisedLearner();
         result.init(params.getConfigReader().sourceInfo,
@@ -191,7 +193,7 @@ public class ServletLinking {
         ConfigReader config = gson.fromJson(spec, ConfigReader.class);
         config.afterPropertiesSet();
 
-        //System.out.println(config.toString());
+        System.out.println(config.toString());
 
         //real methods
         UnsupervisedLinkSpecificationLearner learner = createAutoLearner(config);

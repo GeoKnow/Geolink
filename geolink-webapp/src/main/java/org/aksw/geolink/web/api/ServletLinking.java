@@ -1,6 +1,7 @@
 package org.aksw.geolink.web.api;
 
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import javax.annotation.Resource;
@@ -13,8 +14,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import com.hp.hpl.jena.datatypes.RDFDatatype;
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.*;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
+import com.hp.hpl.jena.vocabulary.XSD;
+import de.uni_leipzig.simba.util.Lion2LateX;
 import org.aksw.jena_sparql_api.geo.GeoMapSupplierUtils;
 import org.aksw.jena_sparql_api.utils.TripleUtils;
 import org.jgap.InvalidConfigurationException;
@@ -81,7 +86,7 @@ public class ServletLinking {
         UnSupervisedLearnerParameters params = new UnSupervisedLearnerParameters(config, propertyMapping);
         //anpassen fuer demo
         params.setGenerations(10);
-        params.setPopulationSize(10);
+        params.setPopulationSize(100); //50-100
 
         UnsupervisedLinkSpecificationLearner result = new UnsupervisedLearner();
         result.init(params.getConfigReader().sourceInfo,
@@ -204,7 +209,6 @@ public class ServletLinking {
         Geomizer geomizer = GeomizerFactoryLimes.createGeomizer(config);
         writeMapping(mapping, geomizer, geomized_graph);
 
-
         return retval;
     }
 
@@ -216,7 +220,7 @@ public class ServletLinking {
         Type type = new TypeToken<HashMap<String, Boolean>>(){}.getType();
         HashMap<String, Boolean> map = gson.fromJson(evaluation, type);
 
-        if(map.isEmpty()){
+        if(map.isEmpty()) {
             res.sendError(HttpServletResponse.SC_BAD_REQUEST,"Evaluation was empty.");
         }
 
@@ -235,7 +239,7 @@ public class ServletLinking {
         //Get geomized graph
         Graph geomized_graph = virtuosotarget.getGraph(geomized_graphressource.toString());
 
-        // Build ressource path eval grapg
+        // Build ressource path eval graph
         StringBuilder eval_graphressource = new StringBuilder();
         eval_graphressource.append(username);
         eval_graphressource.append("/eval/");
@@ -247,14 +251,20 @@ public class ServletLinking {
         String retval = virtuosoclientobject.getJSON(eval_graphressource.toString());
         System.out.println(retval);
 
+        //Get current time
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy'-'MM'-'dd'T'HH:mm:ss");
+        String xsdtimestamp = sdf.format(cal.getTime());
+        System.out.println("Evaluate at:" + sdf.format(cal.getTime()) );
 
         //iterate over keys
         for(String key: map.keySet()) {
-            ExtendedIterator<Triple> eval_triples = eval_graph.find(NodeFactory.createURI(key), null, null);
-            ExtendedIterator<Triple> geomized_triples = geomized_graph.find(NodeFactory.createURI(key), null, null);
+            //ExtendedIterator<Triple> eval_triples = eval_graph.find(NodeFactory.createURI(key), null, null);
+            //ExtendedIterator<Triple> geomized_triples = geomized_graph.find(NodeFactory.createURI(key), null, null);
 
             //DEBUG
             System.out.println("PRINT TRIPELS");
+            /*
             while(eval_triples.hasNext()) {
                 System.out.println("eval: " + eval_triples.next().toString());
             }
@@ -263,21 +273,42 @@ public class ServletLinking {
             while(geomized_triples.hasNext()) {
                 System.out.println("geomized: " + geomized_triples.next().toString());
             }
+            */
+
+            eval_graph.clear();
 
             //update graphs
             if (map.get(key)) {
-                GraphUtil.delete(eval_graph, eval_triples);
+
+                //escape strings
+                StringBuilder sb = new StringBuilder();
+                sb.append("http://example.org/linkEvaluation-of-");
+                sb.append(key.split("/")[3]);
+                sb.append("-byuser-");
+                sb.append(username);
+
+                String linkof = sb.toString();
+                System.out.println(linkof);
+
+                ArrayList<Triple> linktriples = new ArrayList<Triple>();
+                linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://www.linklion.org/ontology#storedAt"), NodeFactory.createURI(key)));
+                linktriples.add(Triple.create(NodeFactory.createURI(linkof), FOAF.Agent.asNode(), NodeFactory.createLiteral(username)));
+                linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://purl.org/dc/terms/modified"), NodeFactory.createLiteral(xsdtimestamp, XSDDatatype.XSDdateTime)));
+
+
+                GraphUtil.delete(eval_graph, linktriples.iterator());
+                GraphUtil.add(eval_graph, linktriples.iterator());
+            /*    GraphUtil.delete(eval_graph, eval_triples);
                 GraphUtil.add(eval_graph, geomized_triples);
                 GraphUtil.delete(geomized_graph, geomized_triples);
+            */
             } else {
-                GraphUtil.delete(eval_graph, eval_triples);
+                //GraphUtil.delete(eval_graph, eval_triples);
             }
         }
 
         //Model m = ModelFactory.createDefaultModel();
         //m.add(m.createResource(username), RDF.type, FOAF.Agent);
-
-
 
         //direct load over local file (for local tests)
         //System.out.println("Working Directory = " + System.getProperty("user.dir"));

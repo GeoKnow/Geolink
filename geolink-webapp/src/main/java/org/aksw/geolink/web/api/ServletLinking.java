@@ -1,12 +1,11 @@
 package org.aksw.geolink.web.api;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -14,9 +13,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import edu.jas.structure.StarRingElem;
+import com.hp.hpl.jena.graph.*;
+import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import org.aksw.jena_sparql_api.geo.GeoMapSupplierUtils;
 import org.aksw.jena_sparql_api.utils.TripleUtils;
 import org.jgap.InvalidConfigurationException;
@@ -26,10 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.GraphUtil;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.sparql.graph.GraphFactory;
@@ -65,6 +59,9 @@ public class ServletLinking {
 
     @Context
     private HttpServletRequest req;
+
+    @Context
+    private HttpServletResponse res;
 
     public static PropertyMapping getPropertyMapping(ConfigReader config) {
         PropertyMapping result = new PropertyMapping();
@@ -145,26 +142,9 @@ public class ServletLinking {
 
         triples = GeoMapSupplierUtils.convertOgcToVirt(triples);
 
-
-        /*
-        Graph test = GraphFactory.createDefaultGraph();
-        GraphUtil.add(test, triples.iterator());
-        Model testm = ModelFactory.createModelForGraph(test);
-        testm.write(System.out, "TURTLE");
-        */
-        //System.out.println(triples);
-
-
         g.clear();
 
-        //targetgraph.remove(s, p, null);;
-
-        //String queryString = createSparqlUpdateInsertData(triples, targetgraph.getGraphName());
-        //VirtuosoUpdateRequest vur = VirtuosoUpdateFactory.create(queryString, targetgraph);
-
-
-        //vur.exec();
-
+        System.out.println(triples);
         GraphUtil.add(g, triples.iterator());
 
         //close results in error. Same graph for all servlets???
@@ -190,20 +170,23 @@ public class ServletLinking {
     @Path("/executeFromSpec")
     public String learnLinkSpec(@FormParam("spec") String spec, @FormParam("project") String project, @FormParam("username") String username) throws Exception {
 
-        // Build ressource path
-        StringBuilder graphressource = new StringBuilder();
-        graphressource.append(project);
-        graphressource.append("/");
-        graphressource.append(username);
-        graphressource.append("/geomized/");
+        // Build ressource path for geomized graph
+        StringBuilder geomized_graphressource = new StringBuilder();
+        geomized_graphressource.append(project);
+        geomized_graphressource.append("/");
+        geomized_graphressource.append(username);
+        geomized_graphressource.append("/geomized/");
 
-        Graph g = virtuosotarget.getGraph(graphressource.toString());
-        String retval = virtuosoclientobject.getJSON(graphressource.toString());
+        //Get geomized graph
+        Graph geomized_graph = virtuosotarget.getGraph(geomized_graphressource.toString());
+
+        //Get client object for sparql querys
+        String retval = virtuosoclientobject.getJSON(geomized_graphressource.toString());
 
         ConfigReader config = gson.fromJson(spec, ConfigReader.class);
         config.afterPropertiesSet();
 
-        System.out.println(config.toString());
+        //System.out.println(config.toString());
 
         //real methods
         UnsupervisedLinkSpecificationLearner learner = createAutoLearner(config);
@@ -219,7 +202,7 @@ public class ServletLinking {
         // end test methods
 
         Geomizer geomizer = GeomizerFactoryLimes.createGeomizer(config);
-        writeMapping(mapping, geomizer, g);
+        writeMapping(mapping, geomizer, geomized_graph);
 
 
         return retval;
@@ -230,6 +213,18 @@ public class ServletLinking {
     @Path("/evaluation")
     public String evaluate(@FormParam("evaluation") String evaluation, @FormParam("project") String project, @FormParam("username") String username) throws Exception {
 
+        Type type = new TypeToken<HashMap<String, Boolean>>(){}.getType();
+        HashMap<String, Boolean> map = gson.fromJson(evaluation, type);
+
+        if(map.isEmpty()){
+            res.sendError(HttpServletResponse.SC_BAD_REQUEST,"Evaluation was empty.");
+        }
+
+        // Debug
+        for(String key: map.keySet()) {
+            System.out.println("key: " + key + "  ----> val: " + map.get(key));
+        }
+
         // Build ressource path for geomized graph
         StringBuilder geomized_graphressource = new StringBuilder();
         geomized_graphressource.append(project);
@@ -237,7 +232,7 @@ public class ServletLinking {
         geomized_graphressource.append(username);
         geomized_graphressource.append("/geomized/");
 
-        //Get graph
+        //Get geomized graph
         Graph geomized_graph = virtuosotarget.getGraph(geomized_graphressource.toString());
 
         // Build ressource path eval grapg
@@ -245,24 +240,55 @@ public class ServletLinking {
         eval_graphressource.append(username);
         eval_graphressource.append("/eval/");
 
+        //Get eval graph
         Graph eval_graph = virtuosotarget.getGraph(eval_graphressource.toString());
 
-        System.out.println(evaluation);
-        Type type = new TypeToken<HashMap<String, Boolean>>(){}.getType();
-        HashMap<String, Boolean> map = gson.fromJson(evaluation, type);
+        //Get client object for sparql querys
+        String retval = virtuosoclientobject.getJSON(eval_graphressource.toString());
+        System.out.println(retval);
 
+
+        //iterate over keys
         for(String key: map.keySet()) {
-            System.out.println("key: " + key + "  ----> val: " + map.get(key));
+            ExtendedIterator<Triple> eval_triples = eval_graph.find(NodeFactory.createURI(key), null, null);
+            ExtendedIterator<Triple> geomized_triples = geomized_graph.find(NodeFactory.createURI(key), null, null);
+
+            //DEBUG
+            System.out.println("PRINT TRIPELS");
+            while(eval_triples.hasNext()) {
+                System.out.println("eval: " + eval_triples.next().toString());
+            }
+
+            //DEBUG
+            while(geomized_triples.hasNext()) {
+                System.out.println("geomized: " + geomized_triples.next().toString());
+            }
+
+            //update graphs
+            if (map.get(key)) {
+                GraphUtil.delete(eval_graph, eval_triples);
+                GraphUtil.add(eval_graph, geomized_triples);
+                GraphUtil.delete(geomized_graph, geomized_triples);
+            } else {
+                GraphUtil.delete(eval_graph, eval_triples);
+            }
         }
 
-        /*
-        Model m = ModelFactory.createDefaultModel();
+        //Model m = ModelFactory.createDefaultModel();
+        //m.add(m.createResource(username), RDF.type, FOAF.Agent);
 
-        m.add(m.createResource("http://foo"), RDF.type, FOAF.Agent);
-        GraphUtil.add(evaluationGraph, g);
-        */
 
-        return gson.toJson(map);
+
+        //direct load over local file (for local tests)
+        //System.out.println("Working Directory = " + System.getProperty("user.dir"));
+        //Model model = FileManager.get().loadModel("../test-data/positive.nt");
+        //Graph graph = model.getGraph();
+        //Set<Triple> triples = graph.find(null, null, null).toSet();
+        //triples = TripleUtils.swap(triples);
+        //Mapping mapping = toMapping(triples);
+        // end test methods
+
+        return gson.toJson(retval);
     }
 
     @POST
@@ -319,21 +345,4 @@ public class ServletLinking {
         String result = gson.toJson(next);
         return result;
     }
-
-    /*
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/delete")
-    public String deleteSomethingGet(@QueryParam("id") Long id) {
-        System.out.println(virtuososerver);
-        return "{}";
-    }
-
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/delete")
-    public String deleteSomething(@FormParam("id") Long id) {
-        return "{}";
-    }
-    */
 }

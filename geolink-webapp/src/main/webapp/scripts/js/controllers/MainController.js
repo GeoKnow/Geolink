@@ -95,7 +95,11 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
         }
     };
 
+
     // Move to GUIController to avoid broadcast
+    $scope.is_evalbutton_disabled = true;
+
+    // This one too
     $scope.sendEvaluation = function () {
         testdata = {
             "http://example.org/link-59561a9a0883af8df367c1c4476be3bb" : true,
@@ -147,6 +151,10 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
         $scope.dataSources[2] = createMapDataSource($scope.sparqlServices[2], geoMapFactoryAsWktVirt, conceptC, '#20CC20');
         $scope.updateMapSources();
         console.log("add to link datasource");
+
+        //Activate eval button
+        $scope.is_evalbutton_disabled = false;
+
 
 
         // Link List

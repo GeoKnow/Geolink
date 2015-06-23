@@ -103,7 +103,6 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
             "username=" + encodeURIComponent($scope.session.username)
         }).success( function (data, status, headers, config) {
             console.log(JSON.stringify(data));
-//            $scope.addGraph(data.sparql, data.graph);
             $rootScope.$broadcast("Link", data);
         }).error( function(data, status, headers, config) {
             console.log(data);

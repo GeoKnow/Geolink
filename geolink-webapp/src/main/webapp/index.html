@@ -238,8 +238,8 @@
 
 
             <button ng-class="{ 'disabled': offset === 0 }" type="button" class="btn btn-default" ng-click="offset = offset > 0 ? offset - 1 : offset">Prev</button>
-            <button type="button" class="btn btn-default" ng-click="offset = offset + 1">Next</button>
-            <button ng-click="sendEvaluation();" style="position: absolute; right: 10px; top: 10px;">Send Evaluation</button >
+            <button type="button" class="btn btn-default"  ng-click="offset = offset + 1">Next</button>
+            <button ng-disabled="is_evalbutton_disabled" ng-click="sendEvaluation();" class="btn btn-default" style="position: absolute; right: 10px; top: 10px;" >Send Evaluation</button >
             <td>
                 <table class="table table-striped">
                     <tr ng-repeat="predicate in link.cluster | objectToArray | orderBy:sourceOrderFn:true">

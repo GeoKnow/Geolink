@@ -304,12 +304,12 @@
        	</td>
        	<td style="min-width: 40%">
 	        <!-- <pagination total-items="bigTotalItems" ng-model="bigCurrentPage" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false" num-pages="numPages"></pagination>
-    		<pre>Page: {{bigCurrentPage}} / {{numPages}}</ -->pre>
+    		<pre>Page: {{bigCurrentPage}} / {{numPages}}</pre> -->
 	        <button ng-click="offset = offset > 0 ? offset - 1 : offset" ng-class="{ 'disabled': offset === 0 }" id="prevBtn" style="margin-left:10px; width: 30%; height: 48px;" type="button" class="btn btn-default">Prev</button>
 	        <button ng-click="offset = offset + 1" id="nextBtn" style="width: 30%; height: 48px;" class="btn btn-default">Next</button>
 	        <button ng-click="sendEval();" ng-disabled="is_evalbutton_disabled" style="margin-left: 5%; width: 30%; height: 48px;" type="button" class="btn btn-primary">Send Eval</button>
         </td>
-       </table> 
+	</table> 
 	<table class="table table-striped">
        <tr><th>Evaluation</th><th>Links</th><th>Resources</th></tr>
        <tr ng-repeat="link in links">

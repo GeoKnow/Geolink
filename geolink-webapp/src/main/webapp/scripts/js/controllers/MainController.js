@@ -242,6 +242,9 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
 
     //TODO: MOVE EVALUATION STUFF TO GUIController.js
     //EVALUATION STUFF BELOW
+    // Move to GUIController to avoid broadcast
+    $scope.is_evalbutton_disabled = true;
+
     $scope.sendTestEvaluation = function () {
     	testdata = {
                 "http://example.org/link-8e6fc3b7c321b1817504b50931e75ba7" : 0,

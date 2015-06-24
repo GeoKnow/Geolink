@@ -280,6 +280,7 @@ public class ServletLinking {
             // 0 = undefined; 1 = true; 2 = false
             if (map.get(key) > 0) {
 
+                System.out.println("true or false");
                 ArrayList<Triple> linktriples = new ArrayList<Triple>();
 
                 //clear linkof and geomize
@@ -297,6 +298,7 @@ public class ServletLinking {
                 //GraphUtil.add(eval_graph, geomized_triples.iterator());
 
             } else {
+                System.out.println("unknown");
                 GraphUtil.delete(eval_graph, linkof_triples.iterator());
                 //GraphUtil.delete(eval_graph, eval_triples.iterator());
             }

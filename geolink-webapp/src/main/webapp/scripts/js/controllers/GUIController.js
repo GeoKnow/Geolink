@@ -105,7 +105,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
         }).success( function (data, status, headers, config) {
             console.log(JSON.stringify(data));
             $rootScope.$broadcast("Link", data);
-            $rootScope.guiStatus.evaltable = true;
+            $rootScope.guiStatus.evaltableVisible = true;
             $rootScope.guiStatus.isLinkSpecOpen = false;
         }).error( function(data, status, headers, config) {
             console.log(data);

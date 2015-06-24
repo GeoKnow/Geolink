@@ -117,7 +117,7 @@
 <div ng-controller="guiCtrl" style="position: absolute; top: 10px">
     <accordion close-others="oneAtATime">
 
-        <accordion-group heading="Session Menu" is-open="status.isFirstOpen" is-disabled="status.isFirstDisabled">
+        <accordion-group heading="Session Menu" is-open="guiStatus.isFirstOpen" is-disabled="guiStatus.isFirstDisabled">
             <table class="linkspecTable">
                 <tr>
                     <td>
@@ -136,7 +136,7 @@
             </table>
         </accordion-group>
 
-        <accordion-group heading="LinkSpec Creation" is-open="status.isLinkSpecOpen">
+        <accordion-group heading="LinkSpec Creation" is-open="guiStatus.isLinkSpecOpen">
             <!--
             <table class="linkspecTable">
                 <tr>
@@ -173,7 +173,6 @@
 	            </td>
 			</table>
 			
-			
             <table class="linkspecTable">
                 <tr>
                     <td>
@@ -193,7 +192,7 @@
                     <td>
                         <label>Restrictions</label>
                     </td><td>
-                    <input ng-model="linkspec.sourceInfo.restrictions" type="text">
+                    <input ng-model="linkspec.sourceInfo.restrictions" ng-list="" type="text">
                 </td>
                 </tr>
                 <tr>
@@ -207,12 +206,12 @@
                     <td>
                         <label>Properties</label>
                     </td><td>
-                    <input ng-model="linkspec.sourceInfo.properties" type="text">
+                    <input ng-model="linkspec.sourceInfo.properties" ng-list=", " type="text">
                 </td>
                 </tr>
             </table>
-            
-            <div style="padding-top: 10px;">
+            <hr>
+            <div style="padding-top: 0px;">
 	 			<table>
 	            	<td>
 		                <div class="btn-group" dropdown>
@@ -250,7 +249,7 @@
                     <td>
                         <label>Restrictions</label>
                     </td><td>
-                    <input ng-model="linkspec.targetInfo.restrictions" type="text">
+                    <input ng-model="linkspec.targetInfo.restrictions" ng-list="" type="text">
                 </td>
                 </tr>
                 <tr>
@@ -264,11 +263,12 @@
                     <td>
                         <label>Properties</label>
                     </td><td>
-                    <input ng-model="linkspec.targetInfo.properties" type="text">
+                    <input ng-model="linkspec.targetInfo.properties" ng-list=", " type="text">
                 </td>
                 </tr>
             </table>
-            <div style="margin: 10px;">
+            <div style="margin: 0px;">
+            <hr>
 
             </div>
             <table class="linkspecTable">
@@ -294,113 +294,64 @@
         </accordion-group>
 	</accordion>
 </div>
-<!--
-<div ng-controller="guiCtrl" style="position: absolute; bottom: 1px; width: 100%">
 
-			
-<a style="width: 98.5%; margin: 10px" id="popover" class="btn btn-primary" tabindex="0" data-toggle="popover" data-trigger="click" data-popover-content="#evalTable" data-placement="top">Toggle Evaluation Table</a>
- 
-<div id="evalTable" class="hidden">
-    <div class="popover-heading">
-    	<table>
-    		<td>
-				<div class="alert alert-success" role="alert">
-		            Legend: <span class="label label-success">Both resources</span> <span class="label label-primary">Source only</span> <span class="label label-warning">Target only</span>
-		        </div> 
-	       	</td>
-	       	<td style="min-width: 40%">
-		        <button id="prevBtn" style="margin-left:10px; width: 30%; height: 48px;" type="button" class="btn btn-default" ng-class="{ 'disabled': offset === 0 }">Prev</button>
-		        <button id="nextBtn" style="width: 30%; height: 48px;" class="btn btn-default">Next</button>
-		        <button style="margin-left: 5%; width: 30%; height: 48px;" type="button" class="btn btn-primary" ng-disabled="is_evalbutton_disabled" ng-click="sendEvaluation();">Send Eval</button>
-	        </td>
-        </table>                
-	</div>
-    <div class="popover-body">
-		<table class="table table-striped">
-
-        <tr><th>Link</th><th>Source</th><th>Target</th></tr>
-        <tr ng-repeat="link in links">
-            <td>
-                <span class="label label-warning" title="{{link.source.id}}">{{link.source.displayLabel}}</span>
-                <span class="label label-primary" title="{{link.target.id}}">{{link.target.displayLabel}}</span>
-            </td>
-            <td>
-                <table class="table table-striped">
-                    <tr ng-repeat="predicate in link.cluster | objectToArray | orderBy:sourceOrderFn:true">
-                        <td>
-                            <span title="{{predicate.id}}" class="label" ng-class="predicate.sources.length === 2 ? 'label-success' : ( predicate.sources[0] === 'source' ? 'label-primary' : 'label-warning' )">{{predicate.displayLabel || predicate.id}}</span>
-                        </td>
-                        <td>
-                            <ul>
-                                <li ng-repeat="member in predicate.valueToMember | objectToArray | orderBy:sourceOrderFn:true">
-                                    <span title="{{member.value.id}}" class="label preserve-whitespace" ng-class="member.sources.length === 2 ? 'label-success' : ( member.sources[0] === 'source' ? 'label-primary' : 'label-warning' )">{{member.value.displayLabel || member.value.id}}</span>
-                                </li>
-                            </ul>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    	</table>
-    </div>
+<div ng-show="guiStatus.evaltableVisible" style="position: absolute; bottom: 10px; left: 10px; right: 10px; height: 300px; overflow: auto; background-color: #fefefe">
+	<table>
+   		<td>
+			<div class="alert alert-success" role="alert">
+	            Legend: <span class="label label-success">Both resources</span> <span class="label label-primary">Source only</span> <span class="label label-warning">Target only</span>
+	        </div> 
+       	</td>
+       	<td style="min-width: 40%">
+	        <!-- <pagination total-items="bigTotalItems" ng-model="bigCurrentPage" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false" num-pages="numPages"></pagination>
+    		<pre>Page: {{bigCurrentPage}} / {{numPages}}</ -->pre>
+	        <button ng-click="offset = offset > 0 ? offset - 1 : offset" ng-class="{ 'disabled': offset === 0 }" id="prevBtn" style="margin-left:10px; width: 30%; height: 48px;" type="button" class="btn btn-default">Prev</button>
+	        <button ng-click="offset = offset + 1" id="nextBtn" style="width: 30%; height: 48px;" class="btn btn-default">Next</button>
+	        <button ng-click="sendEval();" ng-disabled="is_evalbutton_disabled" style="margin-left: 5%; width: 30%; height: 48px;" type="button" class="btn btn-primary">Send Eval</button>
+        </td>
+       </table> 
+	<table class="table table-striped">
+       <tr><th>Evaluation</th><th>Links</th><th>Resources</th></tr>
+       <tr ng-repeat="link in links">
+           <td style="">
+               <div class="btn-group-vertical" style="padding-top: 10px;">
+                   <label ng-click="saveEval(link.id, 'positive');" class="btn btn-primary" ng-model="evalModel">Positive</label>
+                   <label ng-click="saveEval(link.id, 'unknown');" class="btn btn-primary" ng-model="evalModel">Unknown</label>
+                   <label ng-click="saveEval(link.id, 'negative');" class="btn btn-primary" ng-model="evalModel">Negative</label>
+               </div>
+               <!--<p>[{{$index + 1}}] {{link.id || 'undefined'}}:{{evalModel || 'null'}}</p>-->
+           </td>
+           <td>
+               <span class="label label-warning" title="{{link.source.id}}">{{link.source.displayLabel}}</span>
+               <span class="label label-primary" title="{{link.target.id}}">{{link.target.displayLabel}}</span>
+               <br>
+           </td>
+           <td>
+               <table class="table table-striped">
+                   <tr ng-repeat="predicate in link.cluster | objectToArray | orderBy:sourceOrderFn:true">
+                       <td>
+                           <span title="{{predicate.id}}" class="label" ng-class="predicate.sources.length === 2 ? 'label-success' : ( predicate.sources[0] === 'source' ? 'label-primary' : 'label-warning' )">{{predicate.displayLabel || predicate.id}}</span>
+                       </td>
+                       <td>
+                           <ul>
+                               <li ng-repeat="member in predicate.valueToMember | objectToArray | orderBy:sourceOrderFn:true">
+                                   <span title="{{member.value.id}}" class="label preserve-whitespace" ng-class="member.sources.length === 2 ? 'label-success' : ( member.sources[0] === 'source' ? 'label-primary' : 'label-warning' )">{{member.value.displayLabel || member.value.id}}</span>
+                               </li>
+                           </ul>
+                       </td>
+                   </tr>
+               </table>
+           </td>
+       </tr>
+   	</table>
 </div>
-</div> -->
-
-	<div ng-show="gui.evaltable" style="position: absolute; bottom: 10px; left: 10px; right: 10px; height: 300px; overflow: auto; background-color: #fefefe">
-		<table>
-    		<td>
-				<div class="alert alert-success" role="alert">
-		            Legend: <span class="label label-success">Both resources</span> <span class="label label-primary">Source only</span> <span class="label label-warning">Target only</span>
-		        </div> 
-	       	</td>
-	       	<td style="min-width: 40%">
-		        <button ng-click="offset = offset > 0 ? offset - 1 : offset" ng-class="{ 'disabled': offset === 0 }" id="prevBtn" style="margin-left:10px; width: 30%; height: 48px;" type="button" class="btn btn-default">Prev</button>
-		        <button ng-click="offset = offset + 1" id="nextBtn" style="width: 30%; height: 48px;" class="btn btn-default">Next</button>
-		        <button ng-click="sendEval();" ng-disabled="is_evalbutton_disabled" style="margin-left: 5%; width: 30%; height: 48px;" type="button" class="btn btn-primary">Send Eval</button>
-	        </td>
-        </table> 
-		<table class="table table-striped">
-        <tr><th>Evaluation</th><th>Links</th><th>Resources</th></tr>
-        <tr ng-repeat="link in links">
-            <td style="">
-                <div class="btn-group-vertical" style="padding-top: 10px;">
-                    <label ng-click="saveEval(link.id, 'positive');" class="btn btn-primary" ng-model="evalModel">Positive</label>
-                    <label ng-click="saveEval(link.id, 'unknown');" class="btn btn-primary" ng-model="evalModel">Unknown</label>
-                    <label ng-click="saveEval(link.id, 'negative');" class="btn btn-primary" ng-model="evalModel">Negative</label>
-                </div>
-                <!--<p>[{{$index + 1}}] {{link.id || 'undefined'}}:{{evalModel || 'null'}}</p>-->
-            </td>
-            <td>
-                <span class="label label-warning" title="{{link.source.id}}">{{link.source.displayLabel}}</span>
-                <span class="label label-primary" title="{{link.target.id}}">{{link.target.displayLabel}}</span>
-                <br>
-            </td>
-            <td>
-                <table class="table table-striped">
-                    <tr ng-repeat="predicate in link.cluster | objectToArray | orderBy:sourceOrderFn:true">
-                        <td>
-                            <span title="{{predicate.id}}" class="label" ng-class="predicate.sources.length === 2 ? 'label-success' : ( predicate.sources[0] === 'source' ? 'label-primary' : 'label-warning' )">{{predicate.displayLabel || predicate.id}}</span>
-                        </td>
-                        <td>
-                            <ul>
-                                <li ng-repeat="member in predicate.valueToMember | objectToArray | orderBy:sourceOrderFn:true">
-                                    <span title="{{member.value.id}}" class="label preserve-whitespace" ng-class="member.sources.length === 2 ? 'label-success' : ( member.sources[0] === 'source' ? 'label-primary' : 'label-warning' )">{{member.value.displayLabel || member.value.id}}</span>
-                                </li>
-                            </ul>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    	</table>
- 	</div>
 
 
 <!-- debug -->
 <button ng-click="setLeipzig();" style="position: absolute; right: 10px; top: 10px;">Set Leipzig</button >
-<button ng-click="setDenver();" style="position: absolute; right: 100px; top: 10px;">Set Denver</button>
-<button ng-click="logDatasources();" style="position: absolute; right: 200px; top: 10px;">[DEBUG] log datasources to console</button>
-<div style="position: absolute; right: 5px; top: 70px;">
+<!-- <button ng-click="setDenver();" style="position: absolute; right: 100px; top: 10px;">Set Denver</button> -->
+<button ng-click="logDatasources();" style="position: absolute; right: 100px; top: 10px;">[DEBUG] log datasources to console</button>
+<div style="position: absolute; right: 5px; top: 40px;">
  	<pre>[DEBUG] evalData: <br> {{evalData | json}}</pre>
 </div>
 

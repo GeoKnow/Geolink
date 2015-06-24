@@ -1,42 +1,13 @@
 app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $http, $rootScope) {
 //	accordion-group
 	$scope.oneAtATime = true;
-	$scope.status = {
+	$rootScope.guiStatus = {
 		isFirstOpen: true,
 	    isFirstDisabled: false,	
-	    isLinkSpecOpen: false
+	    isLinkSpecOpen: false,
+	    evaltableVisible : false
 	};
-	$scope.isCollapsed = false;
-    $rootScope.gui = {evaltable : false};
-//	  dynamicform example: http://plnkr.co/edit/AEtGstSBV6oydtvds52Y?p=preview
-//    $("[data-toggle=popover]").popover({
-//	      html : true,
-//	      container: 'body',
-//	      content: function() {
-//	        var content = $(this).attr("data-popover-content");
-//	        return $(content).children(".popover-body").html();
-//	      },
-//	      title: function() {
-//	        var title = $(this).attr("data-popover-content");
-//	        return $(title).children(".popover-heading").html();
-//	      }
-//    });
-//
-//    $('body').on('click', 'button#nextBtn', function () {
-//    	console.log("CLICKED nextBtn");
-//    	"offset = offset + 1"
-//    }).on('click', 'button#prevBtn', function () {
-//    	console.log("CLICKED prevBtn");
-//    	"offset = offset > 0 ? offset - 1 : offset"
-//    });
-//
-//    //eval options
-//    $scope.evalData = [];
-//    $scope.addNew = function (){
-//        $scope.evalData.push({ link: '', eval: '' });
-//    };
-    
-    
+
 //	md-input-container
 	$scope.session = {
 		username: "BobJr",
@@ -134,8 +105,8 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
         }).success( function (data, status, headers, config) {
             console.log(JSON.stringify(data));
             $rootScope.$broadcast("Link", data);
-            $rootScope.gui.evaltable = true;
-            $scope.status.isLinkSpecOpen = false;
+            $rootScope.guiStatus.evaltable = true;
+            $rootScope.guiStatus.isLinkSpecOpen = false;
         }).error( function(data, status, headers, config) {
             console.log(data);
         });

@@ -14,14 +14,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
-import com.hp.hpl.jena.datatypes.RDFDatatype;
-import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.*;
-import com.hp.hpl.jena.util.iterator.ExtendedIterator;
-import com.hp.hpl.jena.vocabulary.XSD;
-
-import de.uni_leipzig.simba.util.Lion2LateX;
-
+import com.hp.hpl.jena.vocabulary.*;
+import org.aksw.commons.util.strings.StringUtils;
 import org.aksw.jena_sparql_api.geo.GeoMapSupplierUtils;
 import org.aksw.jena_sparql_api.utils.TripleUtils;
 import org.jgap.InvalidConfigurationException;
@@ -31,13 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.sparql.graph.GraphFactory;
 import com.hp.hpl.jena.sparql.vocabulary.FOAF;
-import com.hp.hpl.jena.util.FileManager;
-import com.hp.hpl.jena.vocabulary.OWL;
-import com.hp.hpl.jena.vocabulary.RDF;
 import com.vividsolutions.jts.geom.Geometry;
 
 import de.uni_leipzig.simba.data.Mapping;
@@ -181,9 +170,9 @@ public class ServletLinking {
 
         // Build ressource path for geomized graph
         StringBuilder geomized_graphressource = new StringBuilder();
-        geomized_graphressource.append(project);
+        geomized_graphressource.append(StringUtils.urlEncode(project));
         geomized_graphressource.append("/");
-        geomized_graphressource.append(username);
+        geomized_graphressource.append(StringUtils.urlEncode(username));
         geomized_graphressource.append("/geomized/");
 
         //Get geomized graph
@@ -238,9 +227,9 @@ public class ServletLinking {
 
         // Build ressource path for geomized graph
         StringBuilder geomized_graphressource = new StringBuilder();
-        geomized_graphressource.append(project);
+        geomized_graphressource.append(StringUtils.urlEncode(project));
         geomized_graphressource.append("/");
-        geomized_graphressource.append(username);
+        geomized_graphressource.append(StringUtils.urlEncode(username));
         geomized_graphressource.append("/geomized/");
 
         //Get geomized graph
@@ -269,9 +258,10 @@ public class ServletLinking {
             //escape strings
             StringBuilder sb = new StringBuilder();
             sb.append("http://example.org/linkEvaluation-of-");
-            sb.append(key.split("/")[3]);
+            sb.append(StringUtils.urlEncode(key.split("/")[3]));
             sb.append("-byuser-");
-            sb.append(username);
+            sb.append(StringUtils.urlEncode(username));
+
 
             String linkof = sb.toString();
             System.out.println(linkof);
@@ -290,18 +280,21 @@ public class ServletLinking {
                 GraphUtil.delete(eval_graph, linkof_triples.iterator());
                 //GraphUtil.delete(eval_graph, eval_triples.iterator());
 
+                Node usernode = NodeFactory.createURI("http://example.org/users/" + StringUtils.urlEncode(username));
+
                 // Build new eval triples
                 linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://www.linklion.org/ontology#storedAt"), NodeFactory.createURI(key)));
-                linktriples.add(Triple.create(NodeFactory.createURI(linkof), FOAF.Agent.asNode(), NodeFactory.createLiteral(username)));
+                linktriples.add(Triple.create(NodeFactory.createURI(linkof), DCTerms.creator.asNode(), usernode));
+                linktriples.add(Triple.create(usernode, RDF.type.asNode(), FOAF.Agent.asNode()));
+                linktriples.add(Triple.create(usernode, RDFS.label.asNode(), NodeFactory.createLiteral(username)));
                 linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://purl.org/dc/terms/modified"), NodeFactory.createLiteral(xsdtimestamp)));
                 //linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://purl.org/dc/terms/modified"), NodeFactory.createLiteral(xsdtimestamp, XSDDatatype.XSDdateTime)));
-                linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#integer"), NodeFactory.createLiteral(map.get(key)))); //???
+                linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://www.linklion.org/ontology#hasEvalStatus"), NodeFactory.createLiteral(map.get(key))));
 
                 GraphUtil.add(eval_graph, linktriples.iterator());
                 //GraphUtil.add(eval_graph, geomized_triples.iterator());
 
             } else {
-                System.out.println("unknown");
                 GraphUtil.delete(eval_graph, linkof_triples.iterator());
                 //GraphUtil.delete(eval_graph, eval_triples.iterator());
             }
@@ -348,9 +341,6 @@ public class ServletLinking {
         config.acceptanceThreshold = metric.getThreshold();
         //String result = gson.toJson(config);
         */
-
-
-
 
         ConfigReader config = gson.fromJson(spec, ConfigReader.class);
 

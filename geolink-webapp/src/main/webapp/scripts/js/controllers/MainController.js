@@ -242,10 +242,9 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
 
     //TODO: MOVE EVALUATION STUFF TO GUIController.js
     //EVALUATION STUFF BELOW
-    // Move to GUIController to avoid broadcast
     $scope.is_evalbutton_disabled = true;
-
-    /*$scope.sendTestEvaluation = function () {
+    /*
+    $scope.sendTestEvaluation = function () {
     	testdata = {
                 "http://example.org/link-8e6fc3b7c321b1817504b50931e75ba7" : 0,
                 "http://example.org/link-59561a9a0883af8df367c1c4476be3bb" : 1,
@@ -253,50 +252,23 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
                 "http://example.org/link-fba73f9fd33fa990bd32d441716fe79e" : 2
             };
         $rootScope.$broadcast("Evaluation",testdata);
-    };*/
-    
+    };
+    */
     $scope.sendEval = function () {
     	$rootScope.$broadcast("Evaluation",$scope.evalData4);
     };
 
     $scope.evalModel = 'evalUnknown';
+    $scope.evalData = {};
     $scope.lastSubmit = '';
-    $scope.lastSubmit2 = '';
-    $scope.lastSubmit3 = '';
-    $scope.evalData = [];
-    $scope.evalData2 = [];
-    $scope.evalData3 = [];
-    $scope.evalData4 = {};
     
     $scope.saveEval = function (evalLink, evalValue) {
     	if (evalLink == undefined || evalValue == undefined) {
         	console.log("an element is undefined!  " + evalLink + ":" + evalValue);
     	} else {
 	    	console.log("evalLink:evalValue=  " + evalLink + ":" + evalValue);
-	    	
-	    	$scope.evalData.push({ evalLink : evalValue });
-	    	$scope.lastSubmit = angular.copy($scope.evalData.pop());
-	    	$scope.evalData.push({ evalLink : evalValue });
-	    	
-	    	$scope.evalData2.push({ link : evalLink, eval: evalValue });
-	    	$scope.lastSubmit2 = angular.copy($scope.evalData2.pop());
-	    	$scope.evalData2.push({ link : evalLink, eval: evalValue });
-	
-	    	$scope.evalData3[evalLink] = evalValue;
-	    	$scope.lastSubmit3 = angular.copy(evalLink + ":" + $scope.evalData3[evalLink]);	
-	    	
-	    	$scope.evalData4[evalLink] = evalValue;
-	    	$scope.lastSubmit4 = angular.copy(evalLink + ":" + $scope.evalData4[evalLink]);	
-	    	
-	//    	$scope.evalData.push({ 'evalLink' : "evalValue"});
+	    	$scope.evalData[evalLink] = evalValue;	
+	    	$scope.lastSubmit = angular.copy(evalLink + ":" + $scope.evalData[evalLink]);
     	}
-    };
-    
-    $scope.printEval = function () {
-    	$scope.evalData2 = _.uniq($scope.evalData2);
-    	console.log("evalData1 :" + angular.copy($scope.evalData));
-    	console.log("evalData2 :" + angular.copy($scope.evalData2));
-    	console.log("evalData3 :" + $scope.evalData3['http://example.org/link-59561a9a0883af8df367c1c4476be3bb']);
-    	console.log("evalData4 :" + $scope.evalData4['http://example.org/link-59561a9a0883af8df367c1c4476be3bb']);
     };
 }]);

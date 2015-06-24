@@ -19,7 +19,9 @@ import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.*;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.vocabulary.XSD;
+
 import de.uni_leipzig.simba.util.Lion2LateX;
+
 import org.aksw.jena_sparql_api.geo.GeoMapSupplierUtils;
 import org.aksw.jena_sparql_api.utils.TripleUtils;
 import org.jgap.InvalidConfigurationException;
@@ -219,17 +221,17 @@ public class ServletLinking {
     @Path("/evaluation")
     public String evaluate(@FormParam("evaluation") String evaluation, @FormParam("project") String project, @FormParam("username") String username) throws Exception {
 
-        Type type = new TypeToken<HashMap<String, Integer>>(){}.getType();
-        HashMap<String, Integer> map = gson.fromJson(evaluation, type);
+        Type type = new TypeToken<HashMap<String, String>>(){}.getType();
+        HashMap<String, String> map = gson.fromJson(evaluation, type);
 
         //sanitze
         if(map.isEmpty()) {
             res.sendError(HttpServletResponse.SC_BAD_REQUEST,"Evaluation was empty.");
         }
         for(String key: map.keySet()) {
-            int value = map.get(key);
-            if(value < 0 || value > 2) {
-                res.sendError(HttpServletResponse.SC_BAD_REQUEST,"Evaluation for key:" + key + " with value " + map.get(key) + " must be between 0 and 2");
+            String value = map.get(key);
+            if(value != "positive" || value != "negative" || value != "unknown" ) {
+                res.sendError(HttpServletResponse.SC_BAD_REQUEST,"Evaluation for key:" + key + " with value " + map.get(key) + " must be one of the following: positive, negative, or unknown");
             }
         }
 
@@ -277,8 +279,8 @@ public class ServletLinking {
             //Set<Triple> geomized_triples = geomized_graph.find(NodeFactory.createURI(key), null, null).toSet();
             Set<Triple> linkof_triples = eval_graph.find(NodeFactory.createURI(linkof), null, null).toSet();
 
-            // 0 = undefined; 1 = true; 2 = false
-            if (map.get(key) > 0) {
+            // valid values: unknown = undefined; positive = true; negative = false
+            if (map.get(key) != "positive" || map.get(key) != "negative") {
 
                 System.out.println("true or false");
                 ArrayList<Triple> linktriples = new ArrayList<Triple>();
@@ -292,7 +294,7 @@ public class ServletLinking {
                 linktriples.add(Triple.create(NodeFactory.createURI(linkof), FOAF.Agent.asNode(), NodeFactory.createLiteral(username, XSDDatatype.XSDstring)));
                 linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://purl.org/dc/terms/modified"), NodeFactory.createLiteral(xsdtimestamp)));
                 //linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://purl.org/dc/terms/modified"), NodeFactory.createLiteral(xsdtimestamp, XSDDatatype.XSDdateTime)));
-                linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#integer"), NodeFactory.createLiteral(map.get(key).toString(), XSDDatatype.XSDinteger))); //???
+                linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#integer"), NodeFactory.createLiteral(map.get(key), XSDDatatype.XSDstring))); //???
 
                 GraphUtil.add(eval_graph, linktriples.iterator());
                 //GraphUtil.add(eval_graph, geomized_triples.iterator());

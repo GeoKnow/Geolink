@@ -317,7 +317,7 @@
 	       	<td style="min-width: 40%">
 		        <button ng-click="offset = offset > 0 ? offset - 1 : offset" ng-class="{ 'disabled': offset === 0 }" id="prevBtn" style="margin-left:10px; width: 30%; height: 48px;" type="button" class="btn btn-default">Prev</button>
 		        <button ng-click="offset = offset + 1" id="nextBtn" style="width: 30%; height: 48px;" class="btn btn-default">Next</button>
-		        <button ng-click="sendEvaluation();" ng-disabled="is_evalbutton_disabled" style="margin-left: 5%; width: 30%; height: 48px;" type="button" class="btn btn-primary">Send Eval</button>
+		        <button ng-click="sendEval();" ng-disabled="is_evalbutton_disabled" style="margin-left: 5%; width: 30%; height: 48px;" type="button" class="btn btn-primary">Send Eval</button>
 	        </td>
         </table> 
 		<table class="table table-striped">
@@ -326,6 +326,14 @@
             <td>
                 <span class="label label-warning" title="{{link.source.id}}">{{link.source.displayLabel}}</span>
                 <span class="label label-primary" title="{{link.target.id}}">{{link.target.displayLabel}}</span>
+                <br>
+                <div" class="btn-group-vertical" style="padding-top: 10px;">
+			        <label ng-click="saveEval(link.id, 1);" class="btn btn-primary" ng-model="evalModel" btn-radio="'1'">evalPositive</label>
+			        <label ng-click="saveEval(link.id, 0);" class="btn btn-primary" ng-model="evalModel" btn-radio="'0'">evalUnknown</label>
+			        <label ng-click="saveEval(link.id, 2);" class="btn btn-primary" ng-model="evalModel" btn-radio="'2'">evalNegative</label>
+			        <label ng-click="saveEval('http://example.org/link-59561a9a0883af8df367c1c4476be3bb', 1);" ng-model="evalModel" class="btn btn-primary" btn-radio="'DebugTestEval'">DEBUG</label>
+			    </div>
+		        <p>[{{$index + 1}}] {{link.id || 'undefined'}}:{{evalModel || 'null'}}</p>
             </td>
             <td>
                 <table class="table table-striped">
@@ -348,10 +356,25 @@
  	</div>
 
 
-<!-- debug Buttons -->
+<!-- debug -->
 <button ng-click="setLeipzig();" style="position: absolute; right: 10px; top: 10px;">Set Leipzig</button >
-<button ng-click="setDenver();" style="position: absolute; right: 10px; top: 40px;">Set Denver</button>
-<button ng-click="logDatasources();" style="position: absolute; right: 10px; top: 140px;">[DEBUG] log datasources to console</button>
+<button ng-click="setDenver();" style="position: absolute; right: 100px; top: 10px;">Set Denver</button>
+<button ng-click="logDatasources();" style="position: absolute; right: 200px; top: 10px;">[DEBUG] log datasources to console</button>
+<button ng-click="sendTestEvaluation();" style="position: absolute; right: 10px; top: 40px;">Send test eval</button>
+<button ng-click="printEval();" style="position: absolute; right: 200px; top: 40px;">Print all evalData to console</button>
+<aside style="position: absolute; right: 5px; top: 70px; border: 2px  solid rgba(0,0,0,0.5); border-radius: 4px; padding: 8px; background: rgba(255,255,255,0.75);">
+ 	[DEBUG] Last saved evaluation using $method#: <br>
+ 	Data1: {{lastSubmit | json}} <br>
+	Data2: {{lastSubmit2 | json}} <br>
+	Data3: {{lastSubmit3 | json}} <br>
+	Data4: {{lastSubmit4 | json}} <br>
+</aside>
+<div style="position: absolute; right: 5px; top: 200px;">
+ 	<pre>[DEBUG] Whole evalData4: <br> {{evalData4 | json}}</pre>
+</div>
+<div style="position: absolute; right: 5px; top: 333px;">
+ 	<pre>[DEBUG] Whole evalData2: <br> {{evalData2 | json}}</pre>
+</div>
 
 
 <!-- Modules -->

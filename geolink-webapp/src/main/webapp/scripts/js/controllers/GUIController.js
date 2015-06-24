@@ -7,7 +7,8 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
 	    isLinkSpecOpen: true
 	};
 	$scope.isCollapsed = false;
-    
+    	
+//	  dynamicform example: http://plnkr.co/edit/AEtGstSBV6oydtvds52Y?p=preview
 //    $("[data-toggle=popover]").popover({
 //	      html : true,
 //	      container: 'body',
@@ -28,6 +29,13 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
 //    	console.log("CLICKED prevBtn");
 //    	"offset = offset > 0 ? offset - 1 : offset"
 //    });
+//
+//    //eval options
+//    $scope.evalData = [];
+//    $scope.addNew = function (){
+//        $scope.evalData.push({ link: '', eval: '' });
+//    };
+    
     
 //	md-input-container
 	$scope.session = {
@@ -110,7 +118,6 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
 	    $scope.linkspec.targetInfo = angular.copy($scope.servers[id].data);
         $rootScope.$broadcast("Target",{"graph": $scope.linkspec.targetInfo.graph, "sparql": $scope.linkspec.targetInfo.endpoint});
     };
-
 
 //	SEND THE LINKSPEC
     $scope.sendLinkSpec = function () {

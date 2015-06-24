@@ -220,17 +220,18 @@ public class ServletLinking {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/evaluation")
     public String evaluate(@FormParam("evaluation") String evaluation, @FormParam("project") String project, @FormParam("username") String username) throws Exception {
-
+    	System.out.println("Contents of the evaluation: " + evaluation);
         Type type = new TypeToken<HashMap<String, String>>(){}.getType();
         HashMap<String, String> map = gson.fromJson(evaluation, type);
-
         //sanitze
         if(map.isEmpty()) {
             res.sendError(HttpServletResponse.SC_BAD_REQUEST,"Evaluation was empty.");
         }
         for(String key: map.keySet()) {
             String value = map.get(key);
-            if(value != "positive" || value != "negative" || value != "unknown" ) {
+            System.out.println("key:value  "  + key + ":" + value);
+            System.out.println("!value.equals(positive) || !value.equals(negative)  || !value.equals(unknown)  "  + !value.equals("positive") + ":" + !value.equals("negative") + ":" + !value.equals("unknown"));
+            if(!value.equals("positive") && !value.equals("negative")  && !value.equals("unknown")  ) {
                 res.sendError(HttpServletResponse.SC_BAD_REQUEST,"Evaluation for key:" + key + " with value " + map.get(key) + " must be one of the following: positive, negative, or unknown");
             }
         }
@@ -280,9 +281,9 @@ public class ServletLinking {
             Set<Triple> linkof_triples = eval_graph.find(NodeFactory.createURI(linkof), null, null).toSet();
 
             // valid values: unknown = undefined; positive = true; negative = false
-            if (map.get(key) != "positive" || map.get(key) != "negative") {
+            if (map.get(key).equals("positive")  || map.get(key).equals("negative")) {
 
-                System.out.println("true or false");
+                System.out.println("positive or negative");
                 ArrayList<Triple> linktriples = new ArrayList<Triple>();
 
                 //clear linkof and geomize
@@ -291,10 +292,10 @@ public class ServletLinking {
 
                 // Build new eval triples
                 linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://www.linklion.org/ontology#storedAt"), NodeFactory.createURI(key)));
-                linktriples.add(Triple.create(NodeFactory.createURI(linkof), FOAF.Agent.asNode(), NodeFactory.createLiteral(username, XSDDatatype.XSDstring)));
+                linktriples.add(Triple.create(NodeFactory.createURI(linkof), FOAF.Agent.asNode(), NodeFactory.createLiteral(username)));
                 linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://purl.org/dc/terms/modified"), NodeFactory.createLiteral(xsdtimestamp)));
                 //linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://purl.org/dc/terms/modified"), NodeFactory.createLiteral(xsdtimestamp, XSDDatatype.XSDdateTime)));
-                linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#integer"), NodeFactory.createLiteral(map.get(key), XSDDatatype.XSDstring))); //???
+                linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#integer"), NodeFactory.createLiteral(map.get(key)))); //???
 
                 GraphUtil.add(eval_graph, linktriples.iterator());
                 //GraphUtil.add(eval_graph, geomized_triples.iterator());

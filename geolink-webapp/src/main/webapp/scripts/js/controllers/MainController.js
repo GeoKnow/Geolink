@@ -242,20 +242,13 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
 
     //TODO: MOVE EVALUATION STUFF TO GUIController.js
     //EVALUATION STUFF BELOW
-    $scope.is_evalbutton_disabled = true;
-    /*
-    $scope.sendTestEvaluation = function () {
-    	testdata = {
-                "http://example.org/link-8e6fc3b7c321b1817504b50931e75ba7" : 0,
-                "http://example.org/link-59561a9a0883af8df367c1c4476be3bb" : 1,
-                "http://example.org/link-90e5df2f8ace81dd014d82e1795d3555" : 1,
-                "http://example.org/link-fba73f9fd33fa990bd32d441716fe79e" : 2
-            };
-        $rootScope.$broadcast("Evaluation",testdata);
-    };
-    */
     $scope.sendEval = function () {
-    	$rootScope.$broadcast("Evaluation",$scope.evalData4);
+    	if (_.isEmpty($scope.evalData)) {
+        	console.log("No evaluation data to send!");
+        	alert("No evaluation data to send!");
+    	} else {
+        	$rootScope.$broadcast("Evaluation",$scope.evalData);
+    	}
     };
 
     $scope.evalModel = 'evalUnknown';
@@ -266,7 +259,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
     	if (evalLink == undefined || evalValue == undefined) {
         	console.log("an element is undefined!  " + evalLink + ":" + evalValue);
     	} else {
-	    	console.log("evalLink:evalValue=  " + evalLink + ":" + evalValue);
+	    	//console.log("evalLink:evalValue=  " + evalLink + ":" + evalValue);
 	    	$scope.evalData[evalLink] = evalValue;	
 	    	$scope.lastSubmit = angular.copy(evalLink + ":" + $scope.evalData[evalLink]);
     	}

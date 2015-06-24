@@ -298,8 +298,8 @@
 
             <dependency>
                 <groupId>com.openlink.virtuoso</groupId>
-                <artifactId>virtjdbc4-1</artifactId>
-                <version>7.1.0</version>
+                <artifactId>virtjdbc4_1</artifactId>
+                <version>7.2.0_p1</version>
             </dependency>
 
 <!--             <dependency> -->

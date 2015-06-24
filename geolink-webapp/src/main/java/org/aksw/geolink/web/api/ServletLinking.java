@@ -2,7 +2,11 @@ package org.aksw.geolink.web.api;
 
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -14,8 +18,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
-import com.hp.hpl.jena.graph.*;
-import com.hp.hpl.jena.vocabulary.*;
 import org.aksw.commons.util.strings.StringUtils;
 import org.aksw.jena_sparql_api.geo.GeoMapSupplierUtils;
 import org.aksw.jena_sparql_api.utils.TripleUtils;
@@ -24,12 +26,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.collect.Range;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.graph.GraphUtil;
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.NodeFactory;
+import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.sparql.vocabulary.FOAF;
+import com.hp.hpl.jena.vocabulary.DCTerms;
+import com.hp.hpl.jena.vocabulary.OWL;
+import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.vocabulary.RDFS;
 import com.vividsolutions.jts.geom.Geometry;
 
+import de.uni_leipzig.simba.controller.PPJoinController;
 import de.uni_leipzig.simba.data.Mapping;
+import de.uni_leipzig.simba.data.MappingUtils;
 import de.uni_leipzig.simba.genetics.learner.GeneticActiveLearner;
 import de.uni_leipzig.simba.genetics.learner.LinkSpecificationLearner;
 import de.uni_leipzig.simba.genetics.learner.SupervisedLearnerParameters;
@@ -187,8 +201,18 @@ public class ServletLinking {
         System.out.println(config.toString());
 
         //real methods
-        UnsupervisedLinkSpecificationLearner learner = createAutoLearner(config);
-        Mapping mapping = learner.learn();
+        Mapping mapping;
+        if(false) {
+            UnsupervisedLinkSpecificationLearner learner = createAutoLearner(config);
+            mapping = learner.learn();
+        } else {
+            System.out.println("Using config: " + config);
+            mapping = PPJoinController.getMapping(config);
+            mapping = MappingUtils.extractByThresholdRange(mapping, Range.atLeast(config.acceptanceThreshold));
+        }
+
+        System.out.println("Mapping: " + mapping);
+
 
         //direct load over local file (for local tests)
         //System.out.println("Working Directory = " + System.getProperty("user.dir"));
@@ -209,7 +233,7 @@ public class ServletLinking {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/evaluation")
     public String evaluate(@FormParam("evaluation") String evaluation, @FormParam("project") String project, @FormParam("username") String username) throws Exception {
-    	System.out.println("Contents of the evaluation: " + evaluation);
+        System.out.println("Contents of the evaluation: " + evaluation);
         Type type = new TypeToken<HashMap<String, String>>(){}.getType();
         HashMap<String, String> map = gson.fromJson(evaluation, type);
         //sanitze
@@ -266,8 +290,8 @@ public class ServletLinking {
             String linkof = sb.toString();
             System.out.println(linkof);
 
-            //Set<Triple> eval_triples = eval_graph.find(NodeFactory.createURI(key), null, null).toSet();
-            //Set<Triple> geomized_triples = geomized_graph.find(NodeFactory.createURI(key), null, null).toSet();
+            Set<Triple> eval_triples = eval_graph.find(NodeFactory.createURI(key), null, null).toSet();
+            Set<Triple> geomized_triples = geomized_graph.find(NodeFactory.createURI(key), null, null).toSet();
             Set<Triple> linkof_triples = eval_graph.find(NodeFactory.createURI(linkof), null, null).toSet();
 
             // valid values: unknown = undefined; positive = true; negative = false
@@ -278,7 +302,7 @@ public class ServletLinking {
 
                 //clear linkof and geomize
                 GraphUtil.delete(eval_graph, linkof_triples.iterator());
-                //GraphUtil.delete(eval_graph, eval_triples.iterator());
+                GraphUtil.delete(eval_graph, eval_triples.iterator());
 
                 Node usernode = NodeFactory.createURI("http://example.org/users/" + StringUtils.urlEncode(username));
 
@@ -292,11 +316,11 @@ public class ServletLinking {
                 linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://www.linklion.org/ontology#hasEvalStatus"), NodeFactory.createLiteral(map.get(key))));
 
                 GraphUtil.add(eval_graph, linktriples.iterator());
-                //GraphUtil.add(eval_graph, geomized_triples.iterator());
+                GraphUtil.add(eval_graph, geomized_triples.iterator());
 
             } else {
                 GraphUtil.delete(eval_graph, linkof_triples.iterator());
-                //GraphUtil.delete(eval_graph, eval_triples.iterator());
+                GraphUtil.delete(eval_graph, eval_triples.iterator());
             }
         }
 

@@ -2,12 +2,12 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
 //	accordion-group
 	$scope.oneAtATime = true;
 	$scope.status = {
-		isFirstOpen: false,
+		isFirstOpen: true,
 	    isFirstDisabled: false,	
-	    isLinkSpecOpen: true
+	    isLinkSpecOpen: false
 	};
 	$scope.isCollapsed = false;
-    	
+    $rootScope.gui = {evaltable : false};
 //	  dynamicform example: http://plnkr.co/edit/AEtGstSBV6oydtvds52Y?p=preview
 //    $("[data-toggle=popover]").popover({
 //	      html : true,
@@ -100,7 +100,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
         prefixes: angular.copy($scope.prefixes),
         sourceInfo: angular.copy($scope.servers[2].data),
         targetInfo: angular.copy($scope.servers[3].data),
-        metricExpression: 'AND(trigrams(x.rdfs:label, y.rdfs:label)|0.99, euclidian(x.lat|x.long, y.latitude|y.long)|0.8)',
+        metricExpression: 'AND(trigrams(x.rdfs:label, y.rdfs:label)|0.99, euclidian(x.lat|x.long, y.lat|y.long)|0.8)',
         acceptanceThreshold: 0.95
     };
 
@@ -134,6 +134,8 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
         }).success( function (data, status, headers, config) {
             console.log(JSON.stringify(data));
             $rootScope.$broadcast("Link", data);
+            $rootScope.gui.evaltable = true;
+            $scope.status.isLinkSpecOpen = false;
         }).error( function(data, status, headers, config) {
             console.log(data);
         });

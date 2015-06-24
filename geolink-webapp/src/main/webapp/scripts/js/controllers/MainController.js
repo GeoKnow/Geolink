@@ -99,7 +99,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
         console.log('Config changed: ' + JSON.stringify(v));
     }, true);
 
-    $scope.links = ['test', 'foobar', 'fanta'];
+    $scope.links = [];
 
     $scope.updateMapSources = function() {
 

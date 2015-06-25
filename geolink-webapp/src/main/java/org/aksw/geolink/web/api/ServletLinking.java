@@ -290,8 +290,8 @@ public class ServletLinking {
             String linkof = sb.toString();
             System.out.println(linkof);
 
-            Set<Triple> eval_triples = eval_graph.find(NodeFactory.createURI(key), null, null).toSet();
-            Set<Triple> geomized_triples = geomized_graph.find(NodeFactory.createURI(key), null, null).toSet();
+//            Set<Triple> eval_triples = eval_graph.find(NodeFactory.createURI(key), null, null).toSet();
+//            Set<Triple> geomized_triples = geomized_graph.find(NodeFactory.createURI(key), null, null).toSet();
             Set<Triple> linkof_triples = eval_graph.find(NodeFactory.createURI(linkof), null, null).toSet();
 
             // valid values: unknown = undefined; positive = true; negative = false
@@ -302,7 +302,7 @@ public class ServletLinking {
 
                 //clear linkof and geomize
                 GraphUtil.delete(eval_graph, linkof_triples.iterator());
-                GraphUtil.delete(eval_graph, eval_triples.iterator());
+//                GraphUtil.delete(eval_graph, eval_triples.iterator());
 
                 Node usernode = NodeFactory.createURI("http://example.org/users/" + StringUtils.urlEncode(username));
 
@@ -316,11 +316,11 @@ public class ServletLinking {
                 linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://www.linklion.org/ontology#hasEvalStatus"), NodeFactory.createLiteral(map.get(key))));
 
                 GraphUtil.add(eval_graph, linktriples.iterator());
-                GraphUtil.add(eval_graph, geomized_triples.iterator());
+//                GraphUtil.add(eval_graph, geomized_triples.iterator());
 
             } else {
                 GraphUtil.delete(eval_graph, linkof_triples.iterator());
-                GraphUtil.delete(eval_graph, eval_triples.iterator());
+//                GraphUtil.delete(eval_graph, eval_triples.iterator());
             }
         }
 

@@ -117,7 +117,7 @@
 <div ng-controller="guiCtrl" style="position: absolute; top: 10px">
     <accordion close-others="oneAtATime">
 
-        <accordion-group heading="Session Menu" is-open="guiStatus.isFirstOpen" is-disabled="guiStatus.isFirstDisabled">
+        <accordion-group heading="Session Menu" is-open="guiStatus.isFirstOpen">
             <table class="linkspecTable">
                 <tr>
                     <td>
@@ -134,6 +134,9 @@
                 </td>
                 </tr>
             </table>
+           	<div style="padding-top: 20px;">
+                <button class="btn btn-primary" ng-click="createSession();" style="width: 100%; top: 10px; padding: 5px">Create Session</button>
+            </div>
         </accordion-group>
 
         <accordion-group heading="LinkSpec Creation" is-open="guiStatus.isLinkSpecOpen">
@@ -159,7 +162,7 @@
             <table>
             	<td>
 		            <div class="btn-group" dropdown>
-		                <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle>
+		                <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle is-disabled="guiStatus.isLinkSpecDisabled">
 		                    Fill with Source Template <span class="caret"></span>
 		                </button>
 		                <ul class="dropdown-menu">
@@ -178,35 +181,35 @@
                     <td>
                         <label>Endpoint</label>
                     </td><td>
-                    <input ng-model="linkspec.sourceInfo.endpoint" type="url">
+                    <input ng-model="linkspec.sourceInfo.endpoint" type="url" is-disabled="guiStatus.isLinkSpecDisabled">
                 </td>
                 </tr>
                 <tr>
                     <td>
                         <label>Graph</label>
                     </td><td>
-                    <input ng-model="linkspec.sourceInfo.graph" type="url">
+                    <input ng-model="linkspec.sourceInfo.graph" type="url" is-disabled="guiStatus.isLinkSpecDisabled">
                 </td>
                 </tr>
                 <tr>
                     <td>
                         <label>Restrictions</label>
                     </td><td>
-                    <input ng-model="linkspec.sourceInfo.restrictions" ng-list="" type="text">
+                    <input ng-model="linkspec.sourceInfo.restrictions" ng-list="" type="text" is-disabled="guiStatus.isLinkSpecDisabled">
                 </td>
                 </tr>
                 <tr>
                     <td>
                         <label>Var</label>
                     </td><td>
-                    <input ng-model="linkspec.sourceInfo.var" type="text">
+                    <input ng-model="linkspec.sourceInfo.var" type="text" is-disabled="guiStatus.isLinkSpecDisabled">
                 </td>
                 </tr>
                 <tr>
                     <td>
                         <label>Properties</label>
                     </td><td>
-                    <input ng-model="linkspec.sourceInfo.properties" ng-list=", " type="text">
+                    <input ng-model="linkspec.sourceInfo.properties" ng-list=", " type="text" is-disabled="guiStatus.isLinkSpecDisabled">
                 </td>
                 </tr>
             </table>
@@ -292,10 +295,17 @@
                 <button class="btn btn-primary" ng-click="sendLinkSpec();" style="width: 100%; top: 10px; padding: 5px">Send LinkSpec</button>
             </div>
         </accordion-group>
+        
+        <accordion-group heading="Evaluation" is-open="guiStatus.isEvaluationOpen" is-disabled="guiStatus.isEvaluationDisabled">
+            <code>TODO: SHOW CURRENT LINKSPEC HERE</code>
+            <div style="padding-top: 20px;">
+                <button class="btn btn-primary" ng-click="resetLinkSpec();" style="width: 100%; top: 10px; padding: 5px">Reset Session</button>
+            </div>
+        </accordion-group>
 	</accordion>
 </div>
 
-<div ng-hide="guiStatus.isLinkSpecOpen || guiStatus.isFirstOpen" style="position: absolute; bottom: 70px; left: 10px; right: 10px; height: 300px; overflow: auto; background-color: #fefefe">
+<div ng-show="guiStatus.isEvaluationOpen" style="position: absolute; bottom: 70px; left: 10px; right: 10px; height: 300px; overflow: auto; background-color: #fefefe">
 	<table class="table table-striped">
        <tr><th>Evaluation</th><th>Links</th><th>Resources</th></tr>
        <tr ng-repeat="link in links">
@@ -331,18 +341,19 @@
        </tr>
    	</table>
 </div>
-<div ng-hide="guiStatus.isLinkSpecOpen || guiStatus.isFirstOpen" style="position: absolute; bottom: 14px; left: 10px; right: 10px; height: 52px; overflow: auto; background-color: #fefefe">
+<div ng-show="guiStatus.isEvaluationOpen" style="position: absolute; bottom: 14px; left: 10px; right: 10px; height: 52px; overflow: auto; background-color: #fefefe">
 	<table>
   		<td style="width: 400px">
 			<div class="alert alert-success" role="alert">
 	            Legend: <span class="label label-success">Both resources</span> <span class="label label-primary">Source only</span> <span class="label label-warning">Target only</span>
 	        </div> 
       	</td><td style="width: 800px; height: 48px">
-	        <pagination style="margin-left: 5%; width: 40%; height: 48px;" total-items="bigTotalItems" ng-model="offset" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false" num-pages="numPages" items-per-page=1></pagination>
+	        <pagination style="margin-left: 5%; width: 40%; height: 48px;" total-items="TotalItems" ng-model="offset" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false" num-pages="numPages" items-per-page=1></pagination>
      	</td><td>
 	        <!-- <button ng-click="offset = offset > 0 ? offset - 1 : offset" ng-class="{ 'disabled': offset === 0 }" id="prevBtn" style="margin-left:10px; width: 30%; height: 48px;" type="button" class="btn btn-default">Prev</button>
 	        <button ng-click="offset = offset + 1" id="nextBtn" style="width: 30%; height: 48px;" class="btn btn-default">Next</button> -->
 	        <button ng-click="sendEval();" ng-disabled="is_evalbutton_disabled" style="margin-left: 5%; width: 30%; height: 48px;" type="button" class="btn btn-primary">Send Eval</button>
+	        <button ng-click="learnFromMapping();" style="margin-left: 5%; width: 30%; height: 48px;" type="button" class="btn btn-primary">Learn From Mapping</button>
        	</td>
 	</table> 
 </div>

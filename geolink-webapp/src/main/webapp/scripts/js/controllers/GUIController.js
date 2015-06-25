@@ -2,11 +2,12 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
 //	accordion-group
 	$scope.oneAtATime = true;
 	$rootScope.guiStatus = {
-		isFirstOpen: true,
+		isFirstOpen: false,
 	    isFirstDisabled: false,	
-	    isLinkSpecOpen: false,
-//	    evaltableVisible : true,
-	    tablecontrolVisible: true,
+	    isLinkSpecOpen: true,
+	    isLinkSpecDisabled: false,
+	    isEvaluationOpen: false,
+	    isEvaluationDisabled: true,
 	};
 
 
@@ -16,6 +17,10 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
         project: "ThisProject"
     };
 
+    $scope.createSession = function () {
+
+    };
+    
     $scope.servers = [  {	num: 0,
         'data': {
             id: 'DBpedia',
@@ -113,11 +118,22 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
             console.log(JSON.stringify(data));
             $rootScope.$broadcast("Link", data);
             $rootScope.guiStatus.isLinkSpecOpen = false;
+            $rootScope.guiStatus.isLinkSpecDisabled = true;
+            $rootScope.guiStatus.isEvaluationOpen = true;
+            $rootScope.guiStatus.isEvaluationDisabled = false;
+            $rootScope.offset = 1;
         }).error( function(data, status, headers, config) {
             console.log(data);
         });
     };
-
+    
+    $scope.resetLinkSpec = function () {
+		$rootScope.guiStatus.isLinkSpecOpen = true;
+		$rootScope.guiStatus.isLinkSpecDisabled = false;
+		$rootScope.guiStatus.isEvaluationOpen = false;
+		$rootScope.guiStatus.isEvaluationDisabled = true;
+    };
+    
     $rootScope.$on("Evaluation", function(event, data) {
         console.log('Send Evaluation');
         console.log(data);
@@ -131,6 +147,34 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
         }).success( function (data, status, headers, config) {
             console.log('done!!!!!!!!!!!: ');
             console.log(data);
+            //TODO: activate the sendmapping button
+            
+//            $scope.addGraph(data.sparql, data.graph);
+        }).error( function(data, status, headers, config) {
+            console.log('fail on: ' + status);
+            console.log('data: ' + data);
+        });
+    });
+    
+    $rootScope.$on("Mapping", function(event, data) {
+        console.log('Send Mapping');
+        console.log(data);
+        $http({
+            method:'POST',
+            url:'api/linking/learnFromMapping',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+            data: "evaluation=" + encodeURIComponent(JSON.stringify(data)) + "&" +
+            "project=" + encodeURIComponent($scope.session.project) + "&" +
+            "username=" + encodeURIComponent($scope.session.username)
+        }).success( function (data, status, headers, config) {
+            
+        	
+        	console.log('recieved new linkspec from api/linking/learnFromMapping');
+            console.log(data);
+            
+            //TODO: popup using the newly recieved linkspec data object
+            //POPUP: ACCEPT OR REJECT
+            //Overwrite linkspec
 //            $scope.addGraph(data.sparql, data.graph);
         }).error( function(data, status, headers, config) {
             console.log('fail on: ' + status);

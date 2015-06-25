@@ -212,16 +212,15 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
     };
 
     $scope.$watchCollection('[offset, numItems]', function(newi, oldi) {
-        console.log("offset, numItems: " + $scope.offset + " " + $scope.numItems);
         if(typeof linkStore != "undefined") {
-            console.log(linkStore);
-            $q.when(linkStore.links.getListService().fetchItems(null, $scope.numItems, $scope.offset).then(function (entries) {
+            $q.when(linkStore.links.getListService().fetchItems(null, $scope.numItems, $scope.offset-1).then(function (entries) {
                 return entries.map(function (entry) {
                     return entry.val;
                 });
             })).then(function (links) {
                 // Enrich links with a cluster for the predicates
                 links.forEach(function (link) {
+//                	$rootScope.TotalItems = $rootScope.TotalItems + 1;	
                     var cluster = jassa.util.ClusterUtils.clusterLink(link);
                     // TODO Add the property display labels
 //                     _(cluster).forEach(function(cluster) {
@@ -233,33 +232,36 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
                 console.log("LINKS");
                 console.log($scope.links);
             })
+            
+            $q.when(linkStore.links.getListService().fetchCount()).then(function (countInfo) {
+        		$rootScope.TotalItems =  countInfo.count;
+                console.log("linkStore count=" + $rootScope.TotalItems);
+            });
         }
     });
 
     //TODO: MOVE EVALUATION STUFF TO GUIController.js
     //EVALUATION STUFF BELOW
-
-    $scope.setPage = function (pageNo) {
-      $scope.currentPage = pageNo;
-    };
-
-    $scope.pageChanged = function() {
-      $log.log('Page changed to: ' + $scope.currentPage);
-    };
-
-    
-    $rootScope.maxSize = 3;
-    $rootScope.bigTotalItems = 12;	
     $rootScope.offset = 0;
-    $rootScope.numItems = 10;
+    $rootScope.numItems = 1;
     
-    
+    $rootScope.maxSize = 5;
+    $rootScope.TotalItems = 42;	
+
     $scope.sendEval = function () {
     	if (_.isEmpty($scope.evalData)) {
         	console.log("No evaluation data to send!");
         	alert("No evaluation data to send!");
     	} else {
         	$rootScope.$broadcast("Evaluation",$scope.evalData);
+    	}
+    };
+    $scope.learnFromMapping = function () {
+    	if (_.isEmpty($scope.evalData)) {
+        	console.log("No evaluation data to send!");
+        	alert("No evaluation data to send!");
+    	} else {
+        	$rootScope.$broadcast("Mapping",$scope.evalData);
     	}
     };
 

@@ -9,11 +9,12 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
 	    tablecontrolVisible: true,
 	};
 
+
 //	md-input-container
-	$scope.session = {
-		username: "BobJr",
-		project: "ThisProject"
-	};
+    $scope.session = {
+        username: "BobJr",
+        project: "ThisProject"
+    };
 
     $scope.servers = [  {	num: 0,
         'data': {
@@ -46,7 +47,8 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
                 graph: 'http://fastreboot.de/dbpediatest',
                 restrictions: ['?x a <http://dbpedia.org/ontology/Airport>'],
                 'var': '?x',
-                properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']
+                //properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']
+                properties: ['rdfs:label']
             }
         },
         {
@@ -58,22 +60,26 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
                 graph: 'http://fastreboot.de/lgdtest',
                 restrictions: ['?y a <http://linkedgeodata.org/ontology/Airport>'],
                 'var': '?y',
-                properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']
+                //properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']
+                properties: ['rdfs:label']
             }
         }
     ];
 
-	$scope.prefixes = {
+    $scope.prefixes = {
         rdfs: 'http://www.w3.org/2000/01/rdf-schema#',
-        geo: 'http://www.w3.org/2003/01/geo/wgs84_pos#'
+        geo: 'http://www.w3.org/2003/01/geo/wgs84_pos#',
+        owl: 'http://www.w3.org/2002/07/owl#'
     };
-	
+
     $scope.linkspec = {
         prefixes: angular.copy($scope.prefixes),
         sourceInfo: angular.copy($scope.servers[2].data),
         targetInfo: angular.copy($scope.servers[3].data),
-        metricExpression: 'AND(trigrams(x.rdfs:label, y.rdfs:label)|0.99, euclidian(x.lat|x.long, y.lat|y.long)|0.8)',
-        acceptanceThreshold: 0.95
+        //metricExpression: 'AND(trigrams(x.rdfs:label, y.rdfs:label)|0.99, euclidian(x.lat|x.long, y.lat|y.long)|0.8)',
+        metricExpression: 'trigrams(x.rdfs:label, y.rdfs:label)',
+        acceptanceThreshold: 0.95,
+        acceptanceRelation: 'owl:sameAs'
     };
 
     $rootScope.$broadcast("Source",{"graph": $scope.linkspec.sourceInfo.graph, "sparql": $scope.linkspec.sourceInfo.endpoint});
@@ -81,14 +87,14 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
 
 
     $scope.selectDropdown1 = function(id) {
-	    console.log("selectDropdown1 THE IS IS: " + id);
-	    $scope.linkspec.sourceInfo = angular.copy($scope.servers[id].data);
+        console.log("selectDropdown1 THE IS IS: " + id);
+        $scope.linkspec.sourceInfo = angular.copy($scope.servers[id].data);
         $rootScope.$broadcast("Source",{"graph": $scope.linkspec.sourceInfo.graph, "sparql": $scope.linkspec.sourceInfo.endpoint});
     };
-	
-	$scope.selectDropdown2 = function(id) {
-	    console.log("selectDropdown2 THE IS IS: " + id);
-	    $scope.linkspec.targetInfo = angular.copy($scope.servers[id].data);
+
+    $scope.selectDropdown2 = function(id) {
+        console.log("selectDropdown2 THE IS IS: " + id);
+        $scope.linkspec.targetInfo = angular.copy($scope.servers[id].data);
         $rootScope.$broadcast("Target",{"graph": $scope.linkspec.targetInfo.graph, "sparql": $scope.linkspec.targetInfo.endpoint});
     };
 

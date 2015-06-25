@@ -299,7 +299,7 @@
             <dependency>
                 <groupId>com.openlink.virtuoso</groupId>
                 <artifactId>virtjdbc4_1</artifactId>
-                <version>7.2.0_p1</version>
+                <version>7.2.0_p1-2015-06-25</version>
             </dependency>
 
 <!--             <dependency> -->

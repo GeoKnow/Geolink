@@ -194,10 +194,6 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
     var bestLiteralConfig = new jassa.sparql.BestLabelConfig(); //['ja', 'ko', 'en', '']);
     var mappedConcept = jassa.sponate.MappedConceptUtils.createMappedConceptBestLabel(bestLiteralConfig);
 
-    $scope.offset = 0;
-
-    $scope.numItems = 10;
-
     var orderBySource = function(map) {
         var result = Object.keys(map);
         _(result).orderBy(function(item) {
@@ -242,6 +238,22 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
 
     //TODO: MOVE EVALUATION STUFF TO GUIController.js
     //EVALUATION STUFF BELOW
+
+    $scope.setPage = function (pageNo) {
+      $scope.currentPage = pageNo;
+    };
+
+    $scope.pageChanged = function() {
+      $log.log('Page changed to: ' + $scope.currentPage);
+    };
+
+    
+    $rootScope.maxSize = 3;
+    $rootScope.bigTotalItems = 12;	
+    $rootScope.offset = 0;
+    $rootScope.numItems = 10;
+    
+    
     $scope.sendEval = function () {
     	if (_.isEmpty($scope.evalData)) {
         	console.log("No evaluation data to send!");

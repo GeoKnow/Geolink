@@ -5,7 +5,8 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
 		isFirstOpen: true,
 	    isFirstDisabled: false,	
 	    isLinkSpecOpen: false,
-	    evaltableVisible : false
+//	    evaltableVisible : true,
+	    tablecontrolVisible: true,
 	};
 
 //	md-input-container
@@ -105,7 +106,6 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
         }).success( function (data, status, headers, config) {
             console.log(JSON.stringify(data));
             $rootScope.$broadcast("Link", data);
-            $rootScope.guiStatus.evaltableVisible = true;
             $rootScope.guiStatus.isLinkSpecOpen = false;
         }).error( function(data, status, headers, config) {
             console.log(data);
@@ -131,5 +131,4 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
             console.log('data: ' + data);
         });
     });
-
 }]);

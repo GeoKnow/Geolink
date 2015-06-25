@@ -164,6 +164,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
             url:'api/linking/learnFromMapping',
             headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
             data: "evaluation=" + encodeURIComponent(JSON.stringify(data)) + "&" +
+            "spec=" + encodeURIComponent(JSON.stringify($scope.linkspec)) + "&" +
             "project=" + encodeURIComponent($scope.session.project) + "&" +
             "username=" + encodeURIComponent($scope.session.username)
         }).success( function (data, status, headers, config) {

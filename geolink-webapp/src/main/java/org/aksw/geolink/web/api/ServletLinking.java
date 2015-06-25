@@ -2,11 +2,7 @@ package org.aksw.geolink.web.api;
 
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -18,8 +14,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import com.hp.hpl.jena.util.iterator.ExtendedIterator;
+import de.uni_leipzig.simba.genetics.core.Metric;
 import org.aksw.commons.util.strings.StringUtils;
 import org.aksw.jena_sparql_api.geo.GeoMapSupplierUtils;
+import org.aksw.jena_sparql_api.utils.NodeUtils;
 import org.aksw.jena_sparql_api.utils.TripleUtils;
 import org.jgap.InvalidConfigurationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,9 +123,6 @@ public class ServletLinking {
         return learner;
     }
 
-    // @GET
-    // @Produces(MediaType.APPLICATION_JSON)
-    // public String getSomething(@QueryParam("id") String) {
 
     public static String createSparqlUpdateInsertData(Iterable<Triple> triples, String graphName) {
         String result = "Insert ";
@@ -211,29 +207,19 @@ public class ServletLinking {
             mapping = MappingUtils.extractByThresholdRange(mapping, Range.atLeast(config.acceptanceThreshold));
         }
 
-        System.out.println("Mapping: " + mapping);
-
-
-        //direct load over local file (for local tests)
-        //System.out.println("Working Directory = " + System.getProperty("user.dir"));
-        //Model model = FileManager.get().loadModel("../test-data/positive.nt");
-        //Graph graph = model.getGraph();
-        //Set<Triple> triples = graph.find(null, null, null).toSet();
-        //triples = TripleUtils.swap(triples);
-        //Mapping mapping = toMapping(triples);
-        // end test methods
-
+        //System.out.println("Mapping: " + mapping);
         Geomizer geomizer = GeomizerFactoryLimes.createGeomizer(config);
         writeMapping(mapping, geomizer, geomized_graph);
 
         return retval;
     }
 
+
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/evaluation")
     public String evaluate(@FormParam("evaluation") String evaluation, @FormParam("project") String project, @FormParam("username") String username) throws Exception {
-        System.out.println("Contents of the evaluation: " + evaluation);
+
         Type type = new TypeToken<HashMap<String, String>>(){}.getType();
         HashMap<String, String> map = gson.fromJson(evaluation, type);
         //sanitze
@@ -242,8 +228,6 @@ public class ServletLinking {
         }
         for(String key: map.keySet()) {
             String value = map.get(key);
-            System.out.println("key:value  "  + key + ":" + value);
-            System.out.println("!value.equals(positive) || !value.equals(negative)  || !value.equals(unknown)  "  + !value.equals("positive") + ":" + !value.equals("negative") + ":" + !value.equals("unknown"));
             if(!value.equals("positive") && !value.equals("negative")  && !value.equals("unknown")  ) {
                 res.sendError(HttpServletResponse.SC_BAD_REQUEST,"Evaluation for key:" + key + " with value " + map.get(key) + " must be one of the following: positive, negative, or unknown");
             }
@@ -290,8 +274,8 @@ public class ServletLinking {
             String linkof = sb.toString();
             System.out.println(linkof);
 
-//            Set<Triple> eval_triples = eval_graph.find(NodeFactory.createURI(key), null, null).toSet();
-//            Set<Triple> geomized_triples = geomized_graph.find(NodeFactory.createURI(key), null, null).toSet();
+            Set<Triple> eval_triples = eval_graph.find(NodeFactory.createURI(key), null, null).toSet();
+            Set<Triple> geomized_triples = geomized_graph.find(NodeFactory.createURI(key), null, null).toSet();
             Set<Triple> linkof_triples = eval_graph.find(NodeFactory.createURI(linkof), null, null).toSet();
 
             // valid values: unknown = undefined; positive = true; negative = false
@@ -302,7 +286,12 @@ public class ServletLinking {
 
                 //clear linkof and geomize
                 GraphUtil.delete(eval_graph, linkof_triples.iterator());
-//                GraphUtil.delete(eval_graph, eval_triples.iterator());
+
+                // DEBUG
+                for (Triple t: eval_triples) {
+                    System.out.println(t.toString());
+                }
+                GraphUtil.delete(eval_graph, eval_triples.iterator());
 
                 Node usernode = NodeFactory.createURI("http://example.org/users/" + StringUtils.urlEncode(username));
 
@@ -316,11 +305,11 @@ public class ServletLinking {
                 linktriples.add(Triple.create(NodeFactory.createURI(linkof), NodeFactory.createURI("http://www.linklion.org/ontology#hasEvalStatus"), NodeFactory.createLiteral(map.get(key))));
 
                 GraphUtil.add(eval_graph, linktriples.iterator());
-//                GraphUtil.add(eval_graph, geomized_triples.iterator());
+                GraphUtil.add(eval_graph, geomized_triples.iterator());
 
             } else {
                 GraphUtil.delete(eval_graph, linkof_triples.iterator());
-//                GraphUtil.delete(eval_graph, eval_triples.iterator());
+                GraphUtil.delete(eval_graph, eval_triples.iterator());
             }
         }
 
@@ -333,51 +322,71 @@ public class ServletLinking {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/learnFromMapping")
-    public String learnFromMapping(@FormParam("spec") String spec, @FormParam("mapping") String json) throws Exception
-    {
-        // user methode
+    public String learnfromMapping(@FormParam("evaluation") String evaluation, @FormParam("spec") String spec, @FormParam("project") String project, @FormParam("username") String username) throws Exception {
 
-        // muss getrennt werden
-        // spec raus
-        // zusätzlich writeEvaluationData mit mapping
-        //  * default auf aktuellen user
-        //  * optional query auf bsp anderen user
-        // lernen hier zusätzlich
-
-
-        //????
-        //config = new ConfigReader();
-        //config.validateAndRead("/home/raven/Projects/Eclipse/LIMES/Examples/Paper/largescale/lgd-dbpedia.limes.xml");
-        //System.out.println(config);
-        //System.out.println("---");
-
-        //Cache?
-        //Cache cache = new MemoryCache();
-        //SparqlQueryModule sqm = new SparqlQueryModule(config.getSourceInfo());
-        //sqm.fillCache(cache);
-
-        /* //das ist der learner muss in eigene Methode
-        UnsupervisedLinkSpecificationLearner learner = createAutoLearner(config);
-        Mapping mapping = learner.learn();
-        System.out.println("Mapping SIZE: " + mapping.size());
-        Metric metric = learner.terminate();
-        config.metricExpression = metric.getExpression();
-        config.acceptanceThreshold = metric.getThreshold();
-        //String result = gson.toJson(config);
-        */
+        Type type = new TypeToken<HashMap<String, String>>(){}.getType();
+        HashMap<String, String> map = gson.fromJson(evaluation, type);
+        //sanitze
+        if(map.isEmpty()) {
+            res.sendError(HttpServletResponse.SC_BAD_REQUEST,"Evaluation was empty.");
+        }
+        for(String key: map.keySet()) {
+            String value = map.get(key);
+            if(!value.equals("positive") && !value.equals("negative")  && !value.equals("unknown")  ) {
+                res.sendError(HttpServletResponse.SC_BAD_REQUEST,"Evaluation for key:" + key + " with value " + map.get(key) + " must be one of the following: positive, negative, or unknown");
+            }
+        }
 
         ConfigReader config = gson.fromJson(spec, ConfigReader.class);
+        config.afterPropertiesSet();
 
-        Type mappingType = new TypeToken<Map<String, HashMap<String, Double>>>() {}.getType();
-        Map<String, HashMap<String, Double>> map = gson.fromJson(json, mappingType);
+        // Build ressource path for geomized graph
+        StringBuilder geomized_graphressource = new StringBuilder();
+        geomized_graphressource.append(StringUtils.urlEncode(project));
+        geomized_graphressource.append("/");
+        geomized_graphressource.append(StringUtils.urlEncode(username));
+        geomized_graphressource.append("/geomized/");
 
+        //Get geomized graph
+        Graph geomized_graph = virtuosotarget.getGraph(geomized_graphressource.toString());
+
+        // instance mapping
         Mapping mapping = new Mapping();
-        mapping.map.putAll(map);
+
+        for(String key: map.keySet()) {
+            String value = map.get(key);
+
+            if(value.equals("positiv") || value.equals("negativ")) {
+                ExtendedIterator iterator;
+                Triple t;
+
+                //get source node
+                iterator = geomized_graph.find(NodeFactory.createURI(key), RDF.subject.asNode(), null);
+                t = (Triple) iterator.next();
+                Node source = t.getObject();
+
+                //get dest node
+                iterator = geomized_graph.find(NodeFactory.createURI(key), RDF.object.asNode(), null);
+                t = (Triple) iterator.next();
+                Node dest = t.getObject();
+
+                // get evaluation status as int
+                double evalstatus = value.equals("positiv") ? 1.0 : 0.0;
+
+                // fill mapping
+                mapping.add(NodeUtils.toNTriplesString(source),NodeUtils.toNTriplesString(source), evalstatus);
+            }
+        }
+
 
         LinkSpecificationLearner learner = createFeedbackLearner(config);
         Mapping next = learner.learn(mapping);
+        /// fehler
+        Metric metric = learner.terminate();
+        config.metricExpression = metric.getExpression();
+        config.acceptanceThreshold = metric.getThreshold();
+        String result = gson.toJson(config);
 
-        String result = gson.toJson(next);
         return result;
     }
 }

@@ -291,8 +291,8 @@
 
             <dependency>
                 <groupId>com.openlink.virtuoso</groupId>
-                <artifactId>virtjena</artifactId>
-                <version>07-04-2015</version>
+                <artifactId>virtjena2</artifactId>
+                <version>develop7-2015-06-25</version>
 <!--                 <version>7.1.0</version> -->
             </dependency>
 

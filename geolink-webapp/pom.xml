@@ -135,7 +135,7 @@
 
         <dependency>
             <groupId>com.openlink.virtuoso</groupId>
-            <artifactId>virtjena</artifactId>
+            <artifactId>virtjena2</artifactId>
         </dependency>
 
         <dependency>

@@ -1,13 +1,16 @@
 app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $http, $rootScope) {
 //	accordion-group
-	$scope.oneAtATime = true;
+	$scope.oneAtATime = true;				//default: true
 	$rootScope.guiStatus = {
-		isFirstOpen: false,
-	    isFirstDisabled: false,	
-	    isLinkSpecOpen: true,
-	    isLinkSpecDisabled: false,
-	    isEvaluationOpen: false,
-	    isEvaluationDisabled: true,
+		isFirstOpen: false,					//default: true
+	    isFirstDisabled: false,				//default: false
+	    
+	    isLinkSpecOpen: true,				//default: false
+	    isLinkSpecDisabled: false,			//default: true
+	    
+	    isEvaluationOpen: false,			//default: false
+	    isEvaluationDisabled: true,			//default: true
+	    is_mappingbutton_disabled: false,  	//default: true
 	};
 
 

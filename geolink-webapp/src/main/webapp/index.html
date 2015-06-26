@@ -312,23 +312,24 @@
 	</accordion>
 </div>
 
-<div class="popup cssFade" ng-show="guiStatus.isEvaluationOpen" style="position: absolute; bottom: 70px; left: 10px; right: 10px; height: 400px; overflow: auto; background-color: #fefefe">
-	<table style="height:100%; margin-bottom:0px" class="table table-striped">
-       <tr><th style="background-color: #F7F7F7">Evaluation</th><th style="background-color: #F7F7F7">Links</th><th style="background-color: #F7F7F7">Resources</th></tr>
+<div class="popup cssFade" ng-show="guiStatus.isEvaluationOpen" style="position: absolute; bottom: 70px; left: 10px; right: 10px; height: 415px; overflow: auto; background-color: #fefefe">
+	<table style="margin-bottom:0px" class="table table-striped">
+       <tr><th style="background-color: #F7F7F7">Links</th><th style="background-color: #F7F7F7">Resources</th></tr>
        <tr ng-repeat="link in links">
-           <td>
-               <div class="btn-group-vertical" style="padding-top: 10px;">
-                   <label ng-click="saveEval(link.id, 'positive');" class="btn btn-primary" ng-model="evalModel">Positive</label>
-                   <label ng-click="saveEval(link.id, 'unknown');" class="btn btn-primary" ng-model="evalModel">Unknown</label>
-                   <label ng-click="saveEval(link.id, 'negative');" class="btn btn-primary" ng-model="evalModel">Negative</label>
-               </div>
-               <!--<p>[{{$index + 1}}] {{link.id || 'undefined'}}:{{evalModel || 'null'}}</p>-->
-           </td>
            <td>
                <span class="label label-warning" title="{{link.source.id}}">{{link.source.displayLabel}}</span>
                <br>
                <span class="label label-primary" title="{{link.target.id}}">{{link.target.displayLabel}}</span>
-               <br>
+
+               <div>
+               		<h3 style="margin-top: 50px;" class="popover-title">Evaluation</h3>
+	               	<div class="btn-group-vertical" style="padding-top: 10px;">
+	                   <label ng-click="saveEval(link.id, 'positive');" class="btn btn-primary" ng-model="evalModel">Positive</label>
+	                   <label ng-click="saveEval(link.id, 'unknown');" class="btn btn-primary" ng-model="evalModel">Unknown</label>
+	                   <label ng-click="saveEval(link.id, 'negative');" class="btn btn-primary" ng-model="evalModel">Negative</label>
+               		</div>
+           			<!--<p>[{{$index + 1}}] {{link.id || 'undefined'}}:{{evalModel || 'null'}}</p>-->
+               </div>
            </td>
            <td style="padding:0px">
 	           <div style="height:360px; overflow:auto;">
@@ -340,7 +341,7 @@
 	                       <td>
 	                           <ul>
 	                               <li ng-repeat="member in predicate.valueToMember | objectToArray | orderBy:sourceOrderFn:true">
-	                                   <span style="display:inline-block; max-width:900px; word-wrap:break-word;" title="{{member.value.id}}" class="label preserve-whitespace" ng-class="member.sources.length === 2 ? 'label-success' : ( member.sources[0] === 'source' ? 'label-primary' : 'label-warning' )">{{member.value.displayLabel || member.value.id}}</span>
+	                                   <span style="display:inline-block; max-width:800px; word-wrap:break-word;" title="{{member.value.id}}" class="label preserve-whitespace" ng-class="member.sources.length === 2 ? 'label-success' : ( member.sources[0] === 'source' ? 'label-primary' : 'label-warning' )">{{member.value.displayLabel || member.value.id}}</span>
 	                               </li>
 	                           </ul>
 	                       </td>
@@ -351,7 +352,7 @@
        </tr>
    	</table>
 </div>
-<div class="popup cssFade" ng-show="guiStatus.isEvaluationOpen" style="position: absolute; bottom: 14px; left: 10px; right: 10px; height: ; overflow: auto; background-color: #fefefe">
+<<div class="popup cssFade" ng-show="guiStatus.isEvaluationOpen" style="position: absolute; bottom: 14px; left: 10px; right: 10px; height: ; overflow: auto; background-color: #fefefe">
 	<table>
 		<tr>
 	  		<td style="width: 350px">
@@ -362,9 +363,9 @@
 	      	<td style="max-width: 1000px;">
 		        <pagination style="display: block;" total-items="TotalItems" ng-model="offset" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false" num-pages="numPages" items-per-page=1></pagination>
 	     	</td>
-	     	<td style="width: 280px;">
-		        <button ng-click="sendEval();" ng-disabled="is_evalbutton_disabled" style="margin-left: 5%; width: 30; height: 48px;" type="button" class="btn btn-primary">Send Eval</button>
-		        <button ng-click="learnFromMapping();" ng-disabled="guiStatus.is_mappingbutton_disabled" style="margin-left: 5%; width: 30; height: 48px;" type="button" class="btn btn-primary">Learn From Mapping</button>
+	     	<td style="width: 275px;">
+		        <button ng-click="sendEval();" ng-disabled="is_evalbutton_disabled" style="margin-left: 5px; margin-right: 5px; height: 32px;" type="button" class="btn btn-primary">Send Eval</button>
+		        <button ng-click="learnFromMapping();" ng-disabled="guiStatus.is_mappingbutton_disabled" style="margin-left: 5px; margin-right: 5px; height: 32px;" type="button" class="btn btn-primary">Learn From Mapping</button>
 	       	</td>
        	</tr>
 	</table> 

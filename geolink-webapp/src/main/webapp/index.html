@@ -32,6 +32,7 @@
     <script src="bower_components/bluebird/js/browser/bluebird.js"></script>
     <script src="bower_components/jassa/jassa.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="bower_components/angular-animate/angular-animate.js"></script>
     <script src="bower_components/angular-ui-bootstrap-bower/ui-bootstrap-tpls.js"></script>
     <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
     <script src="bower_components/jquery-ui/ui/jquery-ui.js"></script>
@@ -91,15 +92,13 @@
 		.btn-group {
 			width: 170px;
 		}
-		.popover {
-			position:relative;
-			max-width: 98.5%;
-		}
-		.popover-title {
-			padding-bottom: 8px;
-		}
-		.popover-content {
-			height: 250px;
+		.popup {
+			border: 1px solid rgba(0,0,0,.2);
+  			border-radius: 6px;
+  			box-shadow: 0 5px 10px rgba(0,0,0,.2);
+  			white-space: normal;
+  			opacity: 1;
+  			transition: opacity .25s linear;
 		}
 		.alert {
 			margin-bottom: 0px;
@@ -305,11 +304,11 @@
 	</accordion>
 </div>
 
-<div ng-show="guiStatus.isEvaluationOpen" style="position: absolute; bottom: 70px; left: 10px; right: 10px; height: 400px; overflow: auto; background-color: #fefefe">
-	<table class="table table-striped">
-       <tr><th>Evaluation</th><th>Links</th><th>Resources</th></tr>
+<div class="popup cssFade" ng-show="guiStatus.isEvaluationOpen" style="position: absolute; bottom: 70px; left: 10px; right: 10px; height: 400px; overflow: auto; background-color: #fefefe">
+	<table style="height:100%; margin-bottom:0px" class="table table-striped">
+       <tr><th style="background-color: #F7F7F7">Evaluation</th><th style="background-color: #F7F7F7">Links</th><th style="background-color: #F7F7F7">Resources</th></tr>
        <tr ng-repeat="link in links">
-           <td style="">
+           <td>
                <div class="btn-group-vertical" style="padding-top: 10px;">
                    <label ng-click="saveEval(link.id, 'positive');" class="btn btn-primary" ng-model="evalModel">Positive</label>
                    <label ng-click="saveEval(link.id, 'unknown');" class="btn btn-primary" ng-model="evalModel">Unknown</label>
@@ -323,8 +322,8 @@
                <span class="label label-primary" title="{{link.target.id}}">{{link.target.displayLabel}}</span>
                <br>
            </td>
-           <td>
-	           <div style="height:317px; overflow:auto;">
+           <td style="padding:0px">
+	           <div style="height:360px; overflow:auto;">
 	               <table class="table table-striped">
 	                   <tr ng-repeat="predicate in link.cluster | objectToArray | orderBy:sourceOrderFn:true">
 	                       <td>
@@ -333,7 +332,7 @@
 	                       <td>
 	                           <ul>
 	                               <li ng-repeat="member in predicate.valueToMember | objectToArray | orderBy:sourceOrderFn:true">
-	                                   <span style="display:inline-block; max-width:700px; word-wrap:break-word;" title="{{member.value.id}}" class="label preserve-whitespace" ng-class="member.sources.length === 2 ? 'label-success' : ( member.sources[0] === 'source' ? 'label-primary' : 'label-warning' )">{{member.value.displayLabel || member.value.id}}</span>
+	                                   <span style="display:inline-block; max-width:900px; word-wrap:break-word;" title="{{member.value.id}}" class="label preserve-whitespace" ng-class="member.sources.length === 2 ? 'label-success' : ( member.sources[0] === 'source' ? 'label-primary' : 'label-warning' )">{{member.value.displayLabel || member.value.id}}</span>
 	                               </li>
 	                           </ul>
 	                       </td>
@@ -344,17 +343,17 @@
        </tr>
    	</table>
 </div>
-<div ng-show="guiStatus.isEvaluationOpen" style="position: absolute; bottom: 14px; left: 10px; right: 10px; height: 52px; overflow: auto; background-color: #fefefe">
+<div class="popup cssFade" ng-show="guiStatus.isEvaluationOpen" style="position: absolute; bottom: 14px; left: 10px; right: 10px; height: 52px; overflow: auto; background-color: #fefefe">
 	<table>
-  		<td style="width: 400px">
+  		<td style="height: 100%; width: 400px">
 			<div class="alert alert-success" role="alert">
 	            Legend: <span class="label label-success">Both resources</span> <span class="label label-primary">Source only</span> <span class="label label-warning">Target only</span>
 	        </div> 
-      	</td><td style="width: 800px; height: 48px">
+      	</td>
+      	<td style="width: 800px; height: 48px">
 	        <pagination style="margin-left: 5%; width: 40%; height: 48px;" total-items="TotalItems" ng-model="offset" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false" num-pages="numPages" items-per-page=1></pagination>
-     	</td><td>
-	        <!-- <button ng-click="offset = offset > 0 ? offset - 1 : offset" ng-class="{ 'disabled': offset === 0 }" id="prevBtn" style="margin-left:10px; width: 30%; height: 48px;" type="button" class="btn btn-default">Prev</button>
-	        <button ng-click="offset = offset + 1" id="nextBtn" style="width: 30%; height: 48px;" class="btn btn-default">Next</button> -->
+     	</td>
+     	<td>
 	        <button ng-click="sendEval();" ng-disabled="is_evalbutton_disabled" style="margin-left: 5%; width: 30%; height: 48px;" type="button" class="btn btn-primary">Send Eval</button>
 	        <button ng-click="learnFromMapping();" ng-disabled="guiStatus.is_mappingbutton_disabled" style="margin-left: 5%; width: 30%; height: 48px;" type="button" class="btn btn-primary">Learn From Mapping</button>
        	</td>

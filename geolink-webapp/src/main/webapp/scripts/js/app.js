@@ -1,4 +1,4 @@
-var app = angular.module('GeolinkClient', ['ui.bootstrap', 'ui.jassa', 'ui.jassa.openlayers']);
+var app = angular.module('GeolinkClient', ['ui.bootstrap', 'ui.jassa', 'ui.jassa.openlayers','ngAnimate']);
 
 app.filter('objectToArray', function() {
     return function (input) {

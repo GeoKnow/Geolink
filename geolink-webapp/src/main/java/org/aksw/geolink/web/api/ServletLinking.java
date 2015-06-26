@@ -172,6 +172,25 @@ public class ServletLinking {
         return result;
     }
 
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/createSession")
+    public String createSession(@FormParam("project") String project, @FormParam("username") String username) throws Exception {
+
+        // Build ressource path eval graph
+        StringBuilder eval_graphressource = new StringBuilder();
+        eval_graphressource.append(username);
+        eval_graphressource.append("/eval/");
+
+        //Get eval graph
+        Graph eval_graph = virtuosotarget.getGraph(eval_graphressource.toString());
+
+        //Get client object for sparql querys
+        String retval = virtuosoclientobject.getJSON(eval_graphressource.toString());
+
+        return retval;
+    }
+
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)

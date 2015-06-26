@@ -2,10 +2,10 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
 //	accordion-group
 	$scope.oneAtATime = true;				//default: true
 	$rootScope.guiStatus = {
-		isFirstOpen: false,					//default: true
+		isFirstOpen: true,					//default: true
 	    isFirstDisabled: false,				//default: false
 	    
-	    isLinkSpecOpen: true,				//default: false
+	    isLinkSpecOpen: false,				//default: false
 	    isLinkSpecDisabled: false,			//default: true
 	    
 	    isEvaluationOpen: false,			//default: false
@@ -32,7 +32,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
             graph: 'http://dbpedia.org',
             restrictions: ['?x a <http://dbpedia.org/ontology/Airport>'],
             'var': '?x',
-            properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']
+            properties: ['rdfs:label AS nolang->lowercase']
         }
     },
         {
@@ -44,7 +44,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
                 graph: 'http://linkedgeodata.org',
                 restrictions: ['?y a <http://linkedgeodata.org/ontology/Airport>'],
                 'var': '?y',
-                properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']
+                properties: ['rdfs:label AS nolang->lowercase']
             }
         },
         {	num: 2,
@@ -136,7 +136,30 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
 		$rootScope.guiStatus.isEvaluationOpen = false;
 		$rootScope.guiStatus.isEvaluationDisabled = true;
     };
-    
+
+    $scope.createSession = function () {
+        if ( (_.isEmpty($scope.session.project)) || (_.isEmpty($scope.session.username)) ) {
+            console.log("No evaluation data to send!");
+            alert("No session created");
+        } else {
+            $http({
+                method:'POST',
+                url:'api/linking/createSession',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+                data: "project=" + encodeURIComponent($scope.session.project) + "&" +
+                "username=" + encodeURIComponent($scope.session.username)
+            }).success( function (data, status, headers, config) {
+                console.log(data);
+                $rootScope.$broadcast("Eval", data);
+                $scope.guiStatus.isFirstOpen = false;
+                $scope.guiStatus.isLinkSpecOpen = true;
+            }).error( function(data, status, headers, config) {
+                console.log('fail on: ' + status);
+                console.log('data: ' + data);
+            });
+        }
+    };
+
     $rootScope.$on("Evaluation", function(event, data) {
         console.log('Send Evaluation');
         console.log(data);
@@ -151,8 +174,6 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
             console.log('done!!!!!!!!!!!: ');
             console.log(data);
             //TODO: activate the sendmapping button
-            
-//            $scope.addGraph(data.sparql, data.graph);
         }).error( function(data, status, headers, config) {
             console.log('fail on: ' + status);
             console.log('data: ' + data);
@@ -179,7 +200,6 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
             //TODO: popup using the newly recieved linkspec data object
             //POPUP: ACCEPT OR REJECT
             //Overwrite linkspec
-//            $scope.addGraph(data.sparql, data.graph);
         }).error( function(data, status, headers, config) {
             console.log('fail on: ' + status);
             console.log('data: ' + data);

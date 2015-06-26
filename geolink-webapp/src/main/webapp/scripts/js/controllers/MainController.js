@@ -112,6 +112,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
             $scope.mapSources.push($scope.dataSources[key]);
         }
         console.log($scope.mapSources);
+        console.log($scope.sparqlServices);
     };
 
     $rootScope.$on("Source", function(event, data) {
@@ -129,6 +130,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
         $scope.updateMapSources();
         console.log("add to target datasource");
     });
+
     
     $rootScope.$on("Link", function(event, data) {
         //geomized graph
@@ -191,6 +193,13 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
         });
     });
 
+
+    $rootScope.$on("Eval", function(event, data) {
+        $scope.sparqlServices[3] = createSparqlService(data.sparql, data.graph);
+        console.log("add to eval graph");
+        console.log($scope.sparqlServices);
+    });
+
     var bestLiteralConfig = new jassa.sparql.BestLabelConfig(); //['ja', 'ko', 'en', '']);
     var mappedConcept = jassa.sponate.MappedConceptUtils.createMappedConceptBestLabel(bestLiteralConfig);
 
@@ -246,7 +255,9 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
     $rootScope.numItems = 1;
     
     $rootScope.maxSize = 5;
-    $rootScope.TotalItems = 42;	
+    $rootScope.TotalItems = 42;
+
+
 
     $scope.sendEval = function () {
     	if (_.isEmpty($scope.evalData)) {
@@ -256,6 +267,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
         	$rootScope.$broadcast("Evaluation",$scope.evalData);
     	}
     };
+
     $scope.learnFromMapping = function () {
     	if (_.isEmpty($scope.evalData)) {
         	console.log("No evaluation data to send!");

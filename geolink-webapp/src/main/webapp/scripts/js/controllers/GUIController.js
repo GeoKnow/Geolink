@@ -32,7 +32,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
             graph: 'http://dbpedia.org',
             restrictions: ['?x a <http://dbpedia.org/ontology/Airport>'],
             'var': '?x',
-            properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']
+            properties: ['rdfs:label AS nolang->lowercase']
         }
     },
         {
@@ -44,7 +44,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
                 graph: 'http://linkedgeodata.org',
                 restrictions: ['?y a <http://linkedgeodata.org/ontology/Airport>'],
                 'var': '?y',
-                properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']
+                properties: ['rdfs:label AS nolang->lowercase']
             }
         },
         {	num: 2,

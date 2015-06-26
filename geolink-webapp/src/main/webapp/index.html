@@ -103,6 +103,14 @@
 		.alert {
 			margin-bottom: 0px;
 		}
+		.pagination {
+			margin: 0px;
+		 	display: block;
+  			margin-left: auto;
+  			margin-right: auto;
+  			max-width: 500px;
+  			min-width: 170px;
+		}
     </style>
 </head>
 
@@ -343,20 +351,22 @@
        </tr>
    	</table>
 </div>
-<div class="popup cssFade" ng-show="guiStatus.isEvaluationOpen" style="position: absolute; bottom: 14px; left: 10px; right: 10px; height: 52px; overflow: auto; background-color: #fefefe">
+<div class="popup cssFade" ng-show="guiStatus.isEvaluationOpen" style="position: absolute; bottom: 14px; left: 10px; right: 10px; height: ; overflow: auto; background-color: #fefefe">
 	<table>
-  		<td style="height: 100%; width: 400px">
-			<div class="alert alert-success" role="alert">
-	            Legend: <span class="label label-success">Both resources</span> <span class="label label-primary">Source only</span> <span class="label label-warning">Target only</span>
-	        </div> 
-      	</td>
-      	<td style="width: 800px; height: 48px">
-	        <pagination style="margin-left: 5%; width: 40%; height: 48px;" total-items="TotalItems" ng-model="offset" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false" num-pages="numPages" items-per-page=1></pagination>
-     	</td>
-     	<td>
-	        <button ng-click="sendEval();" ng-disabled="is_evalbutton_disabled" style="margin-left: 5%; width: 30%; height: 48px;" type="button" class="btn btn-primary">Send Eval</button>
-	        <button ng-click="learnFromMapping();" ng-disabled="guiStatus.is_mappingbutton_disabled" style="margin-left: 5%; width: 30%; height: 48px;" type="button" class="btn btn-primary">Learn From Mapping</button>
-       	</td>
+		<tr>
+	  		<td style="width: 350px">
+				<div class="alert alert-success" role="alert">
+		            Legend: <span class="label label-success">Both resources</span> <span class="label label-primary">Source only</span> <span class="label label-warning">Target only</span>
+		        </div> 
+	      	</td>
+	      	<td style="max-width: 1000px;">
+		        <pagination style="display: block;" total-items="TotalItems" ng-model="offset" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false" num-pages="numPages" items-per-page=1></pagination>
+	     	</td>
+	     	<td style="width: 280px;">
+		        <button ng-click="sendEval();" ng-disabled="is_evalbutton_disabled" style="margin-left: 5%; width: 30; height: 48px;" type="button" class="btn btn-primary">Send Eval</button>
+		        <button ng-click="learnFromMapping();" ng-disabled="guiStatus.is_mappingbutton_disabled" style="margin-left: 5%; width: 30; height: 48px;" type="button" class="btn btn-primary">Learn From Mapping</button>
+	       	</td>
+       	</tr>
 	</table> 
 </div>
 

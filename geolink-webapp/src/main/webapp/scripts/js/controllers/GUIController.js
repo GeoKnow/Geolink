@@ -171,7 +171,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
             "project=" + encodeURIComponent($scope.session.project) + "&" +
             "username=" + encodeURIComponent($scope.session.username)
         }).success( function (data, status, headers, config) {
-            console.log('done!!!!!!!!!!!: ');
+            alert("Links evaluated");
             console.log(data);
             //TODO: activate the sendmapping button
         }).error( function(data, status, headers, config) {

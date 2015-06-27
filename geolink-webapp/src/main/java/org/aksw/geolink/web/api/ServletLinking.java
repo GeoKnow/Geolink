@@ -89,10 +89,9 @@ public class ServletLinking {
 
         UnSupervisedLearnerParameters params = new UnSupervisedLearnerParameters(config, propertyMapping);
         //anpassen fuer demo
-        params.setGenerations(50);
+        params.setGenerations(10);
         params.setPopulationSize(100); //50-100
-        //params.setMutationRate(0.5F);
-        //params.setPreserveFittestIndividual(true);
+
 
         UnsupervisedLinkSpecificationLearner result = new UnsupervisedLearner();
         result.init(params.getConfigReader().sourceInfo,
@@ -154,9 +153,6 @@ public class ServletLinking {
 
         System.out.println(triples);
         GraphUtil.add(g, triples.iterator());
-
-        //close results in error. Same graph for all servlets???
-        //targetgraph.close();
     }
 
     public static Mapping toMapping(Iterable<Triple> triples) {
@@ -264,14 +260,11 @@ public class ServletLinking {
 
         // Build ressource path eval graph
         StringBuilder eval_graphressource = new StringBuilder();
-        eval_graphressource.append(username);
+        eval_graphressource.append(StringUtils.urlEncode(username));
         eval_graphressource.append("/eval/");
 
         //Get eval graph
         Graph eval_graph = virtuosotarget.getGraph(eval_graphressource.toString());
-
-        //Get client object for sparql querys
-        String retval = virtuosoclientobject.getJSON(eval_graphressource.toString());
 
         //Get current time
         Calendar cal = Calendar.getInstance();
@@ -279,7 +272,6 @@ public class ServletLinking {
         String xsdtimestamp = sdf.format(cal.getTime());
 
         //iterate over keys
-        System.out.println("DEBUG: Evaluations");
         for(String key: map.keySet()) {
 
             //escape strings
@@ -291,7 +283,6 @@ public class ServletLinking {
 
 
             String linkof = sb.toString();
-            System.out.println(linkof);
 
             Set<Triple> eval_triples = eval_graph.find(NodeFactory.createURI(key), null, null).toSet();
             Set<Triple> geomized_triples = geomized_graph.find(NodeFactory.createURI(key), null, null).toSet();
@@ -300,16 +291,11 @@ public class ServletLinking {
             // valid values: unknown = undefined; positive = true; negative = false
             if (map.get(key).equals("positive")  || map.get(key).equals("negative")) {
 
-                System.out.println("positive or negative");
+                //System.out.println("positive or negative");
                 ArrayList<Triple> linktriples = new ArrayList<Triple>();
 
                 //clear linkof and geomize
                 GraphUtil.delete(eval_graph, linkof_triples.iterator());
-
-                // DEBUG
-                for (Triple t: eval_triples) {
-                    System.out.println(t.toString());
-                }
                 GraphUtil.delete(eval_graph, eval_triples.iterator());
 
                 Node usernode = NodeFactory.createURI("http://example.org/users/" + StringUtils.urlEncode(username));
@@ -332,10 +318,7 @@ public class ServletLinking {
             }
         }
 
-        // clear geomized graph after evaluation
-        //geomized_graph.clear();
-
-        return gson.toJson(retval);
+        return "Links evaluated";
     }
 
     @POST

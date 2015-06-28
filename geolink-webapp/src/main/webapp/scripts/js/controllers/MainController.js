@@ -131,7 +131,6 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
         console.log("add to target datasource");
     });
 
-    
     $rootScope.$on("Link", function(event, data) {
         //geomized graph
         $scope.sparqlServices[2] = createSparqlService(data.sparql, data.graph);
@@ -192,7 +191,6 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
             from: '?l a llo:Link; rdf:subject ?s; rdf:object ?t'
         });
     });
-
 
     $rootScope.$on("Eval", function(event, data) {
         $scope.sparqlServices[3] = createSparqlService(data.sparql, data.graph);

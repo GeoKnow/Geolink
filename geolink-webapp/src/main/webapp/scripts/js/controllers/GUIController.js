@@ -1,7 +1,8 @@
-app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $http, $rootScope) {
+app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function($scope, $http, $rootScope, $window) {
 //	accordion-group
 	$scope.oneAtATime = true;				//default: true
-	$rootScope.guiStatus = {
+
+    $rootScope.guiStatus = {
 		isFirstOpen: true,					//default: true
 	    isFirstDisabled: false,				//default: false
 	    
@@ -11,19 +12,27 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
 	    isEvaluationOpen: false,			//default: false
 	    isEvaluationDisabled: true,			//default: true
 	    is_mappingbutton_disabled: false,  	//default: true
-	};
 
+        isEvalLinkOpen: false,			//default: false
+        isGeomizedLinkOpen: false			//default: false
+    };
+
+    $rootScope.graphLink =  {
+        geomized : "",
+        eval: ""
+    };
+
+    $scope.linkFunc = function (url){
+        console.log(url);
+        $window.open(url);
+    };
 
 //	md-input-container
-    $scope.session = {
+    $rootScope.session = {
         username: "BobJr",
         project: "ThisProject"
     };
 
-    $scope.createSession = function () {
-
-    };
-    
     $scope.servers = [  {	num: 0,
         'data': {
             id: 'DBpedia',
@@ -80,7 +89,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
         owl: 'http://www.w3.org/2002/07/owl#'
     };
 
-    $scope.linkspec = {
+    $rootScope.linkspec = {
         prefixes: angular.copy($scope.prefixes),
         sourceInfo: angular.copy($scope.servers[2].data),
         targetInfo: angular.copy($scope.servers[3].data),
@@ -90,55 +99,24 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
         acceptanceRelation: 'owl:sameAs'
     };
 
-    $rootScope.$broadcast("Source",{"graph": $scope.linkspec.sourceInfo.graph, "sparql": $scope.linkspec.sourceInfo.endpoint});
-    $rootScope.$broadcast("Target",{"graph": $scope.linkspec.targetInfo.graph, "sparql": $scope.linkspec.targetInfo.endpoint});
+    $rootScope.$broadcast("Source",{"graph": $rootScope.linkspec.sourceInfo.graph, "sparql": $rootScope.linkspec.sourceInfo.endpoint});
+    $rootScope.$broadcast("Target",{"graph": $rootScope.linkspec.targetInfo.graph, "sparql": $rootScope.linkspec.targetInfo.endpoint});
 
 
     $scope.selectDropdown1 = function(id) {
         console.log("selectDropdown1 THE IS IS: " + id);
-        $scope.linkspec.sourceInfo = angular.copy($scope.servers[id].data);
-        $rootScope.$broadcast("Source",{"graph": $scope.linkspec.sourceInfo.graph, "sparql": $scope.linkspec.sourceInfo.endpoint});
+        $rootScope.linkspec.sourceInfo = angular.copy($scope.servers[id].data);
+        $rootScope.$broadcast("Source",{"graph": $rootScope.linkspec.sourceInfo.graph, "sparql": $rootScope.linkspec.sourceInfo.endpoint});
     };
 
     $scope.selectDropdown2 = function(id) {
         console.log("selectDropdown2 THE IS IS: " + id);
-        $scope.linkspec.targetInfo = angular.copy($scope.servers[id].data);
-        $rootScope.$broadcast("Target",{"graph": $scope.linkspec.targetInfo.graph, "sparql": $scope.linkspec.targetInfo.endpoint});
-    };
-
-//	SEND THE LINKSPEC
-    $scope.sendLinkSpec = function () {
-        console.log('Send LinkSpec');
-        console.log($scope.linkspec);
-        $http({
-            method:'POST',
-            url:'api/linking/executeFromSpec',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
-            data: "spec=" + encodeURIComponent(JSON.stringify($scope.linkspec)) + "&" +
-            "project=" + encodeURIComponent($scope.session.project) + "&" +
-            "username=" + encodeURIComponent($scope.session.username)
-        }).success( function (data, status, headers, config) {
-            console.log(JSON.stringify(data));
-            $rootScope.$broadcast("Link", data);
-            $rootScope.guiStatus.isLinkSpecOpen = false;
-            $rootScope.guiStatus.isLinkSpecDisabled = true;
-            $rootScope.guiStatus.isEvaluationOpen = true;
-            $rootScope.guiStatus.isEvaluationDisabled = false;
-            $rootScope.offset = 1;
-        }).error( function(data, status, headers, config) {
-            console.log(data);
-        });
-    };
-    
-    $scope.resetLinkSpec = function () {
-		$rootScope.guiStatus.isLinkSpecOpen = true;
-		$rootScope.guiStatus.isLinkSpecDisabled = false;
-		$rootScope.guiStatus.isEvaluationOpen = false;
-		$rootScope.guiStatus.isEvaluationDisabled = true;
+        $rootScope.linkspec.targetInfo = angular.copy($scope.servers[id].data);
+        $rootScope.$broadcast("Target",{"graph": $rootScope.linkspec.targetInfo.graph, "sparql": $rootScope.linkspec.targetInfo.endpoint});
     };
 
     $scope.createSession = function () {
-        if ( (_.isEmpty($scope.session.project)) || (_.isEmpty($scope.session.username)) ) {
+        if ( (_.isEmpty($rootScope.session.project)) || (_.isEmpty($rootScope.session.username)) ) {
             console.log("No evaluation data to send!");
             alert("No session created");
         } else {
@@ -146,19 +124,80 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
                 method:'POST',
                 url:'api/linking/createSession',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
-                data: "project=" + encodeURIComponent($scope.session.project) + "&" +
-                "username=" + encodeURIComponent($scope.session.username)
+                data: "project=" + encodeURIComponent($rootScope.session.project) + "&" +
+                "username=" + encodeURIComponent($rootScope.session.username)
             }).success( function (data, status, headers, config) {
                 console.log(data);
                 $rootScope.$broadcast("Eval", data);
-                $scope.guiStatus.isFirstOpen = false;
-                $scope.guiStatus.isLinkSpecOpen = true;
+
+                $rootScope.graphLink.eval = data.sparql + "?qtxt=select+*+%7B%3Fs+%3Fp+%3Fo%7D&default-graph-uri=" + data.graph;
+                $rootScope.guiStatus.isEvalLinkOpen = true;
+                console.log($rootScope.graphLink.eval);
+
+                $rootScope.guiStatus.isFirstOpen = false;
+                $rootScope.guiStatus.isLinkSpecOpen = true;
             }).error( function(data, status, headers, config) {
                 console.log('fail on: ' + status);
                 console.log('data: ' + data);
             });
         }
     };
+
+    //	SEND THE LINKSPEC
+    $scope.sendLinkSpec = function () {
+        console.log('Send LinkSpec');
+        console.log($rootScope.linkspec);
+        $http({
+            method:'POST',
+            url:'api/linking/executeFromSpec',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+            data: "spec=" + encodeURIComponent(JSON.stringify($rootScope.linkspec)) + "&" +
+            "project=" + encodeURIComponent($rootScope.session.project) + "&" +
+            "username=" + encodeURIComponent($rootScope.session.username)
+        }).success( function (data, status, headers, config) {
+            console.log(JSON.stringify(data));
+            $rootScope.$broadcast("Link", data);
+
+            $rootScope.graphLink.geomized = data.sparql + "?qtxt=select+*+%7B%3Fs+%3Fp+%3Fo%7D&default-graph-uri=" + data.graph;
+            $rootScope.guiStatus.isGeomizedLinkOpen = true;
+            console.log($rootScope.graphLink.geomized);
+
+            $rootScope.guiStatus.isLinkSpecOpen = false;
+            $rootScope.guiStatus.isLinkSpecDisabled = true;
+            $rootScope.guiStatus.isEvaluationOpen = true;
+            $rootScope.guiStatus.isEvaluationDisabled = false;
+
+            $rootScope.offset = 1;
+        }).error( function(data, status, headers, config) {
+            console.log(data);
+        });
+    };
+
+    $rootScope.$on("Mapping", function(event, data) {
+        console.log('Send Mapping');
+        console.log(data);
+        $http({
+            method:'POST',
+            url:'api/linking/learnFromMapping',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+            data: "evaluation=" + encodeURIComponent(JSON.stringify(data)) + "&" +
+            "spec=" + encodeURIComponent(JSON.stringify($rootScope.linkspec)) + "&" +
+            "project=" + encodeURIComponent($rootScope.session.project) + "&" +
+            "username=" + encodeURIComponent($rootScope.session.username)
+        }).success( function (data, status, headers, config) {
+
+
+            console.log('recieved new linkspec from api/linking/learnFromMapping');
+            console.log(data);
+
+            //TODO: popup using the newly recieved linkspec data object
+            //POPUP: ACCEPT OR REJECT
+            //Overwrite linkspec
+        }).error( function(data, status, headers, config) {
+            console.log('fail on: ' + status);
+            console.log('data: ' + data);
+        });
+    });
 
     $rootScope.$on("Evaluation", function(event, data) {
         console.log('Send Evaluation');
@@ -168,8 +207,8 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
             url:'api/linking/evaluation',
             headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
             data: "evaluation=" + encodeURIComponent(JSON.stringify(data)) + "&" +
-            "project=" + encodeURIComponent($scope.session.project) + "&" +
-            "username=" + encodeURIComponent($scope.session.username)
+            "project=" + encodeURIComponent($rootScope.session.project) + "&" +
+            "username=" + encodeURIComponent($rootScope.session.username)
         }).success( function (data, status, headers, config) {
             alert("Links evaluated");
             console.log(data);
@@ -179,30 +218,12 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
             console.log('data: ' + data);
         });
     });
-    
-    $rootScope.$on("Mapping", function(event, data) {
-        console.log('Send Mapping');
-        console.log(data);
-        $http({
-            method:'POST',
-            url:'api/linking/learnFromMapping',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
-            data: "evaluation=" + encodeURIComponent(JSON.stringify(data)) + "&" +
-            "spec=" + encodeURIComponent(JSON.stringify($scope.linkspec)) + "&" +
-            "project=" + encodeURIComponent($scope.session.project) + "&" +
-            "username=" + encodeURIComponent($scope.session.username)
-        }).success( function (data, status, headers, config) {
-            
-        	
-        	console.log('recieved new linkspec from api/linking/learnFromMapping');
-            console.log(data);
-            
-            //TODO: popup using the newly recieved linkspec data object
-            //POPUP: ACCEPT OR REJECT
-            //Overwrite linkspec
-        }).error( function(data, status, headers, config) {
-            console.log('fail on: ' + status);
-            console.log('data: ' + data);
-        });
-    });
+
+    $scope.resetLinkSpec = function () {
+        $rootScope.guiStatus.isLinkSpecOpen = true;
+        $rootScope.guiStatus.isLinkSpecDisabled = false;
+        $rootScope.guiStatus.isEvaluationOpen = false;
+        $rootScope.guiStatus.isEvaluationDisabled = true;
+    };
+
 }]);

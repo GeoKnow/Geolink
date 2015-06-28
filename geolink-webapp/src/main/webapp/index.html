@@ -63,57 +63,8 @@
 
     </script>
 
-    <style>
-        input
-        {
-            width: 100%;
-            display: inline-block;
-            padding: 5px;
-        }
-        table {
-        	width: 100%
-        }
-        td {
-            border: 0px solid black;
-        }
-		.accordion-toggle span {
-		    display: block;
-		    width:  450px;
-		}
-		.btn-group-vertical {
-			width: 170px;
-		}
-		.popup {
-			border: 1px solid rgba(0,0,0,.2);
-  			border-radius: 6px;
-  			box-shadow: 0 5px 10px rgba(0,0,0,.2);
-  			white-space: normal;
-  			opacity: 1;
-  			transition: opacity .25s linear;
-		}
-		.alert {
-			margin-bottom: 0px;
-		}
-		.pagination {
-			margin: 0px;
-		 	display: block;
-  			margin-left: auto;
-  			margin-right: auto;
-  			max-width: 500px;
-  			min-width: 170px;
-		}
-		.eval {
-			display: inline-block; 
-			text-align: left;  
-			max-width: 1000px; 
-			word-wrap: break-word; 
-			line-height: 1.2;
-			white-space: -moz-pre-wrap; /* Firefox */ 
-			white-space: -pre-wrap; /* ancient Opera */ 
-			white-space: -o-pre-wrap; /* newer Opera */ 
-			white-space: pre-wrap; /* Chrome; W3C standard */" 
-		}
-    </style>
+    <link rel="stylesheet" href="main.css" />
+
 </head>
 
 <body ng-controller="AppCtrl">
@@ -148,7 +99,7 @@
             </div>
         </accordion-group>
 
-        <accordion-group heading="LinkSpec Creation" is-open="guiStatus.isLinkSpecOpen">
+        <accordion-group heading="Link Specification Creation" is-open="guiStatus.isLinkSpecOpen">
             <!--
             <table class="linkspecTable">
                 <tr>
@@ -228,7 +179,7 @@
 	            	<td>
 		                <div class="btn-group" dropdown>
 		                    <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle>
-		                        Fill with Target Template  <span class="caret"></span>
+		                        Fill with Target Template<span class="caret"></span>
 		                    </button>
 		                    <ul class="dropdown-menu">
 		                        <li ng-repeat="server in servers">
@@ -305,8 +256,8 @@
             </div>
         </accordion-group>
         
-        <accordion-group heading="Evaluation" is-open="guiStatus.isEvaluationOpen" is-disabled="guiStatus.isEvaluationDisabled">
-            <code>TODO: SHOW CURRENT LINKSPEC HERE</code>
+        <accordion-group heading="Current Link Specification" is-open="guiStatus.isEvaluationOpen" is-disabled="guiStatus.isEvaluationDisabled">
+            <!--<code>TODO: SHOW CURRENT LINKSPEC HERE</code>-->
             <div style="padding-top: 20px;">
                 <button class="btn btn-primary" ng-click="resetLinkSpec();" style="width: 100%; top: 10px; padding: 5px">Reset Session</button>
             </div>
@@ -318,7 +269,7 @@
 	<table style="margin-bottom:0px" class="table table-striped">
        <tr><th style="background-color: #F7F7F7">Evaluation</th><th style="background-color: #F7F7F7">Links</th><th style="background-color: #F7F7F7">Resources</th></tr>
        <tr ng-repeat="link in links">
-           <td style="max-width: 175px;"">
+           <td style="max-width: 175px;">
                <div class="btn-group-vertical" style="padding-top: 10px;">
                    <label ng-click="saveEval(link.id, 'positive');" class="btn btn-primary" ng-model="evalModel">Positive</label>
                    <label ng-click="saveEval(link.id, 'unknown');" class="btn btn-primary" ng-model="evalModel">Unknown</label>
@@ -353,7 +304,8 @@
        </tr>
    	</table>
 </div>
-<div class="popup cssFade" ng-show="guiStatus.isEvaluationOpen" style="position: absolute; bottom: 14px; left: 10px; right: 10px; height: ; overflow: auto; background-color: #fefefe">
+
+<div class="popup cssFade" ng-show="guiStatus.isEvaluationOpen" style="position: absolute; bottom: 14px; left: 10px; right: 10px; overflow: auto; background-color: #fefefe">
 	<table>
 		<tr>
 	  		<td style="width: 350px">
@@ -372,13 +324,20 @@
 	</table> 
 </div>
 
-<!-- debug -->
+<div ng-controller="guiCtrl" style="position: absolute; right: 5px; top: 10px;">
+    <a ng-show="guiStatus.isEvalLinkOpen" href="{{graphLink.eval}}" target="_blank" ng-click="linkFunc(graphLink.eval)">Evaluation graph</a>
+    <br>
+    <a ng-show="guiStatus.isGeomizedLinkOpen" href="{{graphLink.geomized}}" target="_blank" ng-click="linkFunc(graphLink.geomized)">Geomized graph</a>
+</div>
+
+<!-- debug
 <button ng-click="setLeipzig();" style="position: absolute; right: 10px; top: 10px;">Set Leipzig</button >
 <button ng-click="logDatasources();" style="position: absolute; right: 100px; top: 10px;">[DEBUG] log datasources to console</button>
 <div style="position: absolute; right: 5px; top: 50px;">
  	<pre>[DEBUG] evalData: <br> {{evalData | json}}</pre>
 	<pre>Page: {{offset}} / {{numPages}}</pre>
 </div>
+-->
 
 <!-- Modules -->
 <script src="scripts/js/app.js"></script>

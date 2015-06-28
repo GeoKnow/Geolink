@@ -101,9 +101,7 @@ public class ServletLinking {
     }
 
 
-    public LinkSpecificationLearner createFeedbackLearner(ConfigReader config)
-            throws InvalidConfigurationException
-    {
+    public LinkSpecificationLearner createFeedbackLearner(ConfigReader config) throws InvalidConfigurationException {
         PropertyMapping propertyMapping = getPropertyMapping(config);
 
         LinkSpecificationLearner learner = new GeneticActiveLearner();// LinkSpecificationLearnerFactory.getLinkSpecificationLearner(LinkSpecificationLearnerFactory.ACTIVE_LEARNER);

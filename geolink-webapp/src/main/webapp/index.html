@@ -271,9 +271,9 @@
        <tr ng-repeat="link in links">
            <td style="max-width: 175px;">
                <div class="btn-group-vertical" style="padding-top: 10px;">
-                   <label ng-click="saveEval(link.id, 'positive');" class="btn btn-primary" ng-model="evalModel">Positive</label>
-                   <label ng-click="saveEval(link.id, 'unknown');" class="btn btn-primary" ng-model="evalModel">Unknown</label>
-                   <label ng-click="saveEval(link.id, 'negative');" class="btn btn-primary" ng-model="evalModel">Negative</label>
+                   <label ng-click="saveEval(link.id, 'positive');" class="btn btn-primary" btn-radio="'positive'" ng-model="currentEval">Positive</label>
+                   <label ng-click="saveEval(link.id, 'unknown');" class="btn btn-primary" btn-radio="'unknown'" ng-model="currentEval">Unknown</label>
+                   <label ng-click="saveEval(link.id, 'negative');" class="btn btn-primary" btn-radio="'negative'" ng-model="currentEval">Negative</label>
                </div>
                <!--<p>[{{$index + 1}}] {{link.id || 'undefined'}}:{{evalModel || 'null'}}</p>-->
            </td>
@@ -330,14 +330,14 @@
     <a ng-show="guiStatus.isGeomizedLinkOpen" href="{{graphLink.geomized}}" target="_blank" ng-click="linkFunc(graphLink.geomized)">Geomized graph</a>
 </div>
 
-<!-- debug
-<button ng-click="setLeipzig();" style="position: absolute; right: 10px; top: 10px;">Set Leipzig</button >
-<button ng-click="logDatasources();" style="position: absolute; right: 100px; top: 10px;">[DEBUG] log datasources to console</button>
-<div style="position: absolute; right: 5px; top: 50px;">
+<!-- DEBUG -->
+<!-- <button ng-click="setLeipzig();" style="position: absolute; right: 10px; top: 10px;">Set Leipzig</button >
+<button ng-click="logDatasources();" style="position: absolute; right: 100px; top: 10px;">[DEBUG] log datasources to console</button> -->
+<!-- <div style="position: absolute; right: 5px; top: 50px;">
  	<pre>[DEBUG] evalData: <br> {{evalData | json}}</pre>
 	<pre>Page: {{offset}} / {{numPages}}</pre>
-</div>
--->
+</div> -->
+
 
 <!-- Modules -->
 <script src="scripts/js/app.js"></script>

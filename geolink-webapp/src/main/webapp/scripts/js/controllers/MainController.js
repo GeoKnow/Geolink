@@ -141,10 +141,6 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
 
         //Activate eval button
         $scope.is_evalbutton_disabled = false;
-        
-        $scope.setEval = function (link, eval) {
-        	console.log("link:eval: " + link + ":" + eval);
-        };
 
         // Link List
         linkStore = new jassa.sponate.StoreFacade($scope.sparqlServices[2], {
@@ -233,16 +229,16 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
 //                     _(cluster).forEach(function(cluster) {
 //                     })
                     link.cluster = cluster;
+                    $scope.currentlink = link;
                 });
-                //console.log('Links: ', links);
                 $scope.links = links;
-                console.log("LINKS");
-                console.log($scope.links);
+                $scope.setEvalradio($scope.currentlink.id);
+                console.log("current link (" + $scope.offset + " of " + $rootScope.TotalItems + "):\n" + $scope.currentlink.id + " : " + $scope.currentEval);
             })
             
             $q.when(linkStore.links.getListService().fetchCount()).then(function (countInfo) {
         		$rootScope.TotalItems =  countInfo.count;
-                console.log("linkStore count=" + $rootScope.TotalItems);
+                //console.log("linkStore count=" + $rootScope.TotalItems);
             });
         }
     });
@@ -251,11 +247,12 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
     //EVALUATION STUFF BELOW
     $rootScope.offset = 0;
     $rootScope.numItems = 1;
-    
+    $scope.currentlink;
     $rootScope.maxSize = 5;
     $rootScope.TotalItems = 42;
 
-
+    $scope.currentEval = 'unknown';
+    $scope.evalData = {};
 
     $scope.sendEval = function () {
     	if (_.isEmpty($scope.evalData)) {
@@ -274,10 +271,6 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
         	$rootScope.$broadcast("Mapping",$scope.evalData);
     	}
     };
-
-    $scope.evalModel = 'evalUnknown';
-    $scope.evalData = {};
-    $scope.lastSubmit = '';
     
     $scope.saveEval = function (evalLink, evalValue) {
     	if (evalLink == undefined || evalValue == undefined) {
@@ -285,7 +278,24 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
     	} else {
 	    	//console.log("evalLink:evalValue=  " + evalLink + ":" + evalValue);
 	    	$scope.evalData[evalLink] = evalValue;	
-	    	$scope.lastSubmit = angular.copy(evalLink + ":" + $scope.evalData[evalLink]);
+    	}
+    };
+    
+    $scope.setEvalradio = function (evalLink) {
+    	if (evalLink == undefined) {
+        	console.log("getEval - link undefined!  " + evalLink);
+        	$scope.currentEval = undefined;
+    	}     	
+    	if ($scope.evalData[evalLink] == undefined) {
+        	console.log("getEval - evaluation of link undefined!  " + evalLink + ":" + $scope.evalData[evalLink]);
+        	//$scope.currentEval = "unknown"; //if a link has not been evaluated, is the evaluation of it "unknown"?
+        	if (false) {
+        		
+        	} else {
+            	$scope.currentEval = undefined;
+        	}
+    	} else {
+	    	$scope.currentEval = $scope.evalData[evalLink];
     	}
     };
 }]);

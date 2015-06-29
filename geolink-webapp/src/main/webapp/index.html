@@ -334,19 +334,20 @@
 </div>
 
 <div ng-controller="guiCtrl" style="position: absolute; right: 5px; top: 10px;">
-    <a ng-show="guiStatus.isEvalLinkOpen" href="{{graphLink.eval}}" target="_blank" ng-click="linkFunc(graphLink.eval)">Evaluation graph</a>
+    <a ng-show="guiStatus.isEvalLinkOpen" href="{{graphLink.eval}}" target="_blank">Evaluation graph</a>
     <br>
-    <a ng-show="guiStatus.isGeomizedLinkOpen" href="{{graphLink.geomized}}" target="_blank" ng-click="linkFunc(graphLink.geomized)">Geomized graph</a>
+    <a ng-show="guiStatus.isGeomizedLinkOpen" href="{{graphLink.geomized}}" target="_blank">Geomized graph</a>
 </div>
 
 
 <!-- DEBUG -->
 <!-- <button ng-click="setLeipzig();" style="position: absolute; right: 10px; top: 10px;">Set Leipzig</button >
 <button ng-click="logDatasources();" style="position: absolute; right: 100px; top: 10px;">[DEBUG] log datasources to console</button> -->
-<!-- <div style="position: absolute; right: 5px; top: 50px;">
+
+<div style="position: absolute; right: 5px; top: 50px;">
  	<pre>[DEBUG] evalData: <br> {{evalData | json}}</pre>
 	<pre>Page: {{offset}} / {{numPages}}</pre>
-</div> -->
+</div>
 
 
 <!-- Modules -->

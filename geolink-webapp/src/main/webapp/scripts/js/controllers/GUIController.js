@@ -24,11 +24,6 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
         eval: ""
     };
 
-    $scope.linkFunc = function (url){
-        console.log(url);
-        $window.open(url);
-    };
-
 //	md-input-container
     $rootScope.session = {
         username: "BobJr",

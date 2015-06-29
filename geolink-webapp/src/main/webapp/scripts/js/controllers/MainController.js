@@ -290,7 +290,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
         	console.log("getEval - evaluation of link undefined!  " + evalLink + ":" + $scope.evalData[evalLink]);
         	//$scope.currentEval = "unknown"; //if a link has not been evaluated, is the evaluation of it "unknown"?
         	if (false) {
-        		
+        		//TODO: get eval from sparql
         	} else {
             	$scope.currentEval = undefined;
         	}

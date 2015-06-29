@@ -1,10 +1,10 @@
 app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function($scope, $http, $rootScope, $window) {
 //	accordion-group
-	$scope.oneAtATime = true;				//default: true
-
     $rootScope.guiStatus = {
-		isFirstOpen: true,					//default: true
-	    isFirstDisabled: false,				//default: false
+		oneAtATime: true,					//default: true
+    		
+		isSessionOpen: true,					//default: true
+	    isSessionDisabled: false,				//default: false
 	    
 	    isLinkSpecOpen: false,				//default: false
 	    isLinkSpecDisabled: false,			//default: true
@@ -13,8 +13,10 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
 	    isEvaluationDisabled: true,			//default: true
 	    is_mappingbutton_disabled: false,  	//default: true
 
-        isEvalLinkOpen: false,			//default: false
-        isGeomizedLinkOpen: false			//default: false
+        isEvalLinkOpen: false,				//default: false
+        isGeomizedLinkOpen: false,			//default: false
+        
+        isLoading: false,			//default: false
     };
 
     $rootScope.graphLink =  {
@@ -116,9 +118,11 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
     };
 
     $scope.createSession = function () {
+    	$rootScope.guiStatus.isLoading = true;
         if ( (_.isEmpty($rootScope.session.project)) || (_.isEmpty($rootScope.session.username)) ) {
             console.log("No evaluation data to send!");
             alert("No session created");
+            $rootScope.guiStatus.isLoading = false;
         } else {
             $http({
                 method:'POST',
@@ -136,15 +140,19 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
 
                 $rootScope.guiStatus.isFirstOpen = false;
                 $rootScope.guiStatus.isLinkSpecOpen = true;
+                
+                $rootScope.guiStatus.isLoading = false;
             }).error( function(data, status, headers, config) {
                 console.log('fail on: ' + status);
                 console.log('data: ' + data);
+                $rootScope.guiStatus.isLoading = false;
             });
         }
     };
 
     //	SEND THE LINKSPEC
     $scope.sendLinkSpec = function () {
+    	$rootScope.guiStatus.isLoading = true;
         console.log('Send LinkSpec');
         console.log($rootScope.linkspec);
         $http({
@@ -166,14 +174,16 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
             $rootScope.guiStatus.isLinkSpecDisabled = true;
             $rootScope.guiStatus.isEvaluationOpen = true;
             $rootScope.guiStatus.isEvaluationDisabled = false;
-
+            $rootScope.guiStatus.isLoading = false;
             $rootScope.offset = 1;
         }).error( function(data, status, headers, config) {
             console.log(data);
+            $rootScope.guiStatus.isLoading = false;
         });
     };
 
     $rootScope.$on("Mapping", function(event, data) {
+    	$rootScope.guiStatus.isLoading = true;
         console.log('Send Mapping');
         console.log(data);
         $http({
@@ -193,13 +203,17 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
             //TODO: popup using the newly recieved linkspec data object
             //POPUP: ACCEPT OR REJECT
             //Overwrite linkspec
+            
+            $rootScope.guiStatus.isLoading = false;
         }).error( function(data, status, headers, config) {
             console.log('fail on: ' + status);
             console.log('data: ' + data);
+            $rootScope.guiStatus.isLoading = false;
         });
     });
 
     $rootScope.$on("Evaluation", function(event, data) {
+    	$rootScope.guiStatus.isLoading = true;
         console.log('Send Evaluation');
         console.log(data);
         $http({
@@ -210,20 +224,22 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
             "project=" + encodeURIComponent($rootScope.session.project) + "&" +
             "username=" + encodeURIComponent($rootScope.session.username)
         }).success( function (data, status, headers, config) {
-            alert("Links evaluated");
+            //alert("Links evaluated");
             console.log(data);
+            $rootScope.guiStatus.isLoading = false;
             //TODO: activate the sendmapping button
         }).error( function(data, status, headers, config) {
             console.log('fail on: ' + status);
             console.log('data: ' + data);
+            $rootScope.guiStatus.isLoading = false;
         });
     });
 
     $scope.resetLinkSpec = function () {
-        $rootScope.guiStatus.isLinkSpecOpen = true;
+        $rootScope.guiStatus.isSessionOpen = true;
+        $rootScope.guiStatus.isLinkSpecOpen = false;
         $rootScope.guiStatus.isLinkSpecDisabled = false;
         $rootScope.guiStatus.isEvaluationOpen = false;
         $rootScope.guiStatus.isEvaluationDisabled = true;
     };
-
 }]);

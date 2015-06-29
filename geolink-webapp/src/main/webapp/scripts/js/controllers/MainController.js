@@ -139,9 +139,6 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
         $scope.updateMapSources();
         console.log("add to link datasource");
 
-        //Activate eval button
-        $scope.is_evalbutton_disabled = false;
-
         // Link List
         linkStore = new jassa.sponate.StoreFacade($scope.sparqlServices[2], {
             'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
@@ -283,19 +280,39 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
     
     $scope.setEvalradio = function (evalLink) {
     	if (evalLink == undefined) {
-        	console.log("getEval - link undefined!  " + evalLink);
+        	console.log("setEval - link undefined!  " + evalLink);
         	$scope.currentEval = undefined;
     	}     	
     	if ($scope.evalData[evalLink] == undefined) {
-        	console.log("getEval - evaluation of link undefined!  " + evalLink + ":" + $scope.evalData[evalLink]);
+        	console.log("setEval - evaluation of link undefined!  " + evalLink + ":" + $scope.evalData[evalLink]);
         	//$scope.currentEval = "unknown"; //if a link has not been evaluated, is the evaluation of it "unknown"?
-        	if (false) {
-        		//TODO: get eval from sparql
-        	} else {
+        	if ($rootScope.graphLink.eval == undefined) {
             	$scope.currentEval = undefined;
+        	} else {
+        		//TODO: get eval from sparql
+        		$rootScope.guiStatus.isLoading = true;
+        		$scope.currentEval = $scope.getEval($rootScope.graphLink.eval, evalLink);
+        		$rootScope.guiStatus.isLoading = false;
         	}
     	} else {
 	    	$scope.currentEval = $scope.evalData[evalLink];
     	}
     };
+    
+    $scope.getEval = function (graph, evalLink) {
+    	if (graph == undefined || evalLink == undefined) {
+    		console.log("getEval - graph or link undefined!  " + graph + " " + evalLink);
+        	return undefined;
+    	} else {
+    		//http://fastreboot.de/kevin/BobJr/eval/
+    		//select * {?s <http://www.linklion.org/ontology#hasEvalStatus> ?o}
+    		//http://fastreboot.de:8890/sparql?qtxt=select+*+%7B%3Fs+%3Chttp%3A%2F%2Fwww.linklion.org%2Fontology%23hasEvalStatus%3E+%3Fo%7D&default-graph-uri=http://fastreboot.de/kevin/BobJr/eval/
+    		console.log("getEval- graph:link" + graph + " " + evalLink);
+        	
+    		
+    		
+    		return undefined;
+    	}
+    }
+
 }]);

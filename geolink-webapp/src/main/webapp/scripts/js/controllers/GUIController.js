@@ -3,16 +3,17 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
     $rootScope.guiStatus = {
 		oneAtATime: true,					//default: true
     		
-		isSessionOpen: true,					//default: true
-	    isSessionDisabled: false,				//default: false
+		isSessionOpen: true,				//default: true
+	    isSessionDisabled: false,			//default: false
 	    
 	    isLinkSpecOpen: false,				//default: false
-	    isLinkSpecDisabled: false,			//default: true
+	    isLinkSpecDisabled: false,			//default: false
 	    
 	    isEvaluationOpen: false,			//default: false
 	    isEvaluationDisabled: true,			//default: true
-	    is_mappingbutton_disabled: false,  	//default: true
 
+	    isMappingDisabled: true,  			//default: true
+	    
         isEvalLinkOpen: false,				//default: false
         isGeomizedLinkOpen: false,			//default: false
         
@@ -115,8 +116,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
     $scope.createSession = function () {
     	$rootScope.guiStatus.isLoading = true;
         if ( (_.isEmpty($rootScope.session.project)) || (_.isEmpty($rootScope.session.username)) ) {
-            console.log("No evaluation data to send!");
-            alert("No session created");
+            alert("Please fill in both fields");
             $rootScope.guiStatus.isLoading = false;
         } else {
             $http({
@@ -132,8 +132,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
                 $rootScope.graphLink.eval = data.sparql + "?qtxt=select+*+%7B%3Fs+%3Fp+%3Fo%7D&default-graph-uri=" + data.graph;
                 $rootScope.guiStatus.isEvalLinkOpen = true;
                 console.log($rootScope.graphLink.eval);
-
-                $rootScope.guiStatus.isFirstOpen = false;
+                
                 $rootScope.guiStatus.isLinkSpecOpen = true;
                 
                 $rootScope.guiStatus.isLoading = false;
@@ -165,6 +164,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
             $rootScope.guiStatus.isGeomizedLinkOpen = true;
             console.log($rootScope.graphLink.geomized);
 
+            $rootScope.guiStatus.isSessionDisabled = true;
             $rootScope.guiStatus.isLinkSpecOpen = false;
             $rootScope.guiStatus.isLinkSpecDisabled = true;
             $rootScope.guiStatus.isEvaluationOpen = true;
@@ -176,6 +176,29 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
             $rootScope.guiStatus.isLoading = false;
         });
     };
+
+    $rootScope.$on("Evaluation", function(event, data) {
+    	$rootScope.guiStatus.isLoading = true;
+        console.log('Send Evaluation');
+        console.log(data);
+        $http({
+            method:'POST',
+            url:'api/linking/evaluation',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+            data: "evaluation=" + encodeURIComponent(JSON.stringify(data)) + "&" +
+            "project=" + encodeURIComponent($rootScope.session.project) + "&" +
+            "username=" + encodeURIComponent($rootScope.session.username)
+        }).success( function (data, status, headers, config) {
+            //alert("Links evaluated");
+            console.log(data);
+            $rootScope.guiStatus.isLoading = false;
+            $rootScope.guiStatus.isMappingDisabled = false;
+        }).error( function(data, status, headers, config) {
+            console.log('fail on: ' + status);
+            console.log('data: ' + data);
+            $rootScope.guiStatus.isLoading = false;
+        });
+    });
 
     $rootScope.$on("Mapping", function(event, data) {
     	$rootScope.guiStatus.isLoading = true;
@@ -200,6 +223,8 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
             //Overwrite linkspec
             
             $rootScope.guiStatus.isLoading = false;
+            $rootScope.guiStatus.isLinkSpecOpen = true;
+            $rootScope.guiStatus.isLinkSpecDisabled = true;
         }).error( function(data, status, headers, config) {
             console.log('fail on: ' + status);
             console.log('data: ' + data);
@@ -207,31 +232,9 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
         });
     });
 
-    $rootScope.$on("Evaluation", function(event, data) {
-    	$rootScope.guiStatus.isLoading = true;
-        console.log('Send Evaluation');
-        console.log(data);
-        $http({
-            method:'POST',
-            url:'api/linking/evaluation',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
-            data: "evaluation=" + encodeURIComponent(JSON.stringify(data)) + "&" +
-            "project=" + encodeURIComponent($rootScope.session.project) + "&" +
-            "username=" + encodeURIComponent($rootScope.session.username)
-        }).success( function (data, status, headers, config) {
-            //alert("Links evaluated");
-            console.log(data);
-            $rootScope.guiStatus.isLoading = false;
-            //TODO: activate the sendmapping button
-        }).error( function(data, status, headers, config) {
-            console.log('fail on: ' + status);
-            console.log('data: ' + data);
-            $rootScope.guiStatus.isLoading = false;
-        });
-    });
-
-    $scope.resetLinkSpec = function () {
+    $scope.closeSession = function () {
         $rootScope.guiStatus.isSessionOpen = true;
+        $rootScope.guiStatus.isSessionDisabled = false;
         $rootScope.guiStatus.isLinkSpecOpen = false;
         $rootScope.guiStatus.isLinkSpecDisabled = false;
         $rootScope.guiStatus.isEvaluationOpen = false;

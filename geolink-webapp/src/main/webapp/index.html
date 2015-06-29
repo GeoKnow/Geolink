@@ -91,23 +91,23 @@
                     <td>
                         <label>Username</label>
                     </td><td>
-                    <input ng-model="session.username" type="text" >
+                    <input ng-model="session.username" type="text" ng-disabled="guiStatus.isSessionDisabled">
                 </td>
                 </tr>
                 <tr>
                     <td>
                         <label>Project Name</label>
                     </td><td>
-                    <input ng-model="session.project" type="text">
+                    <input ng-model="session.project" type="text" ng-disabled="guiStatus.isSessionDisabled">
                 </td>
                 </tr>
             </table>
            	<div style="padding-top: 20px;">
-                <button class="btn btn-primary" ng-click="createSession();" style="width: 100%; top: 10px; padding: 5px">Create Session</button>
+                <button class="btn btn-primary" ng-click="createSession();" style="width: 100%; top: 10px; padding: 5px" ng-disabled="guiStatus.isSessionDisabled">Create Session</button>
             </div>
         </accordion-group>
 
-        <accordion-group heading="Link Specification Creation" is-open="guiStatus.isLinkSpecOpen">
+        <accordion-group heading="Link Specification" is-open="guiStatus.isLinkSpecOpen">
             <!--
             <table class="linkspecTable">
                 <tr>
@@ -131,7 +131,7 @@
             <table>
             	<td>
 		            <div class="btn-group" dropdown>
-		                <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle is-disabled="guiStatus.isLinkSpecDisabled">
+		                <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle ng-disabled="guiStatus.isLinkSpecDisabled">
 		                    Fill with Source Template <span class="caret"></span>
 		                </button>
 		                <ul class="dropdown-menu">
@@ -141,7 +141,7 @@
 		                </ul>
 		            </div>
 				</td><td>
-		            <input ng-model="linkspec.sourceInfo.id" type="text">
+		            <input ng-model="linkspec.sourceInfo.id" type="text" ng-disabled="guiStatus.isLinkSpecDisabled">
 	            </td>
 			</table>
 			
@@ -150,35 +150,35 @@
                     <td>
                         <label>Endpoint</label>
                     </td><td>
-                    <input ng-model="linkspec.sourceInfo.endpoint" type="url" is-disabled="guiStatus.isLinkSpecDisabled">
+                    <input ng-model="linkspec.sourceInfo.endpoint" type="url" ng-disabled="guiStatus.isLinkSpecDisabled">
                 </td>
                 </tr>
                 <tr>
                     <td>
                         <label>Graph</label>
                     </td><td>
-                    <input ng-model="linkspec.sourceInfo.graph" type="url" is-disabled="guiStatus.isLinkSpecDisabled">
+                    <input ng-model="linkspec.sourceInfo.graph" type="url" ng-disabled="guiStatus.isLinkSpecDisabled">
                 </td>
                 </tr>
                 <tr>
                     <td>
                         <label>Restrictions</label>
                     </td><td>
-                    <input ng-model="linkspec.sourceInfo.restrictions" ng-list="" type="text" is-disabled="guiStatus.isLinkSpecDisabled">
+                    <input ng-model="linkspec.sourceInfo.restrictions" ng-list="" type="text" ng-disabled="guiStatus.isLinkSpecDisabled">
                 </td>
                 </tr>
                 <tr>
                     <td>
                         <label>Var</label>
                     </td><td>
-                    <input ng-model="linkspec.sourceInfo.var" type="text" is-disabled="guiStatus.isLinkSpecDisabled">
+                    <input ng-model="linkspec.sourceInfo.var" type="text" ng-disabled="guiStatus.isLinkSpecDisabled">
                 </td>
                 </tr>
                 <tr>
                     <td>
                         <label>Properties</label>
                     </td><td>
-                    <input ng-model="linkspec.sourceInfo.properties" ng-list=", " type="text" is-disabled="guiStatus.isLinkSpecDisabled">
+                    <input ng-model="linkspec.sourceInfo.properties" ng-list=", " type="text" ng-disabled="guiStatus.isLinkSpecDisabled">
                 </td>
                 </tr>
             </table>
@@ -187,7 +187,7 @@
 	 			<table>
 	            	<td>
 		                <div class="btn-group" dropdown>
-		                    <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle>
+		                    <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle ng-disabled="guiStatus.isLinkSpecDisabled">
 		                        Fill with Target Template<span class="caret"></span>
 		                    </button>
 		                    <ul class="dropdown-menu">
@@ -197,7 +197,7 @@
 		                    </ul>
 		                </div>
 					</td><td>
-						<input ng-model="linkspec.targetInfo.id" type="text">
+						<input ng-model="linkspec.targetInfo.id" type="text" ng-disabled="guiStatus.isLinkSpecDisabled">
 		            </td>   
 				</table>
 			</div>
@@ -207,35 +207,35 @@
                     <td>
                         <label>Endpoint</label>
                     </td><td>
-                    <input ng-model="linkspec.targetInfo.endpoint" type="url">
+                    <input ng-model="linkspec.targetInfo.endpoint" type="url" ng-disabled="guiStatus.isLinkSpecDisabled">
                 </td>
                 </tr>
                 <tr>
                     <td>
                         <label>Graph</label>
                     </td><td>
-                    <input ng-model="linkspec.targetInfo.graph" type="url">
+                    <input ng-model="linkspec.targetInfo.graph" type="url" ng-disabled="guiStatus.isLinkSpecDisabled">
                 </td>
                 </tr>
                 <tr>
                     <td>
                         <label>Restrictions</label>
                     </td><td>
-                    <input ng-model="linkspec.targetInfo.restrictions" ng-list="" type="text">
+                    <input ng-model="linkspec.targetInfo.restrictions" ng-list="" type="text" ng-disabled="guiStatus.isLinkSpecDisabled">
                 </td>
                 </tr>
                 <tr>
                     <td>
                         <label>Var</label>
                     </td><td>
-                    <input ng-model="linkspec.targetInfo.var" type="text">
+                    <input ng-model="linkspec.targetInfo.var" type="text" ng-disabled="guiStatus.isLinkSpecDisabled">
                 </td>
                 </tr>
                 <tr>
                     <td>
                         <label>Properties</label>
                     </td><td>
-                    <input ng-model="linkspec.targetInfo.properties" ng-list=", " type="text">
+                    <input ng-model="linkspec.targetInfo.properties" ng-list=", " type="text" ng-disabled="guiStatus.isLinkSpecDisabled">
                 </td>
                 </tr>
             </table>
@@ -248,27 +248,27 @@
                     <td>
                         <label>Metric</label>
                     </td><td>
-                    <input ng-model="linkspec.metricExpression" type="text">
+                    <input ng-model="linkspec.metricExpression" type="text" ng-disabled="guiStatus.isLinkSpecDisabled">
                 </td>
                 </tr>
                 <tr>
                     <td>
                         <label>Threshold</label>
                     </td><td>
-                    <input ng-model="linkspec.acceptanceThreshold" type="number">
+                    <input ng-model="linkspec.acceptanceThreshold" type="number" ng-disabled="guiStatus.isLinkSpecDisabled">
                 </td>
                 </tr>
             </table>
 
             <div style="padding-top: 10px;">
-                <button class="btn btn-primary" ng-click="sendLinkSpec();" style="width: 100%; top: 10px; padding: 5px">Send LinkSpec</button>
+                <button class="btn btn-primary" ng-click="sendLinkSpec();" style="width: 100%; top: 10px; padding: 5px" ng-disabled="guiStatus.isLinkSpecDisabled">Send LinkSpec</button>
             </div>
         </accordion-group>
         
-        <accordion-group heading="Current Link Specification" is-open="guiStatus.isEvaluationOpen" is-disabled="guiStatus.isEvaluationDisabled">
+        <accordion-group heading="Evaluation" is-open="guiStatus.isEvaluationOpen" is-disabled="guiStatus.isEvaluationDisabled">
             <!--<code>TODO: SHOW CURRENT LINKSPEC HERE</code>-->
             <div style="padding-top: 20px;">
-                <button class="btn btn-primary" ng-click="resetLinkSpec();" style="width: 100%; top: 10px; padding: 5px">Reset Session</button>
+                <button class="btn btn-primary" ng-click="closeSession();" style="width: 100%; top: 10px; padding: 5px">Close Session</button>
             </div>
         </accordion-group>
 	</accordion>
@@ -326,8 +326,8 @@
 		        <pagination style="display: block;" total-items="TotalItems" ng-model="offset" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false" num-pages="numPages" items-per-page=1></pagination>
 	     	</td>
 	     	<td style="width: 275px;">
-		        <button ng-click="sendEval();" ng-disabled="is_evalbutton_disabled" style="margin-left: 5px; margin-right: 5px; height: 32px;" type="button" class="btn btn-primary">Send Eval</button>
-		        <button ng-click="learnFromMapping();" ng-disabled="guiStatus.is_mappingbutton_disabled" style="margin-left: 5px; margin-right: 5px; height: 32px;" type="button" class="btn btn-primary">Learn From Mapping</button>
+		        <button ng-click="sendEval();" ng-disabled="guiStatus.isEvaluationDisabled" style="margin-left: 5px; margin-right: 5px; height: 32px;" type="button" class="btn btn-primary">Send Eval</button>
+		        <button ng-click="learnFromMapping();" ng-disabled="guiStatus.isMappingDisabled" style="margin-left: 5px; margin-right: 5px; height: 32px;" type="button" class="btn btn-primary">Learn From Mapping</button>
 	       	</td>
        	</tr>
 	</table> 

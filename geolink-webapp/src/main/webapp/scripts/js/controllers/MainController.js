@@ -215,6 +215,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', function ($sco
     	var offset = newValue - 1;
     	console.log("offset: " + offset + "\npage: " + $scope.page + "\nnew: " + newValue + "\nold: " + oldValue);
         if(typeof linkStore != "undefined") {
+            //debug = linkStore;
             $q.when(linkStore.links.getListService().fetchItems(null, 1, offset).then(function (entries) {
                 return entries.map(function (entry) {
                     return entry.val;
@@ -232,6 +233,9 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', function ($sco
                 });
                 $scope.links = links;
                 $scope.setEvalradio($scope.currentlink.id);
+                
+                $scope.setMap($scope.currentlink);
+                
                 console.log("current link (" + $scope.page + " of " + $scope.TotalItems + "): " + $scope.currentlink.$$hashKey + "\n" + $scope.currentlink.id + " : " + $scope.currentEval);
             })
             
@@ -241,6 +245,47 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', function ($sco
             });
         }
     });
+    
+    $scope.setMap = function (link) {
+    	//debug = link;
+    	
+    	var sourcelong = undefined;
+        var sourcelat = undefined;
+        var targetlong = undefined;
+        var targetlat = undefined;
+    	
+    	for (var int = 0; int < link.source.predicates.length; int++) {
+    		if (link.source.predicates[int].id.includes('wgs84_pos#lon')) {
+    			sourcelong = link.source.predicates[int].values[0].id;
+    		}
+    		if (link.source.predicates[int].id.includes('wgs84_pos#lat')) {
+    			sourcelat = link.source.predicates[int].values[0].id;
+    		}
+		}
+    	for (var int = 0; int < link.target.predicates.length; int++) {
+    		if (link.target.predicates[int].id.includes('wgs84_pos#lon')) {
+    			targetlong = link.target.predicates[int].values[0].id;
+    		}
+    		if (link.target.predicates[int].id.includes('wgs84_pos#lat')) {
+    			targetlat = link.target.predicates[int].values[0].id;
+    		}
+		}
+    	
+    	console.log("source: long: " + sourcelong + " lat: " + sourcelat);
+    	console.log("target: long: " + targetlong + " lat: " + targetlat);
+
+        var diff = Math.sqrt(Math.pow((sourcelong - targetlong), 2) + Math.pow((sourcelat - targetlat), 2));
+        debug = diff;
+        
+        var long = (sourcelong +  targetlong) / 2;
+        var lat = (sourcelat + targetlat - 0.03) / 2;
+        
+        
+        var zoom = 13;
+        
+        $scope.mapConfig.center = {lon: long, lat: lat};
+        $scope.mapConfig.zoom = zoom;
+    }
 
     //TODO: MOVE EVALUATION STUFF TO GUIController.js
     //EVALUATION STUFF BELOW
@@ -327,7 +372,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', function ($sco
 		    	//console.log(data);
 		    	console.log("data got!");
 
-		    	debug = evalLink;
+		    	//debug = evalLink;
 		    	var link = evalLink.split("http://example.org/")[1];
 		    	
 		    	var userEval = $rootScope.graphLink.evalPrefix1 + $rootScope.graphLink.evalPrefix2 + link + $rootScope.graphLink.evalSuffix + $rootScope.session.username;
@@ -369,7 +414,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', function ($sco
 	    	
 	    	for (var int = 0; int < data.results.bindings.length; int++) {
 	    		var link = data.results.bindings[int].s.value;
-	    		debug = link;
+	    		//debug = link;
 	    		
 	    		var evalLink = $rootScope.graphLink.evalPrefix1 + link.split($rootScope.graphLink.evalPrefix2)[1].split($rootScope.graphLink.evalSuffix)[0]
 	    		var value = data.results.bindings[int].o.value;

@@ -1,4 +1,4 @@
-app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $rootScope) {
+app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', function ($scope, $q, $rootScope, $http) {
 
     var geoMapFactoryVirt = jassa.geo.GeoMapFactoryUtils.createWktMapFactory('http://www.w3.org/2003/01/geo/wgs84_pos#geometry', 'bif:st_intersects', 'bif:st_geomFromText');
     var geoMapFactoryAsWktVirt = jassa.geo.GeoMapFactoryUtils.createWktMapFactory('http://www.opengis.net/ont/geosparql#asWKT', 'bif:st_intersects', 'bif:st_geomFromText');
@@ -211,42 +211,44 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
         return r;
     };
 
-    $scope.$watchCollection('[offset, numItems]', function(newi, oldi) {
+    $scope.$watch("page", function(newValue, oldValue) {
+    	var offset = newValue - 1;
+    	console.log("offset: " + offset + "\npage: " + $scope.page + "\nnew: " + newValue + "\nold: " + oldValue);
         if(typeof linkStore != "undefined") {
-            $q.when(linkStore.links.getListService().fetchItems(null, $scope.numItems, $scope.offset-1).then(function (entries) {
+            $q.when(linkStore.links.getListService().fetchItems(null, 1, offset).then(function (entries) {
                 return entries.map(function (entry) {
                     return entry.val;
                 });
             })).then(function (links) {
                 // Enrich links with a cluster for the predicates
-                links.forEach(function (link) {
-//                	$rootScope.TotalItems = $rootScope.TotalItems + 1;	
+                links.forEach(function (link) {	
                     var cluster = jassa.util.ClusterUtils.clusterLink(link);
                     // TODO Add the property display labels
 //                     _(cluster).forEach(function(cluster) {
 //                     })
                     link.cluster = cluster;
                     $scope.currentlink = link;
+                    //console.log(link);
                 });
                 $scope.links = links;
                 $scope.setEvalradio($scope.currentlink.id);
-                console.log("current link (" + $scope.offset + " of " + $rootScope.TotalItems + "):\n" + $scope.currentlink.id + " : " + $scope.currentEval);
+                console.log("current link (" + $scope.page + " of " + $scope.TotalItems + "): " + $scope.currentlink.$$hashKey + "\n" + $scope.currentlink.id + " : " + $scope.currentEval);
             })
             
             $q.when(linkStore.links.getListService().fetchCount()).then(function (countInfo) {
-        		$rootScope.TotalItems =  countInfo.count;
-                //console.log("linkStore count=" + $rootScope.TotalItems);
+        		$scope.TotalItems =  countInfo.count;
+                //console.log("linkStore count=" + countInfo.count);
             });
         }
     });
 
     //TODO: MOVE EVALUATION STUFF TO GUIController.js
     //EVALUATION STUFF BELOW
-    $rootScope.offset = 0;
-    $rootScope.numItems = 1;
+    $rootScope.page = 0;
+    $scope.numItems = 1;
     $scope.currentlink;
-    $rootScope.maxSize = 5;
-    $rootScope.TotalItems = 42;
+    $scope.maxSize = 5;
+    $scope.TotalItems = 42;
 
     $scope.currentEval = 'unknown';
     $scope.evalData = {};
@@ -273,46 +275,103 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', function ($scope, $q, $
     	if (evalLink == undefined || evalValue == undefined) {
         	console.log("an element is undefined!  " + evalLink + ":" + evalValue);
     	} else {
-	    	//console.log("evalLink:evalValue=  " + evalLink + ":" + evalValue);
-	    	$scope.evalData[evalLink] = evalValue;	
+	    	console.log("evalLink:evalValue=\n" + evalLink + ":" + evalValue);
+	    	$scope.evalData[evalLink] = evalValue;
     	}
     };
     
     $scope.setEvalradio = function (evalLink) {
     	if (evalLink == undefined) {
-        	console.log("setEval - link undefined!  " + evalLink);
+        	console.log("setEval - link undefined!:\n" + evalLink);
         	$scope.currentEval = undefined;
     	}     	
     	if ($scope.evalData[evalLink] == undefined) {
-        	console.log("setEval - evaluation of link undefined!  " + evalLink + ":" + $scope.evalData[evalLink]);
+        	console.log("setEval - evaluation of link undefined!\n" + evalLink + ":" + $scope.evalData[evalLink]);
         	//$scope.currentEval = "unknown"; //if a link has not been evaluated, is the evaluation of it "unknown"?
         	if ($rootScope.graphLink.eval == undefined) {
+        		console.log("No evaluation graph found!");
             	$scope.currentEval = undefined;
         	} else {
-        		//TODO: get eval from sparql
-        		$rootScope.guiStatus.isLoading = true;
-        		$scope.currentEval = $scope.getEval($rootScope.graphLink.eval, evalLink);
-        		$rootScope.guiStatus.isLoading = false;
+        		//$scope.getEval($rootScope.graphLink.evalJSONshort, evalLink);
+        		$scope.currentEval = undefined;
         	}
     	} else {
 	    	$scope.currentEval = $scope.evalData[evalLink];
     	}
     };
     
-    $scope.getEval = function (graph, evalLink) {
-    	if (graph == undefined || evalLink == undefined) {
-    		console.log("getEval - graph or link undefined!  " + graph + " " + evalLink);
-        	return undefined;
+    $scope.getEval = function (JSON, evalLink) {
+		$rootScope.guiStatus.isLoading = true;
+    	if (JSON == undefined || evalLink == undefined) {
+    		console.log("getEval - JSON graph or link undefined!\n" + JSON + " " + evalLink);
+    		$rootScope.guiStatus.isLoading = false;
     	} else {
-    		//http://fastreboot.de/kevin/BobJr/eval/
-    		//select * {?s <http://www.linklion.org/ontology#hasEvalStatus> ?o}
-    		//http://fastreboot.de:8890/sparql?qtxt=select+*+%7B%3Fs+%3Chttp%3A%2F%2Fwww.linklion.org%2Fontology%23hasEvalStatus%3E+%3Fo%7D&default-graph-uri=http://fastreboot.de/kevin/BobJr/eval/
-    		console.log("getEval- graph:link" + graph + " " + evalLink);
-        	
-    		
-    		
-    		return undefined;
+			//http://fastreboot.de/kevin/BobJr/eval/
+			//select * {?s <http://www.linklion.org/ontology#hasEvalStatus> ?o}
+			//http://fastreboot.de:8890/sparql?qtxt=select+*+%7B%3Fs+%3Chttp%3A%2F%2Fwww.linklion.org%2Fontology%23hasEvalStatus%3E+%3Fo%7D&default-graph-uri=http://fastreboot.de/kevin/BobJr/eval/
+			//http://fastreboot.de:8890/sparql?default-graph-uri=http://fastreboot.de/kevin/BobJr/eval/&query=select+*+%7B%3Fs+%3Chttp%3A%2F%2Fwww.linklion.org%2Fontology%23hasEvalStatus%3E+%3Fo%7D&should-sponge=&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on
+			console.log("getting eval from remote graph");
+		    
+			$http.get(JSON).
+			success(function(data, status, headers, config) {
+        		$rootScope.guiStatus.isLoading = false;
+		    	console.log(data);
+		    	console.log("data got!");
+
+		    	debug = evalLink;
+		    	var link = evalLink.split("http://example.org/")[1];
+		    	
+		    	var userEval = $rootScope.graphLink.evalPrefix1 + $rootScope.graphLink.evalPrefix2 + link + $rootScope.graphLink.evalSuffix + $rootScope.session.username;
+		    	
+		    	console.log("looking for: " + userEval);
+		    	for (var int = 0; int < data.results.bindings.length; int++) {
+		    		if(data.results.bindings[int].s.value == userEval){
+					    console.log("found eval:" + data.results.bindings[int].s.value + ":" + data.results.bindings[int].o.value);
+					    //return data.results.bindings[int].o.value;
+					    $scope.currentEval = data.results.bindings[int].o.value;
+					} else {
+					    console.log("link mismatch:" + data.results.bindings[int].s.value + ":" + data.results.bindings[int].o.value);
+					}
+				}
+			}).
+			error(function(data, status, headers, config) {
+				console.log("ERROR: Cannot retrieve data from:" + JSON);
+		    	console.log(status);
+		    	$scope.currentEval = undefined;
+        		$rootScope.guiStatus.isLoading = false;
+		    });
     	}
     }
-
+    
+    $scope.getAllEval = function () {
+		$rootScope.guiStatus.isLoading = true;
+		//http://fastreboot.de/kevin/BobJr/eval/
+		//select * {?s <http://www.linklion.org/ontology#hasEvalStatus> ?o}
+		//http://fastreboot.de:8890/sparql?qtxt=select+*+%7B%3Fs+%3Chttp%3A%2F%2Fwww.linklion.org%2Fontology%23hasEvalStatus%3E+%3Fo%7D&default-graph-uri=http://fastreboot.de/kevin/BobJr/eval/
+		//http://fastreboot.de:8890/sparql?default-graph-uri=http://fastreboot.de/kevin/BobJr/eval/&query=select+*+%7B%3Fs+%3Chttp%3A%2F%2Fwww.linklion.org%2Fontology%23hasEvalStatus%3E+%3Fo%7D&should-sponge=&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on
+		console.log("getting ALL eval from remote graph");
+	    
+		$http.get($rootScope.graphLink.evalJSONshort).
+		success(function(data, status, headers, config) {
+	    	console.log(data);
+	    	console.log("data got!");
+	    	
+	    	for (var int = 0; int < data.results.bindings.length; int++) {
+	    		var link = data.results.bindings[int].s.value;
+	    		debug = link;
+	    		
+	    		var evalLink = $rootScope.graphLink.evalPrefix1 + link.split($rootScope.graphLink.evalPrefix2)[1].split($rootScope.graphLink.evalSuffix)[0]
+	    		var value = data.results.bindings[int].o.value;
+	    		
+    			$scope.evalData[evalLink] = value;
+			}
+	    	
+    		$rootScope.guiStatus.isLoading = false;
+		}).
+		error(function(data, status, headers, config) {
+			console.log("ERROR: Cannot retrieve data from:" + JSON);
+	    	console.log(status);
+    		$rootScope.guiStatus.isLoading = false;
+	    });
+    }
 }]);

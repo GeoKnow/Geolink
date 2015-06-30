@@ -323,9 +323,10 @@
 		        </div> 
 	      	</td>
 	      	<td style="max-width: 1000px;">
-		        <pagination style="display: block;" total-items="TotalItems" ng-model="offset" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false" num-pages="numPages" items-per-page=1></pagination>
+		        <pagination style="display: block;" total-items="TotalItems" ng-model="page" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false" num-pages="numPages" items-per-page=1></pagination>
 	     	</td>
 	     	<td style="width: 275px;">
+				<button ng-click="getAllEval();">[DEBUG] Get ALL eval from remote SPARQL</button>
 		        <button ng-click="sendEval();" ng-disabled="guiStatus.isEvaluationDisabled" style="margin-left: 5px; margin-right: 5px; height: 32px;" type="button" class="btn btn-primary">Send Eval</button>
 		        <button ng-click="learnFromMapping();" ng-disabled="guiStatus.isMappingDisabled" style="margin-left: 5px; margin-right: 5px; height: 32px;" type="button" class="btn btn-primary">Learn From Mapping</button>
 	       	</td>
@@ -335,18 +336,20 @@
 
 <div ng-controller="guiCtrl" style="position: absolute; right: 5px; top: 10px;">
     <a ng-show="guiStatus.isEvalLinkOpen" href="{{graphLink.eval}}" target="_blank">Evaluation graph</a>
+    <a ng-show="guiStatus.isEvalLinkOpen" href="{{graphLink.evalJSONshort}}" target="_blank">(JSON)</a>
     <br>
     <a ng-show="guiStatus.isGeomizedLinkOpen" href="{{graphLink.geomized}}" target="_blank">Geomized graph</a>
+    <br>
 </div>
 
 
 <!-- DEBUG -->
-<!-- <button ng-click="setLeipzig();" style="position: absolute; right: 10px; top: 10px;">Set Leipzig</button >
+<!-- <button ng-click="setLeipzig();" style="position: absolute; right: 10px; top: 10px;">Set Leipzig</button>
 <button ng-click="logDatasources();" style="position: absolute; right: 100px; top: 10px;">[DEBUG] log datasources to console</button> -->
 
 <div style="position: absolute; right: 5px; top: 50px;">
  	<pre>[DEBUG] evalData: <br> {{evalData | json}}</pre>
-	<pre>Page: {{offset}} / {{numPages}}</pre>
+	<pre>Page: {{page}} / {{numPages}}</pre>
 </div>
 
 

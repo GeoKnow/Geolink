@@ -22,7 +22,12 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
 
     $rootScope.graphLink =  {
         geomized : "",
-        eval: ""
+        eval: "",
+        evalJSON: "",
+        evalJSONshort: "",
+        evalPrefix1: "http://example.org/",
+        evalPrefix2: "linkEvaluation-of-",
+        evalSuffix: "-byuser-"
     };
 
 //	md-input-container
@@ -130,6 +135,8 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
                 $rootScope.$broadcast("Eval", data);
 
                 $rootScope.graphLink.eval = data.sparql + "?qtxt=select+*+%7B%3Fs+%3Fp+%3Fo%7D&default-graph-uri=" + data.graph;
+                $rootScope.graphLink.evalJSON = data.sparql + "?default-graph-uri="+ data.graph +"&query=select+*+%7B%3Fs+%3Fp+%3Fo%7D&should-sponge=&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on";
+                $rootScope.graphLink.evalJSONshort = data.sparql + "?default-graph-uri="+ data.graph +"&query=select+*+%7B%3Fs+<http%3A%2F%2Fwww.linklion.org%2Fontology%23hasEvalStatus>+%3Fo%7D&should-sponge=&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on";;
                 $rootScope.guiStatus.isEvalLinkOpen = true;
                 console.log($rootScope.graphLink.eval);
                 
@@ -143,6 +150,10 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
             });
         }
     };
+    
+    function htmlSafe(str) {
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
 
     //	SEND THE LINKSPEC
     $scope.sendLinkSpec = function () {
@@ -170,7 +181,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
             $rootScope.guiStatus.isEvaluationOpen = true;
             $rootScope.guiStatus.isEvaluationDisabled = false;
             $rootScope.guiStatus.isLoading = false;
-            $rootScope.offset = 1;
+            $rootScope.page = 1;
         }).error( function(data, status, headers, config) {
             console.log(data);
             $rootScope.guiStatus.isLoading = false;

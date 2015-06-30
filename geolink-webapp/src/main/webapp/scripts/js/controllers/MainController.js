@@ -252,6 +252,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', function ($sco
 
     $scope.currentEval = 'unknown';
     $scope.evalData = {};
+    $scope.evalDataRemote = {};
 
     $scope.sendEval = function () {
     	if (_.isEmpty($scope.evalData)) {
@@ -286,14 +287,22 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', function ($sco
         	$scope.currentEval = undefined;
     	}     	
     	if ($scope.evalData[evalLink] == undefined) {
-        	console.log("setEval - evaluation of link undefined!\n" + evalLink + ":" + $scope.evalData[evalLink]);
+        	//console.log("setEval - evaluation of link undefined!\n" + evalLink + ":" + $scope.evalData[evalLink]);
+			console.log("Link evaluation not found locally!");
         	//$scope.currentEval = "unknown"; //if a link has not been evaluated, is the evaluation of it "unknown"?
         	if ($rootScope.graphLink.eval == undefined) {
         		console.log("No evaluation graph found!");
             	$scope.currentEval = undefined;
         	} else {
         		//$scope.getEval($rootScope.graphLink.evalJSONshort, evalLink);
-        		$scope.currentEval = undefined;
+        		//$scope.currentEval = undefined;
+        		if ($scope.evalDataRemote[evalLink] == undefined) {
+        			console.log("Link not found in user's remote SPARQL store!");
+        			$scope.currentEval = undefined;
+        		} else {
+        			console.log("Link evaluation found in evalDataRemote!");
+            		$scope.currentEval = $scope.evalDataRemote[evalLink];
+        		}
         	}
     	} else {
 	    	$scope.currentEval = $scope.evalData[evalLink];
@@ -315,7 +324,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', function ($sco
 			$http.get(JSON).
 			success(function(data, status, headers, config) {
         		$rootScope.guiStatus.isLoading = false;
-		    	console.log(data);
+		    	//console.log(data);
 		    	console.log("data got!");
 
 		    	debug = evalLink;
@@ -345,15 +354,17 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', function ($sco
     
     $scope.getAllEval = function () {
 		$rootScope.guiStatus.isLoading = true;
+		
 		//http://fastreboot.de/kevin/BobJr/eval/
 		//select * {?s <http://www.linklion.org/ontology#hasEvalStatus> ?o}
 		//http://fastreboot.de:8890/sparql?qtxt=select+*+%7B%3Fs+%3Chttp%3A%2F%2Fwww.linklion.org%2Fontology%23hasEvalStatus%3E+%3Fo%7D&default-graph-uri=http://fastreboot.de/kevin/BobJr/eval/
 		//http://fastreboot.de:8890/sparql?default-graph-uri=http://fastreboot.de/kevin/BobJr/eval/&query=select+*+%7B%3Fs+%3Chttp%3A%2F%2Fwww.linklion.org%2Fontology%23hasEvalStatus%3E+%3Fo%7D&should-sponge=&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on
+		
 		console.log("getting ALL eval from remote graph");
 	    
 		$http.get($rootScope.graphLink.evalJSONshort).
 		success(function(data, status, headers, config) {
-	    	console.log(data);
+	    	//console.log(data);
 	    	console.log("data got!");
 	    	
 	    	for (var int = 0; int < data.results.bindings.length; int++) {
@@ -363,7 +374,8 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', function ($sco
 	    		var evalLink = $rootScope.graphLink.evalPrefix1 + link.split($rootScope.graphLink.evalPrefix2)[1].split($rootScope.graphLink.evalSuffix)[0]
 	    		var value = data.results.bindings[int].o.value;
 	    		
-    			$scope.evalData[evalLink] = value;
+	    		console.log("adding: " + evalLink + ":" + value);
+    			$scope.evalDataRemote[evalLink] = value;
 			}
 	    	
     		$rootScope.guiStatus.isLoading = false;

@@ -341,7 +341,7 @@ public class ServletLinking {
         config.afterPropertiesSet();
 
         // Build ressource path for geomized graph
-        StringBuilder geomized_graphressource = new StringBuilder();
+/*        StringBuilder geomized_graphressource = new StringBuilder();
         geomized_graphressource.append(StringUtils.urlEncode(project));
         geomized_graphressource.append("/");
         geomized_graphressource.append(StringUtils.urlEncode(username));
@@ -385,7 +385,7 @@ public class ServletLinking {
         Metric metric = learner.terminate();
         config.metricExpression = metric.getExpression();
         config.acceptanceThreshold = metric.getThreshold();
-        String result = gson.toJson(config);
+*/        String result = gson.toJson(config);
 
         return result;
     }

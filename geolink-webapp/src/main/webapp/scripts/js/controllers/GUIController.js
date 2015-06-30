@@ -4,10 +4,12 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
 		oneAtATime: true,					//default: true
     		
 		isSessionOpen: true,				//default: true
-	    isSessionDisabled: false,			//default: false
+		isSessionDisabled: false,			//default: false
+		isSessionUneditable: false,			//default: false
 	    
 	    isLinkSpecOpen: false,				//default: false
-	    isLinkSpecDisabled: false,			//default: false
+	    isLinkSpecDisabled: true,			//default: true
+	    isLinkSpecUneditable: true,		//default: false
 	    
 	    isEvaluationOpen: false,			//default: false
 	    isEvaluationDisabled: true,			//default: true
@@ -17,7 +19,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
         isEvalLinkOpen: false,				//default: false
         isGeomizedLinkOpen: false,			//default: false
         
-        isLoading: false,			//default: false
+        isLoading: false,					//default: false
     };
 
     $rootScope.graphLink =  {
@@ -137,10 +139,16 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
                 $rootScope.graphLink.eval = data.sparql + "?qtxt=select+*+%7B%3Fs+%3Fp+%3Fo%7D&default-graph-uri=" + data.graph;
                 $rootScope.graphLink.evalJSON = data.sparql + "?default-graph-uri="+ data.graph +"&query=select+*+%7B%3Fs+%3Fp+%3Fo%7D&should-sponge=&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on";
                 $rootScope.graphLink.evalJSONshort = data.sparql + "?default-graph-uri="+ data.graph +"&query=select+*+%7B%3Fs+<http%3A%2F%2Fwww.linklion.org%2Fontology%23hasEvalStatus>+%3Fo%7D&should-sponge=&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on";;
+                
                 $rootScope.guiStatus.isEvalLinkOpen = true;
                 console.log($rootScope.graphLink.eval);
                 
                 $rootScope.guiStatus.isLinkSpecOpen = true;
+                $rootScope.guiStatus.isLinkSpecDisabled = false;
+                $rootScope.guiStatus.isLinkSpecUneditable = false;
+                
+
+                $scope.getAllEval();
                 
                 $rootScope.guiStatus.isLoading = false;
             }).error( function(data, status, headers, config) {
@@ -150,10 +158,6 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
             });
         }
     };
-    
-    function htmlSafe(str) {
-        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
 
     //	SEND THE LINKSPEC
     $scope.sendLinkSpec = function () {
@@ -177,11 +181,13 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
 
             $rootScope.guiStatus.isSessionDisabled = true;
             $rootScope.guiStatus.isLinkSpecOpen = false;
-            $rootScope.guiStatus.isLinkSpecDisabled = true;
+            $rootScope.guiStatus.isLinkSpecDisabled = false;
+            $rootScope.guiStatus.isLinkSpecUneditable = true;
             $rootScope.guiStatus.isEvaluationOpen = true;
             $rootScope.guiStatus.isEvaluationDisabled = false;
-            $rootScope.guiStatus.isLoading = false;
             $rootScope.page = 1;
+            
+            $rootScope.guiStatus.isLoading = false;
         }).error( function(data, status, headers, config) {
             console.log(data);
             $rootScope.guiStatus.isLoading = false;
@@ -235,7 +241,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
             
             $rootScope.guiStatus.isLoading = false;
             $rootScope.guiStatus.isLinkSpecOpen = true;
-            $rootScope.guiStatus.isLinkSpecDisabled = true;
+            $rootScope.guiStatus.isLinkSpecUneditable = false;
         }).error( function(data, status, headers, config) {
             console.log('fail on: ' + status);
             console.log('data: ' + data);
@@ -247,7 +253,8 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
         $rootScope.guiStatus.isSessionOpen = true;
         $rootScope.guiStatus.isSessionDisabled = false;
         $rootScope.guiStatus.isLinkSpecOpen = false;
-        $rootScope.guiStatus.isLinkSpecDisabled = false;
+        $rootScope.guiStatus.isLinkSpecDisabled = true;
+        $rootScope.guiStatus.isLinkSpecUneditable = true;
         $rootScope.guiStatus.isEvaluationOpen = false;
         $rootScope.guiStatus.isEvaluationDisabled = true;
     };

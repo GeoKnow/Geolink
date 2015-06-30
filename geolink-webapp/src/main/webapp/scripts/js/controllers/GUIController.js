@@ -9,7 +9,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
 	    
 	    isLinkSpecOpen: false,				//default: false
 	    isLinkSpecDisabled: true,			//default: true
-	    isLinkSpecUneditable: true,		//default: false
+	    isLinkSpecUneditable: true,			//default: true
 	    
 	    isEvaluationOpen: false,			//default: false
 	    isEvaluationDisabled: true,			//default: true

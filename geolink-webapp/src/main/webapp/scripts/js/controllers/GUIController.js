@@ -38,17 +38,19 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
         project: "ThisProject"
     };
 
-    $scope.servers = [  {	num: 0,
-        'data': {
-            id: 'DBpedia',
-            type: 'sparql',
-            endpoint: 'http://dbpedia.org/sparql',
-            graph: 'http://dbpedia.org',
-            restrictions: ['?x a <http://dbpedia.org/ontology/Airport>'],
-            'var': '?x',
-            properties: ['rdfs:label AS nolang->lowercase']
+    $scope.servers = [
+        {
+            num: 0,
+            'data': {
+                id: 'DBpedia',
+                type: 'sparql',
+                endpoint: 'http://dbpedia.org/sparql',
+                graph: 'http://dbpedia.org',
+                restrictions: ['?x a <http://dbpedia.org/ontology/Airport>'],
+                'var': '?x',
+                properties: ['rdfs:label AS nolang->lowercase']
         }
-    },
+        },
         {
             num: 1,
             'data': {
@@ -63,7 +65,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
         },
         {	num: 2,
             'data': {
-                id: 'FR DBP',
+                id: 'FR DBP Min',
                 type: 'sparql',
                 endpoint: 'http://fastreboot.de:8890/sparql',
                 graph: 'http://fastreboot.de/dbpediatest',
@@ -76,10 +78,35 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
         {
             num: 3,
             'data': {
-                id: 'FR LGD',
+                id: 'FR LGD Min',
                 type: 'sparql',
                 endpoint: 'http://fastreboot.de:8890/sparql',
                 graph: 'http://fastreboot.de/lgdtest',
+                restrictions: ['?y a <http://linkedgeodata.org/ontology/Airport>'],
+                'var': '?y',
+                //properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']
+                properties: ['rdfs:label']
+            }
+        },
+        {	num: 4,
+            'data': {
+                id: 'FR DBP AIRPORT DE',
+                type: 'sparql',
+                endpoint: 'http://fastreboot.de:8890/sparql',
+                graph: 'http://fastreboot.de/dbpedia/airport/100/',
+                restrictions: ['?x a <http://dbpedia.org/ontology/Airport>'],
+                'var': '?x',
+                //properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']
+                properties: ['rdfs:label']
+            }
+        },
+        {
+            num: 5,
+            'data': {
+                id: 'FR LGD AIRPORT DE',
+                type: 'sparql',
+                endpoint: 'http://fastreboot.de:8890/sparql',
+                graph: 'http://fastreboot.de/lgd/airport/100/',
                 restrictions: ['?y a <http://linkedgeodata.org/ontology/Airport>'],
                 'var': '?y',
                 //properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']
@@ -103,14 +130,6 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
         acceptanceThreshold: 0.95,
         acceptanceRelation: 'owl:sameAs'
     };
-
-    $rootScope.$broadcast("Source",{"graph": $rootScope.linkspec.sourceInfo.graph, "sparql": $rootScope.linkspec.sourceInfo.endpoint});
-    $rootScope.$broadcast("Target",{"graph": $rootScope.linkspec.targetInfo.graph, "sparql": $rootScope.linkspec.targetInfo.endpoint});
-
-
-//    $scope.$watch('linkspec', function(newLinkSpec) {
-//        angular.copy($rootScope.linkspec, newLinkSpec);
-//    }, true);
 
     $scope.selectDropdown1 = function(id) {
         console.log("selectDropdown1 THE IS IS: " + id);
@@ -268,5 +287,15 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
         $rootScope.guiStatus.isLinkSpecUneditable = true;
         $rootScope.guiStatus.isEvaluationOpen = false;
         $rootScope.guiStatus.isEvaluationDisabled = true;
+
+        $rootScope.evalDataRemote = {};
+        $rootScope.evalData = {};
+        delete $rootScope.sparqlServices[0];
+        delete $rootScope.sparqlServices[1];
+        delete $rootScope.sparqlServices[2];
+
+        delete $rootScope.dataSources[0];
+        delete $rootScope.dataSources[1];
+        delete $rootScope.dataSources[2];
     };
 }]);

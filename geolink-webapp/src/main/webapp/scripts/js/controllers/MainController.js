@@ -63,8 +63,13 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
     var bounds = new jassa.geo.Bounds(7.0, 49.0, 9, 51.0);
 
     $scope.mapSources = [];
-    $scope.dataSources = {};
-    $scope.sparqlServices = {};
+    $rootScope.dataSources = {};
+    $rootScope.sparqlServices = {};
+
+    $rootScope.$watch('sparqlServices', function(sparqls) {
+        console.log('Update MapSources', $rootScope.sparqlServices);
+        $scope.updateMapSources();
+    }, true);
 
     $scope.selectGeom = function (data) {
         alert(JSON.stringify(data.id));
@@ -96,10 +101,6 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
         }
     };
 
-    $scope.$watch('mapConfig', function (v) {
-        console.log('Config changed: ' + JSON.stringify(v));
-    }, true);
-
     $scope.links = [];
 
     $scope.updateMapSources = function() {
@@ -109,11 +110,9 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
         }
         $scope.mapSources = [];
 
-        for(var key in $scope.dataSources) {
-            $scope.mapSources.push($scope.dataSources[key]);
+        for(var key in $rootScope.dataSources) {
+            $scope.mapSources.push($rootScope.dataSources[key]);
         }
-        console.log($scope.mapSources);
-        console.log($scope.sparqlServices);
     };
 
     var trimVar = function(varName) {
@@ -145,13 +144,11 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
         var isValid = validateLinkSpec(kbInfo);
         if(isValid) {
             $log.log('Detected change in link spec - recreating index ' + index);
-            $scope.sparqlServices[index] = createSparqlService(kbInfo.endpoint, [kbInfo.graph]);
+            $rootScope.sparqlServices[index] = createSparqlService(kbInfo.endpoint, [kbInfo.graph]);
             //var conceptA = jassa.sparql.ConceptUtils.createTypeConcept('http://dbpedia.org/ontology/Airport');
             var concept = createConceptFromKbInfo(kbInfo);
             $log.log('Concept: ' + concept);
-            $scope.dataSources[index] = createMapDataSource($scope.sparqlServices[index], geoMapFactory, concept, color);
-            $scope.updateMapSources();
-            console.log("add to source datasource");
+            $rootScope.dataSources[index] = createMapDataSource($rootScope.sparqlServices[index], geoMapFactory, concept, color);
         }
     };
 
@@ -163,44 +160,15 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
         updateMapDataSource(kbInfo, 1, geoMapFactoryWgs, '#CC0020');
     });
 
-
-
-// The code above was added by me ~ Claus
-if(false) {
-
-    $rootScope.$on("Source", function(event, data) {
-
-        $scope.sparqlServices[0] = createSparqlService(data.sparql, [data.graph]);
-        //var conceptA = jassa.sparql.ConceptUtils.createTypeConcept('http://dbpedia.org/ontology/Airport');
-        var conceptA = createConceptFromKbInfo($rootScope.linkspec.sourceInfo);
-        $log.log('SourceConcept: ' + conceptA);
-        $scope.dataSources[0] = createMapDataSource($scope.sparqlServices[0], geoMapFactoryVirt, conceptA, '#2000CC');
-        $scope.updateMapSources();
-        console.log("add to source datasource");
-    });
-
-    $rootScope.$on("Target", function(event, data) {
-        $scope.sparqlServices[1] = createSparqlService(data.sparql, [data.graph]);
-        //var conceptB = jassa.sparql.ConceptUtils.createTypeConcept('http://linkedgeodata.org/ontology/Airport');
-        var conceptB = createConceptFromKbInfo($rootScope.linkspec.targetInfo);
-        $log.log('TargetConcept: ' + conceptB);
-
-        $scope.dataSources[1] = createMapDataSource($scope.sparqlServices[1], geoMapFactoryWgs, conceptB, '#CC0020');
-        $scope.updateMapSources();
-        console.log("add to target datasource");
-    });
-}
-
     $rootScope.$on("Link", function(event, data) {
         //geomized graph
-        $scope.sparqlServices[2] = createSparqlService(data.sparql, [data.graph]);
+        $rootScope.sparqlServices[2] = createSparqlService(data.sparql, [data.graph]);
         var conceptC = jassa.sparql.ConceptUtils.createTypeConcept('http://www.linklion.org/ontology#Link');
-        $scope.dataSources[2] = createMapDataSource($scope.sparqlServices[2], geoMapFactoryAsWktVirt, conceptC, '#20CC20');
-        $scope.updateMapSources();
+        $rootScope.dataSources[2] = createMapDataSource($rootScope.sparqlServices[2], geoMapFactoryAsWktVirt, conceptC, '#20CC20');
         console.log("add to link datasource");
 
         // Link List
-        linkStore = new jassa.sponate.StoreFacade($scope.sparqlServices[2], {
+        linkStore = new jassa.sponate.StoreFacade($rootScope.sparqlServices[2], {
             'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
             'llo': 'http://www.linklion.org/ontology#'
         });
@@ -225,13 +193,13 @@ if(false) {
         linkStore.addMap({
             name: 'source',
             template: 'spo',
-            service: $scope.sparqlServices[0]
+            service: $rootScope.sparqlServices[0]
         });
 
         linkStore.addMap({
             name: 'target',
             template: 'spo',
-            service: $scope.sparqlServices[1]
+            service: $rootScope.sparqlServices[1]
         });
 
         linkStore.addMap({
@@ -246,9 +214,9 @@ if(false) {
     });
 
     $rootScope.$on("Eval", function(event, data) {
-        $scope.sparqlServices[3] = createSparqlService(data.sparql, [data.graph]);
+        $rootScope.sparqlServices[3] = createSparqlService(data.sparql, [data.graph]);
         console.log("add to eval graph");
-        console.log($scope.sparqlServices);
+        console.log($rootScope.sparqlServices);
     });
 
     var bestLiteralConfig = new jassa.sparql.BestLabelConfig(); //['ja', 'ko', 'en', '']);
@@ -297,7 +265,7 @@ if(false) {
                 $scope.setMap($scope.currentlink);
 
                 console.log("current link (" + $scope.page + " of " + $scope.TotalItems + "): " + $scope.currentlink.$$hashKey + "\n" + $scope.currentlink.id + " : " + $scope.currentEval);
-            })
+            });
 
             $q.when(linkStore.links.getListService().fetchCount()).then(function (countInfo) {
                 $scope.TotalItems =  countInfo.count;
@@ -356,24 +324,24 @@ if(false) {
     $scope.TotalItems = 42;
 
     $scope.currentEval = 'unknown';
-    $scope.evalData = {};
-    $scope.evalDataRemote = {};
+    $rootScope.evalData = {};
+    $rootScope.evalDataRemote = {};
 
     $scope.sendEval = function () {
-        if (_.isEmpty($scope.evalData)) {
+        if (_.isEmpty($rootScope.evalData)) {
             console.log("No evaluation data to send!");
             alert("No evaluation data to send!");
         } else {
-            $rootScope.$broadcast("Evaluation",$scope.evalData);
+            $rootScope.$broadcast("Evaluation",$rootScope.evalData);
         }
     };
 
     $scope.learnFromMapping = function () {
-        if (_.isEmpty($scope.evalData)) {
+        if (_.isEmpty($rootScope.evalData)) {
             console.log("No evaluation data to send!");
             alert("No evaluation data to send!");
         } else {
-            $rootScope.$broadcast("Mapping",$scope.evalData);
+            $rootScope.$broadcast("Mapping",$rootScope.evalData);
         }
     };
 
@@ -382,7 +350,7 @@ if(false) {
             console.log("an element is undefined!  " + evalLink + ":" + evalValue);
         } else {
             console.log("evalLink:evalValue=\n" + evalLink + ":" + evalValue);
-            $scope.evalData[evalLink] = evalValue;
+            $rootScope.evalData[evalLink] = evalValue;
         }
     };
 
@@ -391,8 +359,8 @@ if(false) {
             console.log("setEval - link undefined!:\n" + evalLink);
             $scope.currentEval = undefined;
         }
-        if ($scope.evalData[evalLink] == undefined) {
-            //console.log("setEval - evaluation of link undefined!\n" + evalLink + ":" + $scope.evalData[evalLink]);
+        if ($rootScope.evalData[evalLink] == undefined) {
+            //console.log("setEval - evaluation of link undefined!\n" + evalLink + ":" + $rootScope.evalData[evalLink]);
             console.log("Link evaluation not found locally!");
             //$scope.currentEval = "unknown"; //if a link has not been evaluated, is the evaluation of it "unknown"?
             if ($rootScope.graphLink.eval == undefined) {
@@ -401,16 +369,16 @@ if(false) {
             } else {
                 //$scope.getEval($rootScope.graphLink.evalJSONshort, evalLink);
                 //$scope.currentEval = undefined;
-                if ($scope.evalDataRemote[evalLink] == undefined) {
+                if ($rootScope.evalDataRemote[evalLink] == undefined) {
                     console.log("Link not found in user's remote SPARQL store!");
                     $scope.currentEval = undefined;
                 } else {
                     console.log("Link evaluation found in evalDataRemote!");
-                    $scope.currentEval = $scope.evalDataRemote[evalLink];
+                    $scope.currentEval = $rootScope.evalDataRemote[evalLink];
                 }
             }
         } else {
-            $scope.currentEval = $scope.evalData[evalLink];
+            $scope.currentEval = $rootScope.evalData[evalLink];
         }
     };
 
@@ -480,7 +448,7 @@ if(false) {
                 var value = data.results.bindings[int].o.value;
 
                 console.log("adding: " + evalLink + ":" + value);
-                $scope.evalDataRemote[evalLink] = value;
+                $rootScope.evalDataRemote[evalLink] = value;
             }
 
             $rootScope.guiStatus.isLoading = false;

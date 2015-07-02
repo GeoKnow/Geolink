@@ -1,14 +1,15 @@
-app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', function ($scope, $q, $rootScope, $http) {
+app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi', function ($scope, $q, $rootScope, $http, $log, $dddi) {
 
     var geoMapFactoryVirt = jassa.geo.GeoMapFactoryUtils.createWktMapFactory('http://www.w3.org/2003/01/geo/wgs84_pos#geometry', 'bif:st_intersects', 'bif:st_geomFromText');
     var geoMapFactoryAsWktVirt = jassa.geo.GeoMapFactoryUtils.createWktMapFactory('http://www.opengis.net/ont/geosparql#asWKT', 'bif:st_intersects', 'bif:st_geomFromText');
     var geoMapFactoryWgs = jassa.geo.GeoMapFactoryUtils.wgs84MapFactory;
 
     var createSparqlService = function (url, graphUris) {
-        var result = jassa.service.SparqlServiceBuilder.http(url, graphUris, {type: 'POST'}).cache().virtFix().paginate(1000).create();
+        //var result = jassa.service.SparqlServiceBuilder.http(url, graphUris, {type: 'POST'}).cache().virtFix().paginate(1000).create();
+        var result = jassa.service.SparqlServiceBuilder.http(url, graphUris, {type: 'POST'}).create();
         return result;
     };
-    
+
     $scope.langs = ['en', 'de'];
 
     // TODO: Whenever the facet selection changes, we need to recreate the map data source service for the modified concept
@@ -60,7 +61,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', function ($sco
     };
 
     var bounds = new jassa.geo.Bounds(7.0, 49.0, 9, 51.0);
-    
+
     $scope.mapSources = [];
     $scope.dataSources = {};
     $scope.sparqlServices = {};
@@ -115,25 +116,84 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', function ($sco
         console.log($scope.sparqlServices);
     };
 
+    var trimVar = function(varName) {
+        var result = varName && varName.charAt(0) === '?'
+            ? varName.substr(1)
+            : varName;
+
+        return result;
+    };
+
+    var createConceptFromKbInfo = function(kbInfo) {
+        // TODO Properly treat arrays with more than 1 element
+        var element = new jassa.sparql.ElementString.create(kbInfo.restrictions[0]);
+        var v = jassa.rdf.NodeFactory.createVar(trimVar(kbInfo['var']));
+        var result = new jassa.sparql.Concept(element, v);
+        return result;
+    };
+
+    var validateLinkSpec = function(ls) {
+        var result = ls != null && ls.endpoint && ls.graph; // TODO test for more stuff
+        return result;
+    };
+
+
+    //var dddi = $dddi($scope);
+
+
+    var updateMapDataSource = function(kbInfo, index, geoMapFactory, color) {
+        var isValid = validateLinkSpec(kbInfo);
+        if(isValid) {
+            $log.log('Detected change in link spec - recreating index ' + index);
+            $scope.sparqlServices[index] = createSparqlService(kbInfo.endpoint, [kbInfo.graph]);
+            //var conceptA = jassa.sparql.ConceptUtils.createTypeConcept('http://dbpedia.org/ontology/Airport');
+            var concept = createConceptFromKbInfo(kbInfo);
+            $log.log('Concept: ' + concept);
+            $scope.dataSources[index] = createMapDataSource($scope.sparqlServices[index], geoMapFactory, concept, color);
+            $scope.updateMapSources();
+            console.log("add to source datasource");
+        }
+    };
+
+    $rootScope.$watch('currentLinkSpec.sourceInfo', function(kbInfo) {
+        updateMapDataSource(kbInfo, 0, geoMapFactoryVirt, '#2000CC');
+    });
+
+    $rootScope.$watch('currentLinkSpec.targetInfo', function(kbInfo) {
+        updateMapDataSource(kbInfo, 1, geoMapFactoryWgs, '#CC0020');
+    });
+
+
+
+// The code above was added by me ~ Claus
+if(false) {
+
     $rootScope.$on("Source", function(event, data) {
-        $scope.sparqlServices[0] = createSparqlService(data.sparql, data.graph);
-        var conceptA = jassa.sparql.ConceptUtils.createTypeConcept('http://dbpedia.org/ontology/Airport');
+
+        $scope.sparqlServices[0] = createSparqlService(data.sparql, [data.graph]);
+        //var conceptA = jassa.sparql.ConceptUtils.createTypeConcept('http://dbpedia.org/ontology/Airport');
+        var conceptA = createConceptFromKbInfo($rootScope.linkspec.sourceInfo);
+        $log.log('SourceConcept: ' + conceptA);
         $scope.dataSources[0] = createMapDataSource($scope.sparqlServices[0], geoMapFactoryVirt, conceptA, '#2000CC');
         $scope.updateMapSources();
         console.log("add to source datasource");
     });
 
     $rootScope.$on("Target", function(event, data) {
-        $scope.sparqlServices[1] = createSparqlService(data.sparql, data.graph);
-        var conceptB = jassa.sparql.ConceptUtils.createTypeConcept('http://linkedgeodata.org/ontology/Airport');
+        $scope.sparqlServices[1] = createSparqlService(data.sparql, [data.graph]);
+        //var conceptB = jassa.sparql.ConceptUtils.createTypeConcept('http://linkedgeodata.org/ontology/Airport');
+        var conceptB = createConceptFromKbInfo($rootScope.linkspec.targetInfo);
+        $log.log('TargetConcept: ' + conceptB);
+
         $scope.dataSources[1] = createMapDataSource($scope.sparqlServices[1], geoMapFactoryWgs, conceptB, '#CC0020');
         $scope.updateMapSources();
         console.log("add to target datasource");
     });
+}
 
     $rootScope.$on("Link", function(event, data) {
         //geomized graph
-        $scope.sparqlServices[2] = createSparqlService(data.sparql, data.graph);
+        $scope.sparqlServices[2] = createSparqlService(data.sparql, [data.graph]);
         var conceptC = jassa.sparql.ConceptUtils.createTypeConcept('http://www.linklion.org/ontology#Link');
         $scope.dataSources[2] = createMapDataSource($scope.sparqlServices[2], geoMapFactoryAsWktVirt, conceptC, '#20CC20');
         $scope.updateMapSources();
@@ -186,7 +246,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', function ($sco
     });
 
     $rootScope.$on("Eval", function(event, data) {
-        $scope.sparqlServices[3] = createSparqlService(data.sparql, data.graph);
+        $scope.sparqlServices[3] = createSparqlService(data.sparql, [data.graph]);
         console.log("add to eval graph");
         console.log($scope.sparqlServices);
     });
@@ -212,8 +272,8 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', function ($sco
     };
 
     $scope.$watch("page", function(newValue, oldValue) {
-    	var offset = newValue - 1;
-    	console.log("offset: " + offset + "\npage: " + $scope.page + "\nnew: " + newValue + "\nold: " + oldValue);
+        var offset = newValue - 1;
+        console.log("offset: " + offset + "\npage: " + $scope.page + "\nnew: " + newValue + "\nold: " + oldValue);
         if(typeof linkStore != "undefined") {
             //debug = linkStore;
             $q.when(linkStore.links.getListService().fetchItems(null, 1, offset).then(function (entries) {
@@ -222,7 +282,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', function ($sco
                 });
             })).then(function (links) {
                 // Enrich links with a cluster for the predicates
-                links.forEach(function (link) {	
+                links.forEach(function (link) {
                     var cluster = jassa.util.ClusterUtils.clusterLink(link);
                     // TODO Add the property display labels
 //                     _(cluster).forEach(function(cluster) {
@@ -233,56 +293,56 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', function ($sco
                 });
                 $scope.links = links;
                 $scope.setEvalradio($scope.currentlink.id);
-                
+
                 $scope.setMap($scope.currentlink);
-                
+
                 console.log("current link (" + $scope.page + " of " + $scope.TotalItems + "): " + $scope.currentlink.$$hashKey + "\n" + $scope.currentlink.id + " : " + $scope.currentEval);
             })
-            
+
             $q.when(linkStore.links.getListService().fetchCount()).then(function (countInfo) {
-        		$scope.TotalItems =  countInfo.count;
+                $scope.TotalItems =  countInfo.count;
                 //console.log("linkStore count=" + countInfo.count);
             });
         }
     });
-    
+
     $scope.setMap = function (link) {
-    	//debug = link;
-    	
-    	var sourcelong = undefined;
+        //debug = link;
+
+        var sourcelong = undefined;
         var sourcelat = undefined;
         var targetlong = undefined;
         var targetlat = undefined;
-    	
-    	for (var int = 0; int < link.source.predicates.length; int++) {
-    		if (link.source.predicates[int].id.includes('wgs84_pos#lon')) {
-    			sourcelong = link.source.predicates[int].values[0].id;
-    		}
-    		if (link.source.predicates[int].id.includes('wgs84_pos#lat')) {
-    			sourcelat = link.source.predicates[int].values[0].id;
-    		}
-		}
-    	for (var int = 0; int < link.target.predicates.length; int++) {
-    		if (link.target.predicates[int].id.includes('wgs84_pos#lon')) {
-    			targetlong = link.target.predicates[int].values[0].id;
-    		}
-    		if (link.target.predicates[int].id.includes('wgs84_pos#lat')) {
-    			targetlat = link.target.predicates[int].values[0].id;
-    		}
-		}
-    	
-    	console.log("source: long: " + sourcelong + " lat: " + sourcelat);
-    	console.log("target: long: " + targetlong + " lat: " + targetlat);
+
+        for (var int = 0; int < link.source.predicates.length; int++) {
+            if (link.source.predicates[int].id.includes('wgs84_pos#lon')) {
+                sourcelong = link.source.predicates[int].values[0].id;
+            }
+            if (link.source.predicates[int].id.includes('wgs84_pos#lat')) {
+                sourcelat = link.source.predicates[int].values[0].id;
+            }
+        }
+        for (var int = 0; int < link.target.predicates.length; int++) {
+            if (link.target.predicates[int].id.includes('wgs84_pos#lon')) {
+                targetlong = link.target.predicates[int].values[0].id;
+            }
+            if (link.target.predicates[int].id.includes('wgs84_pos#lat')) {
+                targetlat = link.target.predicates[int].values[0].id;
+            }
+        }
+
+        console.log("source: long: " + sourcelong + " lat: " + sourcelat);
+        console.log("target: long: " + targetlong + " lat: " + targetlat);
 
         var diff = Math.sqrt(Math.pow((sourcelong - targetlong), 2) + Math.pow((sourcelat - targetlat), 2));
         debug = diff;
-        
+
         var long = (sourcelong +  targetlong) / 2;
         var lat = (sourcelat + targetlat - 0.03) / 2;
-        
-        
+
+
         var zoom = 13;
-        
+
         $scope.mapConfig.center = {lon: long, lat: lat};
         $scope.mapConfig.zoom = zoom;
     }
@@ -300,135 +360,135 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', function ($sco
     $scope.evalDataRemote = {};
 
     $scope.sendEval = function () {
-    	if (_.isEmpty($scope.evalData)) {
-        	console.log("No evaluation data to send!");
-        	alert("No evaluation data to send!");
-    	} else {
-        	$rootScope.$broadcast("Evaluation",$scope.evalData);
-    	}
+        if (_.isEmpty($scope.evalData)) {
+            console.log("No evaluation data to send!");
+            alert("No evaluation data to send!");
+        } else {
+            $rootScope.$broadcast("Evaluation",$scope.evalData);
+        }
     };
 
     $scope.learnFromMapping = function () {
-    	if (_.isEmpty($scope.evalData)) {
-        	console.log("No evaluation data to send!");
-        	alert("No evaluation data to send!");
-    	} else {
-        	$rootScope.$broadcast("Mapping",$scope.evalData);
-    	}
+        if (_.isEmpty($scope.evalData)) {
+            console.log("No evaluation data to send!");
+            alert("No evaluation data to send!");
+        } else {
+            $rootScope.$broadcast("Mapping",$scope.evalData);
+        }
     };
-    
-    $scope.saveEval = function (evalLink, evalValue) {
-    	if (evalLink == undefined || evalValue == undefined) {
-        	console.log("an element is undefined!  " + evalLink + ":" + evalValue);
-    	} else {
-	    	console.log("evalLink:evalValue=\n" + evalLink + ":" + evalValue);
-	    	$scope.evalData[evalLink] = evalValue;
-    	}
-    };
-    
-    $scope.setEvalradio = function (evalLink) {
-    	if (evalLink == undefined) {
-        	console.log("setEval - link undefined!:\n" + evalLink);
-        	$scope.currentEval = undefined;
-    	}     	
-    	if ($scope.evalData[evalLink] == undefined) {
-        	//console.log("setEval - evaluation of link undefined!\n" + evalLink + ":" + $scope.evalData[evalLink]);
-			console.log("Link evaluation not found locally!");
-        	//$scope.currentEval = "unknown"; //if a link has not been evaluated, is the evaluation of it "unknown"?
-        	if ($rootScope.graphLink.eval == undefined) {
-        		console.log("No evaluation graph found!");
-            	$scope.currentEval = undefined;
-        	} else {
-        		//$scope.getEval($rootScope.graphLink.evalJSONshort, evalLink);
-        		//$scope.currentEval = undefined;
-        		if ($scope.evalDataRemote[evalLink] == undefined) {
-        			console.log("Link not found in user's remote SPARQL store!");
-        			$scope.currentEval = undefined;
-        		} else {
-        			console.log("Link evaluation found in evalDataRemote!");
-            		$scope.currentEval = $scope.evalDataRemote[evalLink];
-        		}
-        	}
-    	} else {
-	    	$scope.currentEval = $scope.evalData[evalLink];
-    	}
-    };
-    
-    $scope.getEval = function (JSON, evalLink) {
-		$rootScope.guiStatus.isLoading = true;
-    	if (JSON == undefined || evalLink == undefined) {
-    		console.log("getEval - JSON graph or link undefined!\n" + JSON + " " + evalLink);
-    		$rootScope.guiStatus.isLoading = false;
-    	} else {
-			//http://fastreboot.de/kevin/BobJr/eval/
-			//select * {?s <http://www.linklion.org/ontology#hasEvalStatus> ?o}
-			//http://fastreboot.de:8890/sparql?qtxt=select+*+%7B%3Fs+%3Chttp%3A%2F%2Fwww.linklion.org%2Fontology%23hasEvalStatus%3E+%3Fo%7D&default-graph-uri=http://fastreboot.de/kevin/BobJr/eval/
-			//http://fastreboot.de:8890/sparql?default-graph-uri=http://fastreboot.de/kevin/BobJr/eval/&query=select+*+%7B%3Fs+%3Chttp%3A%2F%2Fwww.linklion.org%2Fontology%23hasEvalStatus%3E+%3Fo%7D&should-sponge=&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on
-			console.log("getting eval from remote graph");
-		    
-			$http.get(JSON).
-			success(function(data, status, headers, config) {
-        		$rootScope.guiStatus.isLoading = false;
-		    	//console.log(data);
-		    	console.log("data got!");
 
-		    	//debug = evalLink;
-		    	var link = evalLink.split("http://example.org/")[1];
-		    	
-		    	var userEval = $rootScope.graphLink.evalPrefix1 + $rootScope.graphLink.evalPrefix2 + link + $rootScope.graphLink.evalSuffix + $rootScope.session.username;
-		    	
-		    	console.log("looking for: " + userEval);
-		    	for (var int = 0; int < data.results.bindings.length; int++) {
-		    		if(data.results.bindings[int].s.value == userEval){
-					    console.log("found eval:" + data.results.bindings[int].s.value + ":" + data.results.bindings[int].o.value);
-					    //return data.results.bindings[int].o.value;
-					    $scope.currentEval = data.results.bindings[int].o.value;
-					} else {
-					    console.log("link mismatch:" + data.results.bindings[int].s.value + ":" + data.results.bindings[int].o.value);
-					}
-				}
-			}).
-			error(function(data, status, headers, config) {
-				console.log("ERROR: Cannot retrieve data from:" + JSON);
-		    	console.log(status);
-		    	$scope.currentEval = undefined;
-        		$rootScope.guiStatus.isLoading = false;
-		    });
-    	}
+    $scope.saveEval = function (evalLink, evalValue) {
+        if (evalLink == undefined || evalValue == undefined) {
+            console.log("an element is undefined!  " + evalLink + ":" + evalValue);
+        } else {
+            console.log("evalLink:evalValue=\n" + evalLink + ":" + evalValue);
+            $scope.evalData[evalLink] = evalValue;
+        }
+    };
+
+    $scope.setEvalradio = function (evalLink) {
+        if (evalLink == undefined) {
+            console.log("setEval - link undefined!:\n" + evalLink);
+            $scope.currentEval = undefined;
+        }
+        if ($scope.evalData[evalLink] == undefined) {
+            //console.log("setEval - evaluation of link undefined!\n" + evalLink + ":" + $scope.evalData[evalLink]);
+            console.log("Link evaluation not found locally!");
+            //$scope.currentEval = "unknown"; //if a link has not been evaluated, is the evaluation of it "unknown"?
+            if ($rootScope.graphLink.eval == undefined) {
+                console.log("No evaluation graph found!");
+                $scope.currentEval = undefined;
+            } else {
+                //$scope.getEval($rootScope.graphLink.evalJSONshort, evalLink);
+                //$scope.currentEval = undefined;
+                if ($scope.evalDataRemote[evalLink] == undefined) {
+                    console.log("Link not found in user's remote SPARQL store!");
+                    $scope.currentEval = undefined;
+                } else {
+                    console.log("Link evaluation found in evalDataRemote!");
+                    $scope.currentEval = $scope.evalDataRemote[evalLink];
+                }
+            }
+        } else {
+            $scope.currentEval = $scope.evalData[evalLink];
+        }
+    };
+
+    $scope.getEval = function (JSON, evalLink) {
+        $rootScope.guiStatus.isLoading = true;
+        if (JSON == undefined || evalLink == undefined) {
+            console.log("getEval - JSON graph or link undefined!\n" + JSON + " " + evalLink);
+            $rootScope.guiStatus.isLoading = false;
+        } else {
+            //http://fastreboot.de/kevin/BobJr/eval/
+            //select * {?s <http://www.linklion.org/ontology#hasEvalStatus> ?o}
+            //http://fastreboot.de:8890/sparql?qtxt=select+*+%7B%3Fs+%3Chttp%3A%2F%2Fwww.linklion.org%2Fontology%23hasEvalStatus%3E+%3Fo%7D&default-graph-uri=http://fastreboot.de/kevin/BobJr/eval/
+            //http://fastreboot.de:8890/sparql?default-graph-uri=http://fastreboot.de/kevin/BobJr/eval/&query=select+*+%7B%3Fs+%3Chttp%3A%2F%2Fwww.linklion.org%2Fontology%23hasEvalStatus%3E+%3Fo%7D&should-sponge=&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on
+            console.log("getting eval from remote graph");
+
+            $http.get(JSON).
+            success(function(data, status, headers, config) {
+                $rootScope.guiStatus.isLoading = false;
+                //console.log(data);
+                console.log("data got!");
+
+                //debug = evalLink;
+                var link = evalLink.split("http://example.org/")[1];
+
+                var userEval = $rootScope.graphLink.evalPrefix1 + $rootScope.graphLink.evalPrefix2 + link + $rootScope.graphLink.evalSuffix + $rootScope.session.username;
+
+                console.log("looking for: " + userEval);
+                for (var int = 0; int < data.results.bindings.length; int++) {
+                    if(data.results.bindings[int].s.value == userEval){
+                        console.log("found eval:" + data.results.bindings[int].s.value + ":" + data.results.bindings[int].o.value);
+                        //return data.results.bindings[int].o.value;
+                        $scope.currentEval = data.results.bindings[int].o.value;
+                    } else {
+                        console.log("link mismatch:" + data.results.bindings[int].s.value + ":" + data.results.bindings[int].o.value);
+                    }
+                }
+            }).
+            error(function(data, status, headers, config) {
+                console.log("ERROR: Cannot retrieve data from:" + JSON);
+                console.log(status);
+                $scope.currentEval = undefined;
+                $rootScope.guiStatus.isLoading = false;
+            });
+        }
     }
-    
+
     $scope.getAllEval = function () {
-		$rootScope.guiStatus.isLoading = true;
-		
-		//http://fastreboot.de/kevin/BobJr/eval/
-		//select * {?s <http://www.linklion.org/ontology#hasEvalStatus> ?o}
-		//http://fastreboot.de:8890/sparql?qtxt=select+*+%7B%3Fs+%3Chttp%3A%2F%2Fwww.linklion.org%2Fontology%23hasEvalStatus%3E+%3Fo%7D&default-graph-uri=http://fastreboot.de/kevin/BobJr/eval/
-		//http://fastreboot.de:8890/sparql?default-graph-uri=http://fastreboot.de/kevin/BobJr/eval/&query=select+*+%7B%3Fs+%3Chttp%3A%2F%2Fwww.linklion.org%2Fontology%23hasEvalStatus%3E+%3Fo%7D&should-sponge=&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on
-		
-		console.log("getting ALL eval from remote graph");
-	    
-		$http.get($rootScope.graphLink.evalJSONshort).
-		success(function(data, status, headers, config) {
-	    	//console.log(data);
-	    	console.log("data got!");
-	    	
-	    	for (var int = 0; int < data.results.bindings.length; int++) {
-	    		var link = data.results.bindings[int].s.value;
-	    		//debug = link;
-	    		
-	    		var evalLink = $rootScope.graphLink.evalPrefix1 + link.split($rootScope.graphLink.evalPrefix2)[1].split($rootScope.graphLink.evalSuffix)[0]
-	    		var value = data.results.bindings[int].o.value;
-	    		
-	    		console.log("adding: " + evalLink + ":" + value);
-    			$scope.evalDataRemote[evalLink] = value;
-			}
-	    	
-    		$rootScope.guiStatus.isLoading = false;
-		}).
-		error(function(data, status, headers, config) {
-			console.log("ERROR: Cannot retrieve data from:" + JSON);
-	    	console.log(status);
-    		$rootScope.guiStatus.isLoading = false;
-	    });
+        $rootScope.guiStatus.isLoading = true;
+
+        //http://fastreboot.de/kevin/BobJr/eval/
+        //select * {?s <http://www.linklion.org/ontology#hasEvalStatus> ?o}
+        //http://fastreboot.de:8890/sparql?qtxt=select+*+%7B%3Fs+%3Chttp%3A%2F%2Fwww.linklion.org%2Fontology%23hasEvalStatus%3E+%3Fo%7D&default-graph-uri=http://fastreboot.de/kevin/BobJr/eval/
+        //http://fastreboot.de:8890/sparql?default-graph-uri=http://fastreboot.de/kevin/BobJr/eval/&query=select+*+%7B%3Fs+%3Chttp%3A%2F%2Fwww.linklion.org%2Fontology%23hasEvalStatus%3E+%3Fo%7D&should-sponge=&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on
+
+        console.log("getting ALL eval from remote graph");
+
+        $http.get($rootScope.graphLink.evalJSONshort).
+        success(function(data, status, headers, config) {
+            //console.log(data);
+            console.log("data got!");
+
+            for (var int = 0; int < data.results.bindings.length; int++) {
+                var link = data.results.bindings[int].s.value;
+                //debug = link;
+
+                var evalLink = $rootScope.graphLink.evalPrefix1 + link.split($rootScope.graphLink.evalPrefix2)[1].split($rootScope.graphLink.evalSuffix)[0]
+                var value = data.results.bindings[int].o.value;
+
+                console.log("adding: " + evalLink + ":" + value);
+                $scope.evalDataRemote[evalLink] = value;
+            }
+
+            $rootScope.guiStatus.isLoading = false;
+        }).
+        error(function(data, status, headers, config) {
+            console.log("ERROR: Cannot retrieve data from:" + JSON);
+            console.log(status);
+            $rootScope.guiStatus.isLoading = false;
+        });
     }
 }]);

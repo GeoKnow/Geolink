@@ -1,24 +1,24 @@
 app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function($scope, $http, $rootScope, $window) {
 //	accordion-group
     $rootScope.guiStatus = {
-		oneAtATime: true,					//default: true
-    		
-		isSessionOpen: true,				//default: true
-		isSessionDisabled: false,			//default: false
-		isSessionUneditable: false,			//default: false
-	    
-	    isLinkSpecOpen: false,				//default: false
-	    isLinkSpecDisabled: true,			//default: true
-	    isLinkSpecUneditable: true,			//default: true
-	    
-	    isEvaluationOpen: false,			//default: false
-	    isEvaluationDisabled: true,			//default: true
+        oneAtATime: true,					//default: true
 
-	    isMappingDisabled: true,  			//default: true
-	    
+        isSessionOpen: true,				//default: true
+        isSessionDisabled: false,			//default: false
+        isSessionUneditable: false,			//default: false
+
+        isLinkSpecOpen: false,				//default: false
+        isLinkSpecDisabled: true,			//default: true
+        isLinkSpecUneditable: true,			//default: true
+
+        isEvaluationOpen: false,			//default: false
+        isEvaluationDisabled: true,			//default: true
+
+        isMappingDisabled: true,  			//default: true
+
         isEvalLinkOpen: false,				//default: false
         isGeomizedLinkOpen: false,			//default: false
-        
+
         isLoading: false,					//default: false
     };
 
@@ -108,6 +108,10 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
     $rootScope.$broadcast("Target",{"graph": $rootScope.linkspec.targetInfo.graph, "sparql": $rootScope.linkspec.targetInfo.endpoint});
 
 
+//    $scope.$watch('linkspec', function(newLinkSpec) {
+//        angular.copy($rootScope.linkspec, newLinkSpec);
+//    }, true);
+
     $scope.selectDropdown1 = function(id) {
         console.log("selectDropdown1 THE IS IS: " + id);
         $rootScope.linkspec.sourceInfo = angular.copy($scope.servers[id].data);
@@ -121,7 +125,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
     };
 
     $scope.createSession = function () {
-    	$rootScope.guiStatus.isLoading = true;
+        $rootScope.guiStatus.isLoading = true;
         if ( (_.isEmpty($rootScope.session.project)) || (_.isEmpty($rootScope.session.username)) ) {
             alert("Please fill in both fields");
             $rootScope.guiStatus.isLoading = false;
@@ -139,17 +143,17 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
                 $rootScope.graphLink.eval = data.sparql + "?qtxt=select+*+%7B%3Fs+%3Fp+%3Fo%7D&default-graph-uri=" + data.graph;
                 $rootScope.graphLink.evalJSON = data.sparql + "?default-graph-uri="+ data.graph +"&query=select+*+%7B%3Fs+%3Fp+%3Fo%7D&should-sponge=&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on";
                 $rootScope.graphLink.evalJSONshort = data.sparql + "?default-graph-uri="+ data.graph +"&query=select+*+%7B%3Fs+<http%3A%2F%2Fwww.linklion.org%2Fontology%23hasEvalStatus>+%3Fo%7D&should-sponge=&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on";;
-                
+
                 $rootScope.guiStatus.isEvalLinkOpen = true;
                 console.log($rootScope.graphLink.eval);
-                
+
                 $rootScope.guiStatus.isLinkSpecOpen = true;
                 $rootScope.guiStatus.isLinkSpecDisabled = false;
                 $rootScope.guiStatus.isLinkSpecUneditable = false;
-                
+
 
                 $scope.getAllEval();
-                
+
                 $rootScope.guiStatus.isLoading = false;
             }).error( function(data, status, headers, config) {
                 console.log('fail on: ' + status);
@@ -161,9 +165,12 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
 
     //	SEND THE LINKSPEC
     $scope.sendLinkSpec = function () {
-    	$rootScope.guiStatus.isLoading = true;
-        console.log('Send LinkSpec');
-        console.log($rootScope.linkspec);
+        $rootScope.guiStatus.isLoading = true;
+        console.log('Send LinkSpec', $rootScope.linkspec);
+
+        //angular.copy($rootScope.linkspec, $rootScope.currentLinkSpec);
+        $rootScope.currentLinkSpec = angular.copy($rootScope.linkspec);
+
         $http({
             method:'POST',
             url:'api/linking/executeFromSpec',
@@ -186,7 +193,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
             $rootScope.guiStatus.isEvaluationOpen = true;
             $rootScope.guiStatus.isEvaluationDisabled = false;
             $rootScope.page = 1;
-            
+
             $rootScope.guiStatus.isLoading = false;
         }).error( function(data, status, headers, config) {
             console.log(data);
@@ -195,7 +202,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
     };
 
     $rootScope.$on("Evaluation", function(event, data) {
-    	$rootScope.guiStatus.isLoading = true;
+        $rootScope.guiStatus.isLoading = true;
         console.log('Send Evaluation');
         console.log(data);
         $http({
@@ -218,7 +225,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
     });
 
     $rootScope.$on("Mapping", function(event, data) {
-    	$rootScope.guiStatus.isLoading = true;
+        $rootScope.guiStatus.isLoading = true;
         console.log('Send Mapping');
         console.log(data);
         $http({
@@ -242,7 +249,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
             //TODO: popup using the newly recieved linkspec data object
             //POPUP: ACCEPT OR REJECT
             //Overwrite linkspec
-            
+
             $rootScope.guiStatus.isLoading = false;
             $rootScope.guiStatus.isLinkSpecOpen = true;
             $rootScope.guiStatus.isLinkSpecUneditable = false;

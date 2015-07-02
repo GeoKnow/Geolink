@@ -211,7 +211,7 @@ public class ServletLinking {
 
         //real methods
         Mapping mapping;
-        if(false) {
+        if(true) {
             UnsupervisedLinkSpecificationLearner learner = createAutoLearner(config);
             mapping = learner.learn();
         } else {

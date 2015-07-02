@@ -93,7 +93,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
                 id: 'FR DBP AIRPORT DE',
                 type: 'sparql',
                 endpoint: 'http://fastreboot.de:8890/sparql',
-                graph: 'http://fastreboot.de/dbpedia/airport/100/',
+                graph: 'http://fastreboot.de/dbpedia/airport/de/',
                 restrictions: ['?x a <http://dbpedia.org/ontology/Airport>'],
                 'var': '?x',
                 //properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']
@@ -106,7 +106,57 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
                 id: 'FR LGD AIRPORT DE',
                 type: 'sparql',
                 endpoint: 'http://fastreboot.de:8890/sparql',
-                graph: 'http://fastreboot.de/lgd/airport/100/',
+                graph: 'http://fastreboot.de/lgd/airport/de/',
+                restrictions: ['?y a <http://linkedgeodata.org/ontology/Airport>'],
+                'var': '?y',
+                //properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']
+                properties: ['rdfs:label']
+            }
+        },
+        {	num: 6,
+            'data': {
+                id: 'FR DBP AIRPORT EU',
+                type: 'sparql',
+                endpoint: 'http://fastreboot.de:8890/sparql',
+                graph: 'http://fastreboot.de/dbpedia/airport/eu/',
+                restrictions: ['?x a <http://dbpedia.org/ontology/Airport>'],
+                'var': '?x',
+                //properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']
+                properties: ['rdfs:label']
+            }
+        },
+        {
+            num: 7,
+            'data': {
+                id: 'FR LGD AIRPORT EU',
+                type: 'sparql',
+                endpoint: 'http://fastreboot.de:8890/sparql',
+                graph: 'http://fastreboot.de/lgd/airport/eu/',
+                restrictions: ['?y a <http://linkedgeodata.org/ontology/Airport>'],
+                'var': '?y',
+                //properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']
+                properties: ['rdfs:label']
+            }
+        },
+        {	num: 8,
+            'data': {
+                id: 'FR DBP AIRPORT EU-US',
+                type: 'sparql',
+                endpoint: 'http://fastreboot.de:8890/sparql',
+                graph: 'http://fastreboot.de/dbpedia/airport/eu-us/',
+                restrictions: ['?x a <http://dbpedia.org/ontology/Airport>'],
+                'var': '?x',
+                //properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']
+                properties: ['rdfs:label']
+            }
+        },
+        {
+            num: 9,
+            'data': {
+                id: 'FR LGD AIRPORT EU-US',
+                type: 'sparql',
+                endpoint: 'http://fastreboot.de:8890/sparql',
+                graph: 'http://fastreboot.de/lgd/airport/eu-us/',
                 restrictions: ['?y a <http://linkedgeodata.org/ontology/Airport>'],
                 'var': '?y',
                 //properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']

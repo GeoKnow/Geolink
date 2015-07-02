@@ -235,6 +235,10 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
             console.log('recieved new linkspec from api/linking/learnFromMapping');
             console.log(data);
 
+            $rootScope.linkspec = angular.copy(data);
+
+            console.log($rootScope.linkspec);
+
             //TODO: popup using the newly recieved linkspec data object
             //POPUP: ACCEPT OR REJECT
             //Overwrite linkspec

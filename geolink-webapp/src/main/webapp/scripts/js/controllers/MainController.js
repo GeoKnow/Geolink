@@ -241,7 +241,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
 
     $scope.$watch("page", function(newValue, oldValue) {
         var offset = newValue - 1;
-        console.log("offset: " + offset + "\npage: " + $scope.page + "\nnew: " + newValue + "\nold: " + oldValue);
+        console.log("offset: " + offset + "\npage: " + $rootScope.page + "\nnew: " + newValue + "\nold: " + oldValue);
         if(typeof linkStore != "undefined") {
             //debug = linkStore;
             $q.when(linkStore.links.getListService().fetchItems(null, 1, offset).then(function (entries) {
@@ -264,7 +264,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
 
                 $scope.setMap($scope.currentlink);
 
-                console.log("current link (" + $scope.page + " of " + $scope.TotalItems + "): " + $scope.currentlink.$$hashKey + "\n" + $scope.currentlink.id + " : " + $scope.currentEval);
+                console.log("current link (" + $rootScope.page + " of " + $scope.TotalItems + "): " + $scope.currentlink.$$hashKey + "\n" + $scope.currentlink.id + " : " + $scope.currentEval);
             });
 
             $q.when(linkStore.links.getListService().fetchCount()).then(function (countInfo) {

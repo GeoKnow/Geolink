@@ -232,8 +232,6 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
             "project=" + encodeURIComponent($rootScope.session.project) + "&" +
             "username=" + encodeURIComponent($rootScope.session.username)
         }).success( function (data, status, headers, config) {
-            //alert("Links evaluated");
-            console.log(data);
             $rootScope.guiStatus.isLoading = false;
             $rootScope.guiStatus.isMappingDisabled = false;
         }).error( function(data, status, headers, config) {
@@ -290,6 +288,9 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
 
         $rootScope.evalDataRemote = {};
         $rootScope.evalData = {};
+
+        $rootScope.page = 1;
+
         delete $rootScope.sparqlServices[0];
         delete $rootScope.sparqlServices[1];
         delete $rootScope.sparqlServices[2];

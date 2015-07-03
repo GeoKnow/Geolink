@@ -238,10 +238,10 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
         //console.log('Item: ', item, r);
         return r;
     };
-
+    
     $scope.$watch("page", function(newValue, oldValue) {
         var offset = newValue - 1;
-        console.log("offset: " + offset + "\npage: " + $rootScope.page + "\nnew: " + newValue + "\nold: " + oldValue);
+        //console.log("offset: " + offset + "\npage: " + $rootScope.page + "\nnew: " + newValue + "\nold: " + oldValue);
         if(typeof linkStore != "undefined") {
             //debug = linkStore;
             $q.when(linkStore.links.getListService().fetchItems(null, 1, offset).then(function (entries) {
@@ -299,8 +299,8 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
             }
         }
 
-        console.log("source: long: " + sourcelong + " lat: " + sourcelat);
-        console.log("target: long: " + targetlong + " lat: " + targetlat);
+        //console.log("source: long: " + sourcelong + " lat: " + sourcelat);
+        //console.log("target: long: " + targetlong + " lat: " + targetlat);
 
         var diff = Math.sqrt(Math.pow((sourcelong - targetlong), 2) + Math.pow((sourcelat - targetlat), 2));
         debug = diff;
@@ -313,12 +313,12 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
 
         $scope.mapConfig.center = {lon: long, lat: lat};
         $scope.mapConfig.zoom = zoom;
-    }
+    };
 
     //TODO: MOVE EVALUATION STUFF TO GUIController.js
     //EVALUATION STUFF BELOW
     $rootScope.page = 0;
-    $scope.numItems = 1;
+    //$scope.numItems = 1;
     $scope.currentlink;
     $scope.maxSize = 5;
     $scope.TotalItems = 42;
@@ -359,7 +359,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
             console.log("setEval - link undefined!:\n" + evalLink);
             $scope.currentEval = undefined;
         }
-        if ($rootScope.evalData[evalLink] == undefined) {
+        if ($rootScope.evalData[evalLink] == undefined) {	//check local eval store
             //console.log("setEval - evaluation of link undefined!\n" + evalLink + ":" + $rootScope.evalData[evalLink]);
             console.log("Link evaluation not found locally!");
             //$scope.currentEval = "unknown"; //if a link has not been evaluated, is the evaluation of it "unknown"?
@@ -369,7 +369,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
             } else {
                 //$scope.getEval($rootScope.graphLink.evalJSONshort, evalLink);
                 //$scope.currentEval = undefined;
-                if ($rootScope.evalDataRemote[evalLink] == undefined) {
+                if ($rootScope.evalDataRemote[evalLink] == undefined) {	//check remote eval store (remote store is loaded on session creation)
                     console.log("Link not found in user's remote SPARQL store!");
                     $scope.currentEval = undefined;
                 } else {
@@ -423,7 +423,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
                 $rootScope.guiStatus.isLoading = false;
             });
         }
-    }
+    };
 
     $scope.getAllEval = function () {
         $rootScope.guiStatus.isLoading = true;
@@ -444,7 +444,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
                 var link = data.results.bindings[int].s.value;
                 //debug = link;
 
-                var evalLink = $rootScope.graphLink.evalPrefix1 + link.split($rootScope.graphLink.evalPrefix2)[1].split($rootScope.graphLink.evalSuffix)[0]
+                var evalLink = $rootScope.graphLink.evalPrefix1 + link.split($rootScope.graphLink.evalPrefix2)[1].split($rootScope.graphLink.evalSuffix)[0];
                 var value = data.results.bindings[int].o.value;
 
                 console.log("adding: " + evalLink + ":" + value);
@@ -458,5 +458,20 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
             console.log(status);
             $rootScope.guiStatus.isLoading = false;
         });
-    }
+    };
+    
+    $scope.loadTime = 0;
+    $scope.startLoad = 0;
+    $scope.endLoad = 0;
+    
+    $scope.$watch("guiStatus.isLoading", function(newValue, oldValue) {
+    	
+    	if (newValue) {
+    		$scope.startLoad = new Date().getTime();
+    	} else {
+    		$scope.endLoad = new Date().getTime();
+            $scope.loadTime = $scope.endLoad - $scope.startLoad;
+            console.log("loadtime: " + $scope.loadTime + "ms");
+    	}
+    });
 }]);

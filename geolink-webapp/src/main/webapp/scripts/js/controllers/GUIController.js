@@ -14,7 +14,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
         isEvaluationOpen: false,			//default: false
         isEvaluationDisabled: true,			//default: true
 
-        isMappingDisabled: true,  			//default: true
+        //isMappingDisabled: true,  			//default: true
 
         isEvalLinkOpen: false,				//default: false
         isGeomizedLinkOpen: false,			//default: false
@@ -221,7 +221,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
                 $rootScope.guiStatus.isLinkSpecUneditable = false;
 
 
-                $scope.getAllEval();
+                $scope.getAllEval();		//load the user's eval data from remote store
 
                 $rootScope.guiStatus.isLoading = false;
             }).error( function(data, status, headers, config) {
@@ -336,10 +336,10 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
         $rootScope.guiStatus.isEvaluationOpen = false;
         $rootScope.guiStatus.isEvaluationDisabled = true;
 
-        $rootScope.evalDataRemote = {};
-        $rootScope.evalData = {};
+        //$rootScope.evalDataRemote = {};	//not necessary by design
+        //$rootScope.evalData = {};			//not necessary by design
 
-        $rootScope.page = 1;
+        $rootScope.page = 0;
 
         delete $rootScope.sparqlServices[0];
         delete $rootScope.sparqlServices[1];

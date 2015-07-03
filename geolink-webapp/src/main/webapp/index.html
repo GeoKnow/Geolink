@@ -276,9 +276,9 @@
 	</accordion>
 </div>
 
-<div class="popup cssFade" ng-animate="'cssFade'" ng-show="guiStatus.isEvaluationOpen" style="position: absolute; bottom: 70px; left: 10px; right: 10px; height: 415px; overflow: auto; background-color: #fefefe">
+<div class="popup cssFade" ng-animate="'cssFade'" ng-show="guiStatus.isEvaluationOpen" style="position: absolute; bottom: 70px; left: 10px; right: 10px; height: 415px; overflow: auto; background-color: rgba(247, 247, 247 , 0.9)">
 	<table style="margin-bottom:0px" class="table table-striped">
-       <tr><th style="background-color: #F7F7F7">Evaluation</th><th style="background-color: #F7F7F7">Links</th><th style="background-color: #F7F7F7">Resources</th></tr>
+       <tr><th style="background-color: rgba(247, 247, 247 , 0.5)">Evaluation</th><th style="background-color: rgba(247, 247, 247 , 0.8)">Links</th><th style="background-color: rgba(247, 247, 247 , 0.8)">Resources</th></tr>
        <tr ng-repeat="link in links">
            <td style="max-width: 175px;">
                <div class="btn-group-vertical" style="padding-top: 10px;">
@@ -296,7 +296,7 @@
            </td>
            <td style="padding:0px">
 	           <div style="height:360px; overflow:auto;">
-	               <table class="table table-striped">
+	               <table class="table table-striped" style="background-color: rgba(247, 247, 247 , 0.5)">
 	                   <tr ng-repeat="predicate in link.cluster | objectToArray | orderBy:sourceOrderFn:true">
 	                       <td>
 	                           <span title="{{predicate.id}}" class="label eval" ng-class="predicate.sources.length === 2 ? 'label-success' : ( predicate.sources[0] === 'source' ? 'label-primary' : 'label-warning' )">{{predicate.displayLabel || predicate.id}}</span>
@@ -316,7 +316,7 @@
    	</table>
 </div>
 
-<div class="popup cssFade" ng-animate="'cssFade'" ng-show="guiStatus.isEvaluationOpen" style="position: absolute; bottom: 14px; left: 10px; right: 10px; overflow: auto; background-color: #fefefe">
+<div class="popup cssFade" ng-animate="'cssFade'" ng-show="guiStatus.isEvaluationOpen" style="position: absolute; bottom: 14px; left: 10px; right: 10px; overflow: auto; background-color: rgba(247, 247, 247 , 0.8)">
 	<table>
 		<tr>
 	  		<td style="width: 350px">
@@ -328,30 +328,30 @@
 		        <pagination style="display: block;" total-items="TotalItems" ng-model="page" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false" num-pages="numPages" items-per-page=1></pagination>
 	     	</td>
 	     	<td style="width: 275px;">
-		        <button ng-click="sendEval();" ng-disabled="guiStatus.isEvaluationDisabled" style="margin-left: 5px; margin-right: 5px; height: 32px;" type="button" class="btn btn-primary">Send Eval</button>
+		        <button ng-click="sendEval();" ng-disabled="guiStatus.isEvaluationDisabled" style="margin-left: 5px; margin-right: 5px; height: 32px;" type="button" class="btn btn-primary">Save</button>
 		        <button ng-click="learnFromMapping();" ng-disabled="guiStatus.isMappingDisabled" style="margin-left: 5px; margin-right: 5px; height: 32px;" type="button" class="btn btn-primary">Learn From Mapping</button>
 	       	</td>
        	</tr>
 	</table> 
 </div>
 
-<div ng-controller="guiCtrl" style="position: absolute; right: 5px; top: 10px;">
+<div ng-show="guiStatus.isEvalLinkOpen || guiStatus.isGeomizedLinkOpen" class="popup" style="position: absolute; right: 5px; top: 10px; background-color: rgba(255, 255, 255, 0.5); padding: 8px;">
     <a ng-show="guiStatus.isEvalLinkOpen" href="{{graphLink.eval}}" target="_blank">Evaluation graph</a>
-    <a ng-show="guiStatus.isEvalLinkOpen" href="{{graphLink.evalJSONshort}}" target="_blank">(JSON)</a>
+    <!-- <a ng-show="guiStatus.isEvalLinkOpen" href="{{graphLink.evalJSONshort}}" target="_blank">(JSON)</a> -->
     <br>
     <a ng-show="guiStatus.isGeomizedLinkOpen" href="{{graphLink.geomized}}" target="_blank">Geomized graph</a>
     <br>
+    
+    <pre>[DEBUG] evalData: <br> {{evalData | json}}</pre>
+	<pre>[DEBUG] evalDataRemote: <br> {{evalDataRemote | json}}</pre>
+	<pre>[DEBUG] <br>loadTime: {{loadTime}}ms</pre>
+	
 </div>
 
 
 <!-- DEBUG -->
 <!-- <button ng-click="setLeipzig();" style="position: absolute; right: 10px; top: 10px;">Set Leipzig</button>
 <button ng-click="logDatasources();" style="position: absolute; right: 100px; top: 10px;">[DEBUG] log datasources to console</button> -->
-
-<div style="position: absolute; right: 5px; top: 50px;">
- 	<pre>[DEBUG] evalData: <br> {{evalData | json}}</pre>
-	<pre>[DEBUG] evalDataRemote: <br> {{evalDataRemote | json}}</pre>
-</div>
 
 
 <!-- Modules -->

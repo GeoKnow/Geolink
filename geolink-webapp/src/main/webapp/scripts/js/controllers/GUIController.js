@@ -13,8 +13,10 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
 
         isEvaluationOpen: false,			//default: false
         isEvaluationDisabled: true,			//default: true
+        
+        isProposedSpecOpen: false,			//default: false
 
-        //isMappingDisabled: true,  			//default: true
+        isMappingDisabled: false,  			//default: false
 
         isEvalLinkOpen: false,				//default: false
         isGeomizedLinkOpen: false,			//default: false
@@ -170,7 +172,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
         geo: 'http://www.w3.org/2003/01/geo/wgs84_pos#',
         owl: 'http://www.w3.org/2002/07/owl#'
     };
-
+    
     $rootScope.linkspec = {
         prefixes: angular.copy($scope.prefixes),
         sourceInfo: angular.copy($scope.servers[2].data),
@@ -180,6 +182,8 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
         acceptanceThreshold: 0.95,
         acceptanceRelation: 'owl:sameAs'
     };
+    
+    $rootScope.newLinkspec = angular.copy($rootScope.linkspec);
 
     $scope.selectDropdown1 = function(id) {
         console.log("selectDropdown1 THE IS IS: " + id);
@@ -283,7 +287,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
             "username=" + encodeURIComponent($rootScope.session.username)
         }).success( function (data, status, headers, config) {
             $rootScope.guiStatus.isLoading = false;
-            $rootScope.guiStatus.isMappingDisabled = false;
+            //$rootScope.guiStatus.isMappingDisabled = false;
         }).error( function(data, status, headers, config) {
             console.log('fail on: ' + status);
             console.log('data: ' + data);
@@ -309,9 +313,9 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
             console.log('recieved new linkspec from api/linking/learnFromMapping');
             console.log(data);
 
-            $rootScope.linkspec = angular.copy(data);
+            $rootScope.newLinkspec = angular.copy(data);
 
-            console.log($rootScope.linkspec);
+            console.log($rootScope.newLinkspec);
 
             //TODO: popup using the newly recieved linkspec data object
             //POPUP: ACCEPT OR REJECT
@@ -319,13 +323,23 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
 
             $rootScope.guiStatus.isLoading = false;
             $rootScope.guiStatus.isLinkSpecOpen = true;
-            $rootScope.guiStatus.isLinkSpecUneditable = false;
+            $rootScope.guiStatus.isProposedSpecOpen = true;
         }).error( function(data, status, headers, config) {
             console.log('fail on: ' + status);
             console.log('data: ' + data);
             $rootScope.guiStatus.isLoading = false;
         });
     });
+    
+    $rootScope.acceptLinkSpec = function () {
+    	$rootScope.linkspec = angular.copy($rootScope.newLinkspec);
+    	$rootScope.guiStatus.isProposedSpecOpen = false;
+        $rootScope.guiStatus.isLinkSpecUneditable = false;
+    };
+    $rootScope.rejectLinkSpec = function () {
+    	$rootScope.guiStatus.isProposedSpecOpen = false;
+        $rootScope.guiStatus.isLinkSpecUneditable = false;
+    };
 
     $scope.closeSession = function () {
         $rootScope.guiStatus.isSessionOpen = true;

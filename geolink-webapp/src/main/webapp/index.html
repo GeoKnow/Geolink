@@ -76,6 +76,8 @@
 </div>
 
 <!-- GUI -->
+<!------------------------------------------Loading---------------------------------------->
+
 <progressbar class="progress-striped active cssFade loading" ng-animate="'cssFade'" ng-show="guiStatus.isLoading" value="100">
 	<p style="font-weight: bold; font-size: 3em; margin-top:25px">Loading...</p>
 </progressbar>
@@ -83,6 +85,9 @@
 <!-- <div ng-show="guiStatus.isLoading" style="height: 150px; width: 150px; position: fixed; left: 50%; top: 50%; margin: -25px 0 0 -25px; z-index: 1000;">
  	<img src="http://173.248.132.209/Community_Connection/Images/loading.gif" style="width:100%; height:100%">
 </div> -->
+
+
+<!------------------------------------------Accordion---------------------------------------->
 
 <div ng-controller="guiCtrl" style="position: absolute; top: 10px">
     <accordion close-others="guiStatus.oneAtATime">
@@ -276,6 +281,161 @@
 	</accordion>
 </div>
 
+
+
+
+<!------------------------------------------Proposed Link Specification---------------------------------------->
+
+
+<div style="position: absolute; top: 54px; left: 551px">
+	<div collapse="!guiStatus.isProposedSpecOpen">
+		<accordion-group heading="Proposed Link Specification" is-open="true" is-disabled="true">
+            <table>
+            	<td>
+		            <div class="btn-group" dropdown>
+		                <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle ng-disabled="true" style="opacity: 0;">
+		                    Fill with Source Template <span class="caret"></span>
+		                </button>
+		                <ul class="dropdown-menu">
+		                    <li ng-repeat="server in servers">
+		                        <a ng-click="selectDropdown1(server.num)">{{server.data.id}}</a>
+		                    </li>
+		                </ul>
+		            </div>
+				</td><td>
+		            <input ng-model="newLinkspec.sourceInfo.id" type="text" ng-disabled="true" style="opacity: 0;">
+	            </td>
+			</table>
+			
+            <table class="linkspecTable">
+                <tr>
+                    <td>
+                        <label>Endpoint</label>
+                    </td><td>
+                    <input ng-model="newLinkspec.sourceInfo.endpoint" type="url" ng-disabled="true">
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Graph</label>
+                    </td><td>
+                    <input ng-model="newLinkspec.sourceInfo.graph" type="url" ng-disabled="true">
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Restrictions</label>
+                    </td><td>
+                    <input ng-model="newLinkspec.sourceInfo.restrictions" ng-list="" type="text" ng-disabled="true">
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Var</label>
+                    </td><td>
+                    <input ng-model="newLinkspec.sourceInfo.var" type="text" ng-disabled="true">
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Properties</label>
+                    </td><td>
+                    <input ng-model="newLinkspec.sourceInfo.properties" ng-list=", " type="text" ng-disabled="true">
+                </td>
+                </tr>
+            </table>
+            <hr>
+            <div style="padding-top: 0px;">
+	 			<table>
+	            	<td>
+		                <div class="btn-group" dropdown>
+		                    <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle ng-disabled="true" style="opacity: 0;">
+		                        Fill with Target Template<span class="caret"></span>
+		                    </button>
+		                    <ul class="dropdown-menu">
+		                        <li ng-repeat="server in servers">
+		                            <a ng-click="selectDropdown2(server.num)">{{server.data.id}}</a>
+		                        </li>
+		                    </ul>
+		                </div>
+					</td><td>
+						<input ng-model="newLinkspec.targetInfo.id" type="text" ng-disabled="true" style="opacity: 0;">
+		            </td>   
+				</table>
+			</div>
+			
+            <table class="linkspecTable">
+                <tr>
+                    <td>
+                        <label>Endpoint</label>
+                    </td><td>
+                    <input ng-model="newLinkspec.targetInfo.endpoint" type="url" ng-disabled="true">
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Graph</label>
+                    </td><td>
+                    <input ng-model="newLinkspec.targetInfo.graph" type="url" ng-disabled="true">
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Restrictions</label>
+                    </td><td>
+                    <input ng-model="newLinkspec.targetInfo.restrictions" ng-list="" type="text" ng-disabled="true">
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Var</label>
+                    </td><td>
+                    <input ng-model="newLinkspec.targetInfo.var" type="text" ng-disabled="true">
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Properties</label>
+                    </td><td>
+                    <input ng-model="newLinkspec.targetInfo.properties" ng-list=", " type="text" ng-disabled="true">
+                </td>
+                </tr>
+            </table>
+            <div style="margin: 0px;">
+            <hr>
+
+            </div>
+            <table class="linkspecTable">
+                <tr>
+                    <td>
+                        <label>Metric</label>
+                    </td><td>
+                    <input ng-model="newLinkspec.metricExpression" type="text" ng-disabled="true">
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Threshold</label>
+                    </td><td>
+                    <input ng-model="newLinkspec.acceptanceThreshold" type="number" ng-disabled="true">
+                </td>
+                </tr>
+            </table>
+
+            <div style="padding-top: 10px;">
+                <button class="btn btn-danger" ng-click="rejectLinkSpec();" style="width: 49%; top: 10px; padding: 5px; margin-right: 5px;" ng-disabled="false">Reject New LinkSpec</button>
+                <button class="btn btn-success" ng-click="acceptLinkSpec();" style="width: 49%; top: 10px; padding: 5px" ng-disabled="false">Accept New LinkSpec</button>
+            </div>
+        </accordion-group> 
+	</div>
+	<!-- <button class="btn btn-default" ng-click="guiStatus.isProposedSpecOpen = !guiStatus.isProposedSpecOpen">Toggle collapse</button> -->
+</div>
+
+
+
+<!------------------------------------------Evaluation Table---------------------------------------->
+
+
 <div class="popup cssFade" ng-animate="'cssFade'" ng-show="guiStatus.isEvaluationOpen" style="position: absolute; bottom: 70px; left: 10px; right: 10px; height: 415px; overflow: auto; background-color: rgba(247, 247, 247 , 0.9)">
 	<table style="margin-bottom:0px" class="table table-striped">
        <tr><th style="background-color: rgba(247, 247, 247 , 0.5)">Evaluation</th><th style="background-color: rgba(247, 247, 247 , 0.8)">Links</th><th style="background-color: rgba(247, 247, 247 , 0.8)">Resources</th></tr>
@@ -316,6 +476,8 @@
    	</table>
 </div>
 
+<!------------------------------------------Evaluation Table Navigation---------------------------------------->
+
 <div class="popup cssFade" ng-animate="'cssFade'" ng-show="guiStatus.isEvaluationOpen" style="position: absolute; bottom: 14px; left: 10px; right: 10px; overflow: auto; background-color: rgba(247, 247, 247 , 0.8)">
 	<table>
 		<tr>
@@ -334,6 +496,9 @@
        	</tr>
 	</table> 
 </div>
+
+
+<!------------------------------------------Info and DEBUG box---------------------------------------->
 
 <div ng-show="guiStatus.isEvalLinkOpen || guiStatus.isGeomizedLinkOpen" class="popup" style="position: absolute; right: 5px; top: 10px; background-color: rgba(255, 255, 255, 0.5); padding: 8px;">
     <a ng-show="guiStatus.isEvalLinkOpen" href="{{graphLink.eval}}" target="_blank">Evaluation graph</a>

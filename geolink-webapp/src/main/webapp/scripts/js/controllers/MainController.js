@@ -461,6 +461,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
     };
     
     $scope.loadTime = 0;
+    $scope.loadTimes = [];
     $scope.startLoad = 0;
     $scope.endLoad = 0;
     
@@ -471,7 +472,8 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
     	} else {
     		$scope.endLoad = new Date().getTime();
             $scope.loadTime = $scope.endLoad - $scope.startLoad;
-            console.log("loadtime: " + $scope.loadTime + "ms");
+            console.log("loadtime: " + $scope.loadTime  + "ms");
+            $scope.loadTimes.push($scope.loadTime);
     	}
     });
 }]);

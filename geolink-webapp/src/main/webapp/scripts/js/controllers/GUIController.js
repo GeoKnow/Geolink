@@ -236,12 +236,16 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
         }
     };
 
+    //	SHOW DATA ON MAP
+    $scope.showDataPoints = function () {
+        $rootScope.currentLinkSpec = angular.copy($rootScope.linkspec);
+    };
+
     //	SEND THE LINKSPEC
     $scope.sendLinkSpec = function () {
         $rootScope.guiStatus.isLoading = true;
         console.log('Send LinkSpec', $rootScope.linkspec);
 
-        //angular.copy($rootScope.linkspec, $rootScope.currentLinkSpec);
         $rootScope.currentLinkSpec = angular.copy($rootScope.linkspec);
 
         $http({
@@ -308,18 +312,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
             "project=" + encodeURIComponent($rootScope.session.project) + "&" +
             "username=" + encodeURIComponent($rootScope.session.username)
         }).success( function (data, status, headers, config) {
-
-
-            console.log('recieved new linkspec from api/linking/learnFromMapping');
-            console.log(data);
-
             $rootScope.newLinkspec = angular.copy(data);
-
-            console.log($rootScope.newLinkspec);
-
-            //TODO: popup using the newly recieved linkspec data object
-            //POPUP: ACCEPT OR REJECT
-            //Overwrite linkspec
 
             $rootScope.guiStatus.isLoading = false;
             $rootScope.guiStatus.isLinkSpecOpen = true;

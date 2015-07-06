@@ -240,6 +240,13 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
     };
 
     $rootScope.readFromLinkStore = function (newValue) {
+    	
+    	if ($scope.page != newValue) {
+    		//TODO: debug
+    		console.log("funky stuff is happening. debug later");
+    		$scope.page = newValue;
+    	}
+    	
     	var offset = newValue - 1;
     	if(typeof linkStore != "undefined") {
             //debug = linkStore;
@@ -263,7 +270,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
 
                 $scope.setMap($scope.currentlink);
 
-                console.log("current link (" + $rootScope.page + " of " + $scope.TotalItems + "): " + $scope.currentlink.$$hashKey + "\n" + $scope.currentlink.id + " : " + $scope.currentEval);
+                console.log("current link (" + $scope.page + " of " + $scope.TotalItems + "): " + $scope.currentlink.$$hashKey + "\n" + $scope.currentlink.id + " : " + $scope.currentEval);
             });
             
             $q.when(linkStore.links.getListService().fetchCount()).then(function (countInfo) {
@@ -278,7 +285,7 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
                     $rootScope.guiStatus.isEvaluationOpen = false;
                     $rootScope.guiStatus.isEvaluationDisabled = true;
                     
-                    $rootScope.page = 0;
+                    //$scope.page = 0;
                 }
                     //console.log("linkStore count=" + countInfo.count);
             	});

@@ -139,31 +139,6 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
                 //properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']
                 properties: ['rdfs:label']
             }
-        },
-        {	num: 8,
-            'data': {
-                id: 'FR DBP AIRPORT EU-US',
-                type: 'sparql',
-                endpoint: 'http://fastreboot.de:8890/sparql',
-                graph: 'http://fastreboot.de/dbpedia/airport/eu-us/',
-                restrictions: ['?x a <http://dbpedia.org/ontology/Airport>'],
-                'var': '?x',
-                //properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']
-                properties: ['rdfs:label']
-            }
-        },
-        {
-            num: 9,
-            'data': {
-                id: 'FR LGD AIRPORT EU-US',
-                type: 'sparql',
-                endpoint: 'http://fastreboot.de:8890/sparql',
-                graph: 'http://fastreboot.de/lgd/airport/eu-us/',
-                restrictions: ['?y a <http://linkedgeodata.org/ontology/Airport>'],
-                'var': '?y',
-                //properties: ['rdfs:label AS nolang->lowercase', 'geo:lat', 'geo:long']
-                properties: ['rdfs:label']
-            }
         }
     ];
 

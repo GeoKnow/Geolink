@@ -36,9 +36,11 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
 
 //	md-input-container
     $rootScope.session = {
-        username: "BobJr",
-        project: "ThisProject"
-    };
+//        username: "BobJr",
+//        project: "ThisProject"
+		username: "",
+        project: ""
+};
 
     $scope.servers = [
         {

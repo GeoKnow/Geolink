@@ -492,8 +492,30 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
     $scope.startLoad = 0;
     $scope.endLoad = 0;
     
+    var easterBunnies = [  "Sending LinkSpec",
+                           "Generating InterLinks",
+	                       "Linking...",
+	                       "Generating Genome",
+	                       "...",
+	                       "Thinking...",
+	                       "Thinking Harder",
+	                       "Injecting T-Rex Genome",
+	                       "Chasing Lost T-Rex",
+	                       "Closing Jurassic Park",
+	                       "undefined",
+	                       "Fixing Bugs",
+	                       "Running Garbage Collection",
+	                       "Still Loading...",
+	                       "Taking a Nap",
+	                       "Loading...",
+	                       ];
+    
+    $scope.loadingMessage = "Loading...";
+    
+    
+    
     $scope.$watch("guiStatus.isLoading", function(newValue, oldValue) {
-    	
+    	var messageNum = 0;
     	if (newValue) {
     		$scope.startLoad = new Date().getTime();
     	} else {
@@ -502,5 +524,13 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
             console.log("loadtime: " + $scope.loadTime  + "ms");
             $scope.loadTimes.push($scope.loadTime);
     	}
+    	
+    	setInterval(function () {
+    		console.log("timer event: " + $scope.loadingMessage);
+    		document.getElementById('progressbar').innerHTML = easterBunnies[messageNum];
+    		if (messageNum < easterBunnies.length -1) {
+    			messageNum = messageNum + 1; 
+    		};
+    	}, 5000);
     });
 }]);

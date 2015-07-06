@@ -138,7 +138,7 @@
             <table>
             	<td>
 		            <div class="btn-group" dropdown>
-		                <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle ng-disabled="guiStatus.isLinkSpecUneditable">
+		                <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle ng-disabled="guiStatus.isLinkSpecUneditable" style="margin-bottom: 10px;">
 		                    Fill with Source Template <span class="caret"></span>
 		                </button>
 		                <ul class="dropdown-menu">
@@ -148,7 +148,7 @@
 		                </ul>
 		            </div>
 				</td><td>
-		            <input ng-model="linkspec.sourceInfo.id" type="text" ng-disabled="guiStatus.isLinkSpecUneditable">
+		            <input ng-model="linkspec.sourceInfo.id" type="text" ng-disabled="guiStatus.isLinkSpecUneditable" style="margin-bottom: 10px;">
 	            </td>
 			</table>
 			
@@ -194,7 +194,7 @@
 	 			<table>
 	            	<td>
 		                <div class="btn-group" dropdown>
-		                    <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle ng-disabled="guiStatus.isLinkSpecUneditable">
+		                    <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle ng-disabled="guiStatus.isLinkSpecUneditable" style="margin-bottom: 10px;">
 		                        Fill with Target Template<span class="caret"></span>
 		                    </button>
 		                    <ul class="dropdown-menu">
@@ -204,7 +204,7 @@
 		                    </ul>
 		                </div>
 					</td><td>
-						<input ng-model="linkspec.targetInfo.id" type="text" ng-disabled="guiStatus.isLinkSpecUneditable">
+						<input ng-model="linkspec.targetInfo.id" type="text" ng-disabled="guiStatus.isLinkSpecUneditable" style="margin-bottom: 10px;">
 		            </td>   
 				</table>
 			</div>
@@ -268,7 +268,8 @@
             </table>
 
             <div style="padding-top: 10px;">
-                <button class="btn btn-primary" ng-click="showDataPoints();" style="width: 100%; top: 10px; bottom: 30px; padding: 5px" ng-disabled="guiStatus.isLinkSpecUneditable">Show Data</button>
+                <button class="btn btn-primary" ng-click="showDataPoints();" style="width: 100%; top: 10px; padding: 5px; margin-bottom: 10px" ng-disabled="guiStatus.isLinkSpecUneditable">Show Data</button>
+                <br>
                 <button class="btn btn-primary" ng-click="sendLinkSpec();" style="width: 100%; top: 10px; padding: 5px" ng-disabled="guiStatus.isLinkSpecUneditable">Send LinkSpec</button>
             </div>
         </accordion-group>

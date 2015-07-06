@@ -3,6 +3,8 @@ Geolink-SWP
 
 UI for data driven interlinking based on Limes and Jassa
 
+![Screenshot](screenshot.png)
+
 * Don't forget to run `mvn install` in order to build the frontend!
 
 Import the project into the IDE of your choice (using maven import)

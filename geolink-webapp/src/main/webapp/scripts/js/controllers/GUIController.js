@@ -219,6 +219,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
     //	SEND THE LINKSPEC
     $scope.sendLinkSpec = function () {
         $rootScope.guiStatus.isLoading = true;
+        $rootScope.page = 0;
         console.log('Send LinkSpec', $rootScope.linkspec);
 
         $rootScope.currentLinkSpec = angular.copy($rootScope.linkspec);
@@ -244,7 +245,8 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
             $rootScope.guiStatus.isLinkSpecUneditable = true;
             $rootScope.guiStatus.isEvaluationOpen = true;
             $rootScope.guiStatus.isEvaluationDisabled = false;
-            $rootScope.page = 1;
+//            $rootScope.page = 1;
+            $rootScope.readFromLinkStore(1);
 
             $rootScope.guiStatus.isLoading = false;
         }).error( function(data, status, headers, config) {

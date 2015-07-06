@@ -238,11 +238,10 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
         //console.log('Item: ', item, r);
         return r;
     };
-    
-    $scope.$watch("page", function(newValue, oldValue) {
-        var offset = newValue - 1;
-        //console.log("offset: " + offset + "\npage: " + $rootScope.page + "\nnew: " + newValue + "\nold: " + oldValue);
-        if(typeof linkStore != "undefined") {
+
+    $rootScope.readFromLinkStore = function (newValue) {
+    	var offset = newValue - 1;
+    	if(typeof linkStore != "undefined") {
             //debug = linkStore;
             $q.when(linkStore.links.getListService().fetchItems(null, 1, offset).then(function (entries) {
                 return entries.map(function (entry) {
@@ -266,12 +265,33 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
 
                 console.log("current link (" + $rootScope.page + " of " + $scope.TotalItems + "): " + $scope.currentlink.$$hashKey + "\n" + $scope.currentlink.id + " : " + $scope.currentEval);
             });
-
+            
             $q.when(linkStore.links.getListService().fetchCount()).then(function (countInfo) {
                 $scope.TotalItems =  countInfo.count;
-                //console.log("linkStore count=" + countInfo.count);
-            });
-        }
+                if (countInfo.count == 0) {
+                	alert("No links returned from server!");
+                	
+                	$rootScope.guiStatus.isSessionDisabled = true;
+                    $rootScope.guiStatus.isLinkSpecOpen = true;
+                    $rootScope.guiStatus.isLinkSpecDisabled = false;
+                    $rootScope.guiStatus.isLinkSpecUneditable = false;
+                    $rootScope.guiStatus.isEvaluationOpen = false;
+                    $rootScope.guiStatus.isEvaluationDisabled = true;
+                    
+                    $rootScope.page = 0;
+                }
+                    //console.log("linkStore count=" + countInfo.count);
+            	});
+    	} else {
+    		console.log("linkStore undefined!");
+    	};
+
+    };
+    
+    
+    $scope.$watch("page", function(newValue, oldValue) {
+    	console.log("watcher triggered");
+    	$rootScope.readFromLinkStore(newValue);
     });
 
     $scope.setMap = function (link) {

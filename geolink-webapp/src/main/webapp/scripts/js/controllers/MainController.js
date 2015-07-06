@@ -512,25 +512,29 @@ app.controller('AppCtrl', ['$scope', '$q', '$rootScope', '$http', '$log', '$dddi
     
     $scope.loadingMessage = "Loading...";
     
-    
+    var easteregg;
+    var messageNum = 0;
     
     $scope.$watch("guiStatus.isLoading", function(newValue, oldValue) {
-    	var messageNum = 0;
     	if (newValue) {
     		$scope.startLoad = new Date().getTime();
+    		
+    		easteregg = setInterval(function () {
+        		console.log("timer event: " + easterBunnies[messageNum]);
+        		document.getElementById('progressbar').innerHTML = easterBunnies[messageNum];
+        		if (messageNum < easterBunnies.length -1 && $scope.guiStatus.isLoading) {
+        			messageNum = messageNum + 1; 
+        		};
+        	}, 3000);
     	} else {
     		$scope.endLoad = new Date().getTime();
             $scope.loadTime = $scope.endLoad - $scope.startLoad;
             console.log("loadtime: " + $scope.loadTime  + "ms");
             $scope.loadTimes.push($scope.loadTime);
+            
+            messageNum = 0;
+            document.getElementById('progressbar').innerHTML = easterBunnies[messageNum];
+            clearInterval(easteregg);
     	}
-    	
-    	setInterval(function () {
-    		console.log("timer event: " + $scope.loadingMessage);
-    		document.getElementById('progressbar').innerHTML = easterBunnies[messageNum];
-    		if (messageNum < easterBunnies.length -1) {
-    			messageNum = messageNum + 1; 
-    		};
-    	}, 5000);
     });
 }]);

@@ -13,7 +13,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
 
         isEvaluationOpen: false,			//default: false
         isEvaluationDisabled: true,			//default: true
-        
+
         isProposedSpecOpen: false,			//default: false
 
         isMappingDisabled: false,  			//default: false
@@ -147,7 +147,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
         geo: 'http://www.w3.org/2003/01/geo/wgs84_pos#',
         owl: 'http://www.w3.org/2002/07/owl#'
     };
-    
+
     $rootScope.linkspec = {
         prefixes: angular.copy($scope.prefixes),
         sourceInfo: angular.copy($scope.servers[2].data),
@@ -155,9 +155,10 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
         //metricExpression: 'AND(trigrams(x.rdfs:label, y.rdfs:label)|0.99, euclidian(x.lat|x.long, y.lat|y.long)|0.8)',
         metricExpression: 'trigrams(x.rdfs:label, y.rdfs:label)',
         acceptanceThreshold: 0.95,
+        verificationThreshold: 0.95,
         acceptanceRelation: 'owl:sameAs'
     };
-    
+
     $rootScope.newLinkspec = angular.copy($rootScope.linkspec);
 
     $scope.selectDropdown1 = function(id) {
@@ -250,7 +251,7 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
 
             $rootScope.guiStatus.isLoading = false;
         }).error( function(data, status, headers, config) {
-        	alert("error!");
+            alert("error!");
             console.log(data);
             $rootScope.guiStatus.isLinkSpecUneditable = false;
             $rootScope.guiStatus.isLoading = false;
@@ -302,14 +303,14 @@ app.controller('guiCtrl', ['$scope', '$http', '$rootScope', '$window', function(
             $rootScope.guiStatus.isLoading = false;
         });
     });
-    
+
     $rootScope.acceptLinkSpec = function () {
-    	$rootScope.linkspec = angular.copy($rootScope.newLinkspec);
-    	$rootScope.guiStatus.isProposedSpecOpen = false;
+        $rootScope.linkspec = angular.copy($rootScope.newLinkspec);
+        $rootScope.guiStatus.isProposedSpecOpen = false;
         $rootScope.guiStatus.isLinkSpecUneditable = false;
     };
     $rootScope.rejectLinkSpec = function () {
-    	$rootScope.guiStatus.isProposedSpecOpen = false;
+        $rootScope.guiStatus.isProposedSpecOpen = false;
         $rootScope.guiStatus.isLinkSpecUneditable = false;
     };
 

@@ -29,6 +29,7 @@ geolink-webapp/geolink-webapp.iml
 geolink-webapp/target/
 
 # eclipse
+.buildpath
 .classpath
 .project
 .settings/

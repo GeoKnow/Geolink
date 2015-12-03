@@ -5,7 +5,6 @@ import java.util.Arrays;
 
 import javax.inject.Inject;
 
-import com.hp.hpl.jena.graph.Graph;
 import org.aksw.geolink.web.api.GeoGraphFactory;
 import org.aksw.geolink.web.api.VirtuosoClientObjectFactory;
 import org.aksw.jena_sparql_api.core.QueryExecutionFactory;
@@ -14,6 +13,7 @@ import org.aksw.jena_sparql_api.gson.TypeAdapterNoop;
 import org.aksw.jena_sparql_api.http.QueryExecutionFactoryHttp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
